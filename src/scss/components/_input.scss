@@ -1,0 +1,17 @@
+.input {
+  border: 2px solid lightblue;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 0.2em;
+  padding: 0.5em;
+  margin: 1em 0;
+}
+
+.invalid {
+  border: 2px solid red;
+  box-shadow: 0 0 8px 3px red;
+}
+
+::placeholder {
+  font-style: italic;
+  color: lightgray;
+}

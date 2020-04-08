@@ -1,0 +1,35 @@
+{
+  "name": "pib-manager",
+  "version": "0.1.0-1",
+  "description": "A simple interlibrary loan manager",
+  "main": "index.js",
+  "author": "Maxime Vanderwegen",
+  "license": "MIT",
+  "browserslist": "last 4 versions",
+  "scripts": {
+    "dev": "yarn sass && yarn prefix && yarn minify && yarn start",
+    "start": "node index.js",
+    "sass": "sass ./src/scss/index.scss:./src/scss/index.css --style compressed",
+    "prefix": "postcss ./src/scss/index.css --use autoprefixer -d ./src/scss/prefixed",
+    "minify": "node minify.js"
+  },
+  "dependencies": {
+    "ejs": "^3.0.1",
+    "express": "^4.17.1",
+    "http": "^0.0.1-security",
+    "ip": "^1.1.5",
+    "opn": "^6.0.0",
+    "pg": "^7.18.2",
+    "pg-native": "^3.0.0",
+    "qrcode": "^1.4.4",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^9.7.5",
+    "minify": "^5.1.1",
+    "postcss": "^7.0.27",
+    "postcss-cli": "^7.1.0",
+    "sass": "^1.26.3"
+  }
+}

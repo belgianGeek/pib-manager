@@ -1,0 +1,20 @@
+.btn {
+  padding: 0.5em;
+  border: none;
+  border-radius: 0.7em;
+  cursor: pointer;
+}
+
+.home-btn {
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 2px solid $input-border;
+  border-radius: 0.5em;
+  padding: 0.5em;
+  margin-top: 1.5em;
+
+  &:hover {
+    background-color: $input-border;
+    border: 2px solid transparent;
+    color: black;
+  }
+}
