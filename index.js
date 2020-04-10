@@ -28,6 +28,9 @@ const config = {
 const client = new Client(config);
 let newClient;
 
+// Tableau permettant de stocker les code-barres
+let unusedBarcodes = [];
+
 const createInRequestsTable = require('./modules/createInRequestsTable').createInRequestsTable;
 const createOutRequestsTable = require('./modules/createOutRequestsTable').createOutRequestsTable;
 const createReadersTable = require('./modules/createReadersTable').createReadersTable;
@@ -67,15 +70,28 @@ const createDB = (client, config, DBname) => {
     });
 }
 
-const DBquery = (query, data) => {
-  newClient.query(query, data)
-    .then(() => {
-      console.log('success');
-    })
-    .catch(err => {
-      console.log(err);
-    });
+const DBquery = (query) => {
+  return new Promise((fullfill, reject) => {
+    newClient.query(query)
+      .then(res => {
+        console.log('success');
+        fullfill(res);
+      })
+      .catch(err => {
+        console.log(err);
+        reject(err);
+      });
+  });
 }
+
+// Récupérer les code-barres inutilisés au démarrage de l'application
+unusedBarcodes = fs.readFileSync('./barcodes/unused.json', 'utf-8');
+unusedBarcodes = JSON.parse(unusedBarcodes);
+JSON.stringify(unusedBarcodes, null, 2);
+
+// Sauvegarder les code-barres toutes les 5 minutes
+const saveBarcodes = require('./modules/saveBarcodes').saveBarcodes;
+saveBarcodes(unusedBarcodes);
 
 client.connect()
   .then(() => {
@@ -103,44 +119,68 @@ app.get('/', (req, res) => {
   res.render('index.ejs');
 
   io.once('connection', io => {
-    let inventoryNb = '13609100000015';
-    qr.toString(inventoryNb, {
-        type: 'svg'
-      })
-      .then(url => {
-        io.emit('barcode', {
-          code: url,
-          number: inventoryNb
+    const updateBarcode = () => {
+      qr.toString(unusedBarcodes[0], {
+          type: 'svg'
+        })
+        .then(url => {
+          io.emit('barcode', {
+            code: url,
+            number: unusedBarcodes[0]
+          });
+        })
+        .catch(err => {
+          console.error(err);
         });
-      })
-      .catch(err => {
-        console.error(err);
-      });
+    }
+    updateBarcode();
 
     io.on('append data', data => {
       console.log(JSON.stringify(data, null, 2));
-      let query;
-
       if (data.table === 'out_requests') {
         // Si le nom de l'auteur ne contient pas de prénom
         if (!data.authorFirstName) {
-          query = `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
-          DBquery(query, data.values);
+          DBquery({
+            text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+            values: data.values
+          });
         } else {
           // Si le nom de l'auteur contient un prénom
-          query = `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, book_author_firstname, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`;
-          DBquery(query, data.values);
+          DBquery({
+            text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, book_author_firstname, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+            values: data.values
+          });
         }
       } else if (data.table === 'in_requests') {
         // Si le nom de l'auteur ne contient pas de prénom
         if (!data.authorFirstName) {
-          query = `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`;
-          DBquery(query, data.values);
+          DBquery({
+            text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+            values: data.values
+          });
+
+          if (data.email.send) {
+            DBquery({
+              text: `SELECT name, email FROM readers WHERE name ILIKE '${data.email.receiver}'`
+            })
+            .then(res => {
+              console.log(res.rows[0].email.match(/\w.+\@\w.+/gi));
+            })
+            .catch(err => {
+              console.log(JSON.stringify(err, null, 2));
+            });
+          }
         } else {
           // Si le nom de l'auteur contient un prénom
-          query = `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, book_author_firstname, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`;
-          DBquery(query, data.values);
+          DBquery({
+            text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, book_author_firstname, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+            values: data.values
+          });
         }
+
+        // On supprime le code-barres utilisé
+        unusedBarcodes.shift();
+        updateBarcode();
       }
     });
 

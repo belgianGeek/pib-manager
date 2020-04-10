@@ -3,7 +3,12 @@ $('.inRequests__form__pibInfo__requestDate').val(`${new Date().getFullYear()}-${
 let barcode = $('.inRequests__form__docInfo__inv');
 
 socket.on('barcode', data => {
-  $('.inRequests__barcode').append(data.code);
+  if ($('.inRequests__barcode svg').length) {
+    $('.inRequests__barcode svg').replaceWith(data.code);
+  } else {
+    $('.inRequests__barcode').append(data.code);
+  }
+
   barcode.val(data.number);
 });
 
@@ -69,6 +74,10 @@ $('.inRequests__form__btnContainer__submit').click(event => {
   // Nom du lecteur
   if (readerName.val() !== '') {
     data2send.values.push(readerName.val());
+    data2send.email = {
+      send: true,
+      receiver: readerName.val()
+    };
   } else {
     invalid(readerName);
   }
@@ -150,8 +159,10 @@ $('.inRequests__form__btnContainer__submit').click(event => {
     };
 
     validationErr = false;
-    data2send.values = [];
   }
+
+  // Vider les champs pour éviter des erreurs lors des prochaines requêtes
+  data2send.values = [];
 });
 
 $('.inRequests__form__btnContainer__reset').click(() => {
