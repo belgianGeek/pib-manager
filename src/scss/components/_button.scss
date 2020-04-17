@@ -3,10 +3,20 @@
   border: none;
   border-radius: 0.7em;
   cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.5);
+
+  &__green {
+    border: 2px solid $green;
+    margin-top: 1.5em;
+
+    &:hover {
+      background-color: $green;
+      color: black;
+    }
+  }
 }
 
 .home-btn {
-  background-color: rgba(0, 0, 0, 0.5);
   border: 2px solid $input-border;
   border-radius: 0.5em;
   padding: 0.5em;

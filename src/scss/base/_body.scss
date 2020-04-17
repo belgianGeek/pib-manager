@@ -86,7 +86,36 @@ body {
     align-items: center;
     flex-direction: column;
     position: absolute;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     top: 0;
+  }
+
+  .protip {
+    color: #33da2b;
+    padding: 1em;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 1em;
+    margin-top: 5em;
+  }
+
+  .notification {
+    position: absolute;
+    top: 80%;
+    right: -60vw;
+    background-color: rgba(86, 199, 82, 0.4);
+    border-radius: 0.5em;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 0.5em;
+
+    &__msg {
+      margin-left: 1em;
+    }
+  }
+
+  .notificationTranslate {
+    transform: translateX(-62vw);
+    transition: transform 10s ease-in-out;
   }
 }

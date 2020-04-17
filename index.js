@@ -74,7 +74,7 @@ const DBquery = (query) => {
   return new Promise((fullfill, reject) => {
     newClient.query(query)
       .then(res => {
-        console.log('success');
+        console.log(res);
         fullfill(res);
       })
       .catch(err => {
@@ -164,7 +164,7 @@ app.get('/', (req, res) => {
               text: `SELECT name, email FROM readers WHERE name ILIKE '${data.email.receiver}'`
             })
             .then(res => {
-              console.log(res.rows[0].email.match(/\w.+\@\w.+/gi));
+              console.log(res.rows[0].email.substring(7, 100));
             })
             .catch(err => {
               console.log(JSON.stringify(err, null, 2));
@@ -181,6 +181,27 @@ app.get('/', (req, res) => {
         // On supprime le code-barres utilisé
         unusedBarcodes.shift();
         updateBarcode();
+      }
+    });
+
+    io.on('delete data', data => {
+      if (data.table === 'in_requests') {
+        DBquery({
+          text: `DELETE FROM ${data.table} WHERE barcode = '${data.barcode}'`
+        })
+        .then(barcode => {
+          unusedBarcodes.push(data.barcode);
+          console.log(JSON.stringify(unusedBarcodes, null, 2));
+          io.emit('notification', {
+            type: 'success'
+          });
+        })
+        .catch(err => {
+          console.error(err);
+          io.emit('notification', {
+            type: 'error'
+          });
+        });
       }
     });
 

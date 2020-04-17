@@ -7,6 +7,7 @@ socket.on('barcode', data => {
     $('.inRequests__barcode svg').replaceWith(data.code);
   } else {
     $('.inRequests__barcode').append(data.code);
+    $('.inRequests__barcode svg').attr('id', 'inRequests__barcode__svg');
   }
 
   barcode.val(data.number);
@@ -34,6 +35,9 @@ $(readerName).focusout(() => {
 $(`${dataset} option`).on('click', () => {
   $(dataset).empty();
 });
+
+// Variables utilisées pour le rappel à l'étape 2
+let reminderTitle, reminderAuthor;
 
 $('.inRequests__form__btnContainer__submit').click(event => {
   event.preventDefault();
@@ -86,6 +90,7 @@ $('.inRequests__form__btnContainer__submit').click(event => {
   let title = $('.inRequests__form__docInfo__title');
   if (title.val() !== '') {
     data2send.values.push(title.val());
+    reminderTitle = title.val();
   } else {
     invalid(title);
   }
@@ -99,11 +104,12 @@ $('.inRequests__form__btnContainer__submit').click(event => {
     if (authorField.val().indexOf(',') !== -1) {
       author = authorField.val().split(',');
       data2send.values.push(author[0].toUpperCase().trim(), author[1].trim());
+      reminderAuthor = `${author[0].toUpperCase().trim()}, ${author[1].trim()}`;
 
       // On ne change pas la valeur de data2send.authorFirstName car la condition est vérifiée
     } else {
       // Sinon, il n'y a que le nom de famille
-      author = authorField.val();
+      author = reminderAuthor = authorField.val();
       data2send.values.push(author);
 
       // On change la valeur de data2send.authorFirstName car la condition est fausse
@@ -129,27 +135,33 @@ $('.inRequests__form__btnContainer__submit').click(event => {
     invalid(barcode.val());
   }
 
-  // let comment = $('.').text();
-
   // Envoi des données au serveur
   if (!validationErr) {
     $('.input').removeClass('invalid');
     $('form .warning').hide();
+
+    // Cloner le QR code pour le réutiliser à l'étape suivante
+    $('#inRequests__barcode__svg').clone().appendTo('.inRequests__step2__barcode');
+    $('.inRequests__step2__reminder__content__item__title').text(reminderTitle);
+    $('.inRequests__step2__reminder__content__item__author').text(reminderAuthor);
+
     socket.emit('append data', data2send);
 
+    $('.inRequests__form .input').not('.inRequests__form__pibInfo__requestDate, .inRequests__form__pibInfo__loanLibrary, .inRequests__form__docInfo__inv').val('');
 
-    setTimeout(() => {
-      $('.inRequests__step3')
-        .fadeOut(() => {
+    $('.inRequests__step1')
+      .fadeOut(() => {
 
-          $('.inRequests__step3')
-            .removeAttr('style')
-            .toggleClass('hidden flex');
+        $('.inRequests__step1')
+          .removeAttr('style')
+          .toggleClass('hidden flex');
+      });
 
-          $('.home').toggleClass('hidden flex');
-          $('.header__icon, .header__msg').toggleClass('hidden');
-        })
-    }, 5000);
+    $(`.inRequests__step2`)
+      .fadeIn()
+      .removeAttr('style')
+      .removeClass('translateXonwards hidden')
+      .toggleClass('fixed flex');
   } else {
     if (!$('form .warning').length) {
       let warning = $('<span></span>')
@@ -170,4 +182,22 @@ $('.inRequests__form__btnContainer__reset').click(() => {
   $('form .warning').hide();
   validationErr = false;
   data2send.values = [];
+});
+
+$('.inRequests__step3__confirmation').click(() => {
+  confirmation();
+
+  setTimeout(() => {
+    $('.inRequests__step3')
+      .fadeOut(() => {
+        confirmation();
+
+        $('.inRequests__step3')
+          .removeAttr('style')
+          .toggleClass('hidden flex');
+
+        $('.home').toggleClass('hidden flex');
+        $('.header__icon, .header__msg').toggleClass('hidden');
+      })
+  }, 5000);
 });

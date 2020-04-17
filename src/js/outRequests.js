@@ -87,8 +87,6 @@ $('.outRequests__form__btnContainer__submit').click(event => {
   let outProvince = $('.outRequests__form__pibInfo__outProvince').is(':checked');
   data2send.values.push(outProvince);
 
-  // let comment = $('.').text();
-
   // Envoi des données au serveur
   if (!validationErr) {
     $('.input').removeClass('invalid');
@@ -96,6 +94,8 @@ $('.outRequests__form__btnContainer__submit').click(event => {
     socket.emit('append data', data2send);
 
     confirmation();
+
+    $('.outRequests__form .input').not('.outRequests__form__pibInfo__requestDate, .outRequests__form__pibInfo__loanLibrary').val('');
 
     setTimeout(() => {
       $('.outRequests__step3')

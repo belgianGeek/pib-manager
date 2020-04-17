@@ -10,8 +10,7 @@ exports.createOutRequestsTable = function(client) {
     'cdu TEXT,' +
     'out_province BOOLEAN,' +
     'date_arrival DATE,' +
-    'return_date DATE,' +
-    'comment TEXT)', (err, res) => {
+    'return_date DATE)', (err, res) => {
       if (err) {
         console.error(`Error creating out_requests table : ${JSON.stringify(err, null, 2)}`);
       } else {

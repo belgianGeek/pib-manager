@@ -1,0 +1,6 @@
+.inReturns {
+  &__step1,
+  &__step2 {
+    @include simple-step();
+  }
+}

@@ -7,6 +7,42 @@
     height: 50%;
   }
 
+  &__step2,
+  &__step3 {
+    @include simple-step();
+  }
+
+  &__step2 {
+    &__barcode {
+      width: 50%;
+      margin-left: 2em;
+
+      svg {
+        height: 50%;
+      }
+    }
+
+    &__reminder {
+      width: 80%;
+      height: 100%;
+      margin-top: 2em;
+      flex-direction: row;
+      font-size: 1.1em;
+
+      &__content {
+        width: 50%;
+        height: 100%;
+        flex-direction: column;
+
+        &__item {
+          display: flex;
+          justify-content: space-between;
+          flex-direction: row;
+        }
+      }
+    }
+  }
+
   &__title {
     text-decoration: underline;
     font-size: 1.3em;

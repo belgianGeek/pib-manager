@@ -80,18 +80,58 @@
         </span>
         <span class="inRequests__form__btnContainer flex">
           <button class="inRequests__form__btnContainer__reset btn" type="reset" name="button">Effacer les champs</button>
-          <button class="inRequests__form__btnContainer__submit btn" type="submit" name="button">Valider</button>
+          <button class="inRequests__form__btnContainer__submit inRequests__step1__btn btn" type="submit" name="button">Valider</button>
         </span>
       </form>
       <span class="inRequests__barcode flex"></span>
-      <!-- <h2 class="inRequests__step1__title title">Encoder le document dans le module <i>PIB</i> d'AdLib</h2>
-      <button class="inRequests__step1__btn btn home-btn" type="button" name="step1">C'est fait !</button> -->
+    </section>
+    <section class="inRequests__step2 hidden">
+      <h2 class="inRequests__step2__title title">Encoder le document dans le module <i>PIB</i> d'AdLib</h2>
+      <button class="inRequests__step2__btn btn home-btn" type="button" name="step1">C'est fait !</button>
+      <span class="inRequests__step2__reminder flex">
+        <section class="inRequests__step2__reminder__content flex">
+          <h3 class="inRequests__step2__reminder__content__title title">Informations du document</h3>
+          <span class="inRequests__step2__reminder__content__item flex">
+            <p class="inRequests__step2__reminder__content__item__label">Titre</p>
+            <p class="inRequests__step2__reminder__content__item__title"></p>
+          </span>
+          <span class="inRequests__step2__reminder__content__item flex">
+            <p class="inRequests__step2__reminder__content__item__label">Auteur</p>
+            <p class="inRequests__step2__reminder__content__item__author"></p>
+          </span>
+        </section>
+        <section class="inRequests__step2__barcode">
+          <h3 class="inRequests__step2__reminder__content__title title">N° d'inventaire</h3>
+        </section>
+      </span>
+    </section>
+    <section class="inRequests__step3 hidden">
+      <h2 class="inRequests__step3__title title">Faire la demande via Samarcande</h2>
+      <button class="inRequests__step3__btn btn home-btn" type="button" name="step3">Direction Samarcande !</button>
+      <button class="inRequests__step3__confirmation btn btn__green" type="button" name="step3_confirmation">C'est fait !</button>
+    </section>
+    <section class="inReturns__step1 hidden">
+      <h2 class="inReturns__step1__title title">Effectuer le retour dans Adlib</h2>
+      <button class="inReturns__step1__btn btn home-btn" type="button" name="step1">C'est fait !</button>
+      <p class="protip">Les amendes dues par les autres bibliothèques ne sont jamais prises en compte 😉</p>
+    </section>
+    <section class="inReturns__step2 hidden">
+      <h2 class="inReturns__step2__title title">Effectuer le retour dans PIB Manager</h2>
+      <input class="inReturns__step2__input input" type="text" placeholder="Numéro d'exemplaire...">
+      <button class="inReturns__step2__btn btn home-btn" type="submit" name="button">Valider</button>
+      <button class="inReturns__step2__confirmation btn btn__green" type="button" name="step2_confirmation">J'ai terminé !</button>
     </section>
   </div>
   <div class="confirmation hidden">
     <span class="confirmation__msg">La demande a bien été enregistrée 😉</span>
     <span class="confirmation__comment">Retour au menu principal dans 5 secondes</span>
   </div>
+  <span class="notification hidden">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="50" height="50">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <p class="notification__msg"></p>
+  </span>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js" charset="utf-8" type="application/javascript"></script>
   <script src="/socket.io/socket.io.js" type="application/javascript"></script>
   <script src="/src/js/app.min.js" charset="utf-8" type="application/javascript"></script>
