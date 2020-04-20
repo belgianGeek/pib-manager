@@ -31,6 +31,7 @@
     <section class="outRequests__step2 hidden">
       <h2 class="outRequests__step2__title title">Faire la demande via Samarcande</h2>
       <button class="outRequests__step2__btn btn home-btn" type="button" name="step2">Direction Samarcande !</button>
+      <button class="outRequests__step2__confirmation btn btn__green" type="button" name="step2_confirmation">C'est fait !</button>
     </section>
     <section class="outRequests outRequests__step3 hidden">
       <form class="outRequests__form flex" action="/" method="post">
@@ -99,6 +100,10 @@
             <p class="inRequests__step2__reminder__content__item__label">Auteur</p>
             <p class="inRequests__step2__reminder__content__item__author"></p>
           </span>
+          <span class="inRequests__step2__reminder__content__item flex">
+            <p class="inRequests__step2__reminder__content__item__label">N° d'inventaire</p>
+            <p class="inRequests__step2__reminder__content__item__inv"></p>
+          </span>
         </section>
         <section class="inRequests__step2__barcode">
           <h3 class="inRequests__step2__reminder__content__title title">N° d'inventaire</h3>
@@ -123,13 +128,14 @@
     </section>
   </div>
   <div class="confirmation hidden">
-    <span class="confirmation__msg">La demande a bien été enregistrée 😉</span>
-    <span class="confirmation__comment">Retour au menu principal dans 5 secondes</span>
+    <div class="confirmation__body flex">
+      <span class="confirmation__body__msg">La demande a bien été enregistrée 😉</span>
+      <span class="confirmation__body__comment">Retour au menu principal dans 5 secondes</span>
+      <span class="confirmation__body__cancel">J'ai oublié quelque-chose 😱 !</span>
+    </div>
   </div>
   <span class="notification hidden">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="50" height="50">
-      <polyline points="20 6 9 17 4 12"></polyline>
-    </svg>
+    <img class="notification__icon" src="./src/scss/icons/thumbs-up.svg" alt="Notification icon">
     <p class="notification__msg"></p>
   </span>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js" charset="utf-8" type="application/javascript"></script>

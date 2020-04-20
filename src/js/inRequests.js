@@ -1,10 +1,12 @@
 $('.inRequests__form__pibInfo__requestDate').val(`${new Date().getFullYear()}-${month}-${day}`);
 
 let barcode = $('.inRequests__form__docInfo__inv');
+let inRequestsTimeOut;
 
 socket.on('barcode', data => {
-  if ($('.inRequests__barcode svg').length) {
-    $('.inRequests__barcode svg').replaceWith(data.code);
+  if ($('#inRequests__barcode__svg').length) {
+    $('#inRequests__barcode__svg').replaceWith(data.code);
+    $('.inRequests__barcode svg').attr('id', 'inRequests__barcode__svg');
   } else {
     $('.inRequests__barcode').append(data.code);
     $('.inRequests__barcode svg').attr('id', 'inRequests__barcode__svg');
@@ -22,9 +24,12 @@ readerName.keyup(() => {
 
 socket.on('readers retrieved', readers => {
   for (const reader of readers) {
-    let option = $('<option></option')
-      .append(reader.name)
-      .appendTo(dataset);
+    if (!$(`${dataset} .${reader.name}`).length) {
+      let option = $('<option></option')
+        .addClass(reader.name)
+        .append(reader.name)
+        .appendTo(dataset);
+    }
   }
 });
 
@@ -38,6 +43,7 @@ $(`${dataset} option`).on('click', () => {
 
 // Variables utilisées pour le rappel à l'étape 2
 let reminderTitle, reminderAuthor;
+let reminderInv = $('.inRequests__form__docInfo__inv').val();
 
 $('.inRequests__form__btnContainer__submit').click(event => {
   event.preventDefault();
@@ -135,7 +141,6 @@ $('.inRequests__form__btnContainer__submit').click(event => {
     invalid(barcode.val());
   }
 
-  // Envoi des données au serveur
   if (!validationErr) {
     $('.input').removeClass('invalid');
     $('form .warning').hide();
@@ -144,14 +149,10 @@ $('.inRequests__form__btnContainer__submit').click(event => {
     $('#inRequests__barcode__svg').clone().appendTo('.inRequests__step2__barcode');
     $('.inRequests__step2__reminder__content__item__title').text(reminderTitle);
     $('.inRequests__step2__reminder__content__item__author').text(reminderAuthor);
-
-    socket.emit('append data', data2send);
-
-    $('.inRequests__form .input').not('.inRequests__form__pibInfo__requestDate, .inRequests__form__pibInfo__loanLibrary, .inRequests__form__docInfo__inv').val('');
+    $('.inRequests__step2__reminder__content__item__inv').text(reminderInv);
 
     $('.inRequests__step1')
       .fadeOut(() => {
-
         $('.inRequests__step1')
           .removeAttr('style')
           .toggleClass('hidden flex');
@@ -160,7 +161,7 @@ $('.inRequests__form__btnContainer__submit').click(event => {
     $(`.inRequests__step2`)
       .fadeIn()
       .removeAttr('style')
-      .removeClass('translateXonwards hidden')
+      .removeClass('translateXonwards translateXbackwards hidden')
       .toggleClass('fixed flex');
   } else {
     if (!$('form .warning').length) {
@@ -187,10 +188,15 @@ $('.inRequests__form__btnContainer__reset').click(() => {
 $('.inRequests__step3__confirmation').click(() => {
   confirmation();
 
-  setTimeout(() => {
+  inRequestsTimeOut = setTimeout(() => {
     $('.inRequests__step3')
       .fadeOut(() => {
         confirmation();
+
+        // Suppression du code-barres inventaire précédent
+        $('.inRequests__step2__barcode #inRequests__barcode__svg').remove();
+
+        $('.inRequests__form .input').not('.inRequests__form__pibInfo__requestDate, .inRequests__form__pibInfo__loanLibrary, .inRequests__form__docInfo__inv').val('');
 
         $('.inRequests__step3')
           .removeAttr('style')
@@ -198,6 +204,23 @@ $('.inRequests__step3__confirmation').click(() => {
 
         $('.home').toggleClass('hidden flex');
         $('.header__icon, .header__msg').toggleClass('hidden');
-      })
+
+        // Envoi des données au serveur
+        socket.emit('append data', data2send);
+      });
   }, 5000);
+});
+
+$('.confirmation__body__cancel').click(() => {
+  $('.confirmation')
+    .fadeOut(function() {
+      $(this)
+        .addClass('hidden')
+        .removeClass('flex')
+        .removeAttr('style');
+
+      $('.wrapper, .header').removeClass('blur');
+
+      clearTimeout(inRequestsTimeOut);
+    });
 });

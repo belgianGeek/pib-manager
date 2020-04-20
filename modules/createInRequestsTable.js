@@ -1,4 +1,4 @@
-exports.createInRequestsTable = function(client) {
+module.exports = function createInRequestsTable(client) {
   client.query('CREATE TABLE IF NOT EXISTS in_requests (' +
     'pib_number INT,' +
     'borrowing_library TEXT,' +

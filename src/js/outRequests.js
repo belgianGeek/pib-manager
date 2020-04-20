@@ -1,12 +1,9 @@
-const confirmation = () => {
-  $('.confirmation').toggleClass('hidden flex');
-  $('.wrapper, .header').toggleClass('blur');
-}
-
 const invalid = (element) => {
   element.addClass('invalid');
   validationErr = true;
 }
+
+let outRequestsTimeOut = '';
 
 $('.outRequests__form__pibInfo__requestDate').val(`${new Date().getFullYear()}-${month}-${day}`);
 
@@ -87,17 +84,13 @@ $('.outRequests__form__btnContainer__submit').click(event => {
   let outProvince = $('.outRequests__form__pibInfo__outProvince').is(':checked');
   data2send.values.push(outProvince);
 
-  // Envoi des données au serveur
   if (!validationErr) {
     $('.input').removeClass('invalid');
     $('form .warning').hide();
-    socket.emit('append data', data2send);
 
     confirmation();
 
-    $('.outRequests__form .input').not('.outRequests__form__pibInfo__requestDate, .outRequests__form__pibInfo__loanLibrary').val('');
-
-    setTimeout(() => {
+    outRequestsTimeOut = setTimeout(() => {
       $('.outRequests__step3')
         .fadeOut(() => {
           confirmation();
@@ -108,7 +101,10 @@ $('.outRequests__form__btnContainer__submit').click(event => {
 
           $('.home').toggleClass('hidden flex');
           $('.header__icon, .header__msg').toggleClass('hidden');
-        })
+        });
+
+      $('.outRequests__form .input').not('.outRequests__form__pibInfo__requestDate, .outRequests__form__pibInfo__loanLibrary').val('');
+      socket.emit('append data', data2send);
     }, 5000);
   } else {
     if (!$('form .warning').length) {
@@ -128,4 +124,18 @@ $('.outRequests__form__btnContainer__reset').click(() => {
   $('form .warning').hide();
   validationErr = false;
   data2send.values = [];
+});
+
+$('.confirmation__body__cancel').click(() => {
+  $('.confirmation')
+    .fadeOut(function() {
+      $(this)
+        .addClass('hidden')
+        .removeClass('flex')
+        .removeAttr('style');
+
+      $('.wrapper, .header').removeClass('blur');
+
+      clearTimeout(outRequestsTimeOut);
+    });
 });

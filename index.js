@@ -31,9 +31,11 @@ let newClient;
 // Tableau permettant de stocker les code-barres
 let unusedBarcodes = [];
 
-const createInRequestsTable = require('./modules/createInRequestsTable').createInRequestsTable;
-const createOutRequestsTable = require('./modules/createOutRequestsTable').createOutRequestsTable;
-const createReadersTable = require('./modules/createReadersTable').createReadersTable;
+const createInRequestsTable = require('./modules/createInRequestsTable');
+const createOutRequestsTable = require('./modules/createOutRequestsTable');
+const createReadersTable = require('./modules/createReadersTable');
+const sendSuccessNotification = require('./modules/sendSuccessNotification');
+const sendErrorNotification = require('./modules/sendErrorNotification');
 const createDB = (client, config, DBname) => {
   const reconnect = (client, config) => {
     client.end();
@@ -90,7 +92,7 @@ unusedBarcodes = JSON.parse(unusedBarcodes);
 JSON.stringify(unusedBarcodes, null, 2);
 
 // Sauvegarder les code-barres toutes les 5 minutes
-const saveBarcodes = require('./modules/saveBarcodes').saveBarcodes;
+const saveBarcodes = require('./modules/saveBarcodes');
 saveBarcodes(unusedBarcodes);
 
 client.connect()
@@ -141,8 +143,15 @@ app.get('/', (req, res) => {
         // Si le nom de l'auteur ne contient pas de prénom
         if (!data.authorFirstName) {
           DBquery({
-            text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+            text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, book_title, book_author_name, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8)`,
             values: data.values
+          })
+          .then(() => {
+            sendSuccessNotification(io);
+          })
+          .catch(err => {
+            console.log(err);
+            sendErrorNotification(io);
           });
         } else {
           // Si le nom de l'auteur contient un prénom
@@ -150,6 +159,8 @@ app.get('/', (req, res) => {
             text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, book_author_firstname, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
             values: data.values
           });
+
+          sendSuccessNotification(io);
         }
       } else if (data.table === 'in_requests') {
         // Si le nom de l'auteur ne contient pas de prénom
@@ -178,6 +189,8 @@ app.get('/', (req, res) => {
           });
         }
 
+        sendSuccessNotification(io);
+
         // On supprime le code-barres utilisé
         unusedBarcodes.shift();
         updateBarcode();
@@ -191,10 +204,7 @@ app.get('/', (req, res) => {
         })
         .then(barcode => {
           unusedBarcodes.push(data.barcode);
-          console.log(JSON.stringify(unusedBarcodes, null, 2));
-          io.emit('notification', {
-            type: 'success'
-          });
+          sendSuccessNotification(io);
         })
         .catch(err => {
           console.error(err);
@@ -209,7 +219,6 @@ app.get('/', (req, res) => {
       if (name.length >= 3) {
         newClient.query(`SELECT name FROM readers WHERE name ILIKE '${name}%'`)
           .then(res => {
-            console.log(res.rows);
             io.emit('readers retrieved', res.rows);
           })
           .catch(err => {

@@ -1,4 +1,4 @@
-exports.createReadersTable = function(client) {
+ const createReadersTable = client => {
   client.query('CREATE TABLE IF NOT EXISTS readers (' +
     'name TEXT,' +
     'email TEXT,' +
@@ -10,3 +10,5 @@ exports.createReadersTable = function(client) {
       }
     });
 }
+
+module.exports = createReadersTable;

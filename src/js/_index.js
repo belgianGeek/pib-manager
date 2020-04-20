@@ -23,12 +23,8 @@ if (new Date().getMonth() < '10') {
   month = new Date().getMonth() + 1;
 }
 
-const handleSimpleStep = (element, step1, step2) => {
-  $(`${element}__${step1}__btn`).click(() => {
-    if (element === '.outRequests' && step1 === 'step2') {
-      window.open('https://www.samarcande-bibliotheques.be/pro/');
-    }
-
+const handleSimpleStep = (element, step1, step2, btn) => {
+  $(`${element}__${step1}__${btn}`).click(() => {
     if (!validationErr) {
       $(`${element}__${step1}`).toggleClass('translateXbackwards hidden flex');
       setTimeout(() => {
@@ -42,12 +38,12 @@ const handleSimpleStep = (element, step1, step2) => {
   });
 }
 
-handleSimpleStep('.inRequests', 'step2', 'step3');
-handleSimpleStep('.outRequests', 'step1', 'step2');
-handleSimpleStep('.outRequests', 'step2', 'step3');
-handleSimpleStep('.inReturns', 'step1', 'step2');
+handleSimpleStep('.inRequests', 'step2', 'step3', 'btn');
+handleSimpleStep('.outRequests', 'step1', 'step2', 'btn');
+handleSimpleStep('.outRequests', 'step2', 'step3', 'confirmation');
+handleSimpleStep('.inReturns', 'step1', 'step2', 'btn');
 
-$('.inRequests__step3__btn').click(() => {
+$('.inRequests__step3__btn, .outRequests__step2__btn').click(() => {
   window.open('https://www.samarcande-bibliotheques.be/pro/');
 });
 

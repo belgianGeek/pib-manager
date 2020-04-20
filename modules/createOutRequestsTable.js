@@ -1,4 +1,4 @@
-exports.createOutRequestsTable = function(client) {
+const createOutRequestsTable = client => {
   client.query('CREATE TABLE IF NOT EXISTS out_requests (' +
     'pib_number INT,' +
     'borrowing_library TEXT,' +
@@ -18,3 +18,5 @@ exports.createOutRequestsTable = function(client) {
       }
     });
 }
+
+module.exports = createOutRequestsTable;
