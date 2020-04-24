@@ -18,41 +18,41 @@
       <h1 class="home__mainTitle">Bienvenue dans PIB Manager</h1>
       <h2 class="home__title title">Que veux-tu faire ?</h2>
       <span class="home__btnContainer flex">
-        <button class="home__btnContainer__outRequests btn home-btn">Demande sortante</button>
-        <button class="home__btnContainer__inRequests btn home-btn">Demande entrante</button>
-        <button class="home__btnContainer__inReturns btn home-btn">Retour interne</button>
-        <button class="home__btnContainer__outReturns btn home-btn">Retour externe</button>
+        <button class="home__btnContainer__outRequests btn home-btn">Perwez prête</button>
+        <button class="home__btnContainer__inRequests btn home-btn">Perwez emprunte</button>
+        <button class="home__btnContainer__inReturns btn home-btn">Retour vers une autre bibliothèque</button>
+        <button class="home__btnContainer__outReturns btn home-btn">Retour vers Perwez</button>
       </span>
     </section>
     <section class="outRequests__step1 hidden">
       <h2 class="outRequests__step1__title title">Vérifier si le document est disponible dans le réseau via Adlib</h2>
-      <button class="outRequests__step1__btn btn home-btn" type="button" name="step1">C'est fait !</button>
+      <button class="outRequests__step1__btn btn home-btn" type="button">C'est fait !</button>
     </section>
     <section class="outRequests__step2 hidden">
       <h2 class="outRequests__step2__title title">Faire la demande via Samarcande</h2>
-      <button class="outRequests__step2__btn btn home-btn" type="button" name="step2">Direction Samarcande !</button>
-      <button class="outRequests__step2__confirmation btn btn__green" type="button" name="step2_confirmation">C'est fait !</button>
+      <button class="outRequests__step2__btn btn home-btn" type="button">Direction Samarcande !</button>
+      <button class="outRequests__step2__confirmation btn btn__green" type="button">C'est fait !</button>
     </section>
     <section class="outRequests outRequests__step3 hidden">
       <form class="outRequests__form flex" action="/" method="post">
         <h2 class="title">Informations PIB</h2>
         <span class="outRequests__form__pibInfo flex">
-          <input class="outRequests__form__pibInfo__pibNb input" name="pibNb" type="number" placeholder="Numéro PIB..." minlength="6" maxlength="6" required="true">
-          <input class="outRequests__form__pibInfo__borrowingLibrary input" name="borrowingLibrary" type="text" placeholder="Bibliothèque emprunteuse..." required="true">
-          <input class="outRequests__form__pibInfo__loanLibrary input" name="loanLibrary" type="text" placeholder="Bibliothèque d'origine..." value="Perwez" required="true">
-          <input class="outRequests__form__pibInfo__requestDate input" name="requestDate" type="date" required="true">
+          <input class="outRequests__form__pibInfo__pibNb input" type="number" placeholder="Numéro PIB..." minlength="6" maxlength="6" required="true">
+          <input class="outRequests__form__pibInfo__borrowingLibrary input" type="text" placeholder="Bibliothèque emprunteuse..." required="true">
+          <input class="outRequests__form__pibInfo__loanLibrary input" type="text" placeholder="Bibliothèque d'origine..." value="Perwez" required="true">
+          <input class="outRequests__form__pibInfo__requestDate input" type="date" required="true">
           <label for="isOutProvince">Hors-Province ?</label>
-          <input class="outRequests__form__pibInfo__outProvince input" name="outProvince" type="checkbox" name="isOutProvince">
+          <input class="outRequests__form__pibInfo__outProvince input" type="checkbox" name="isOutProvince">
         </span>
         <h2 class="title">Informations du document</h2>
         <span class="outRequests__form__docInfo flex">
-          <input class="outRequests__form__docInfo__title input" name="title" type="text" placeholder="Titre du document..." required="true">
-          <input class="outRequests__form__docInfo__author input" name="author" type="text" placeholder="Auteur du document..." required="true">
-          <input class="outRequests__form__docInfo__cdu input" name="cdu" type="text" placeholder="CDU..." required="true">
+          <input class="outRequests__form__docInfo__title input" type="text" placeholder="Titre du document..." required="true">
+          <input class="outRequests__form__docInfo__author input" type="text" placeholder="Auteur du document..." required="true">
+          <input class="outRequests__form__docInfo__cdu input" type="text" placeholder="CDU..." required="true">
         </span>
         <span class="outRequests__form__btnContainer flex">
-          <button class="outRequests__form__btnContainer__reset btn" type="reset" name="button">Effacer les champs</button>
-          <button class="outRequests__form__btnContainer__submit btn" type="submit" name="button">Valider</button>
+          <button class="outRequests__form__btnContainer__reset btn" type="reset">Effacer les champs</button>
+          <button class="outRequests__form__btnContainer__submit btn" type="submit">Valider</button>
         </span>
       </form>
     </section>
@@ -60,35 +60,35 @@
       <form class="inRequests__form flex" action="/" method="post">
         <h2 class="title">Informations PIB</h2>
         <span class="inRequests__form__pibInfo flex">
-          <input class="inRequests__form__pibInfo__pibNb input" name="pibNb" type="number" placeholder="Numéro PIB..." minlength="6" maxlength="6" required="true">
-          <input class="inRequests__form__pibInfo__borrowingLibrary input" name="borrowingLibrary" type="text" placeholder="Bibliothèque emprunteuse..." required="true">
-          <input class="inRequests__form__pibInfo__loanLibrary input" name="loanLibrary" type="text" placeholder="Bibliothèque d'origine..." value="Perwez" required="true">
-          <input class="inRequests__form__pibInfo__requestDate input" name="requestDate" type="date" required="true">
+          <input class="inRequests__form__pibInfo__pibNb input" type="number" placeholder="Numéro PIB..." minlength="6" maxlength="6" required="true">
+          <input class="inRequests__form__pibInfo__borrowingLibrary input" type="text" placeholder="Bibliothèque emprunteuse..." required="true">
+          <input class="inRequests__form__pibInfo__loanLibrary input" type="text" placeholder="Bibliothèque d'origine..." value="Perwez" required="true">
+          <input class="inRequests__form__pibInfo__requestDate input" type="date" required="true">
           <label for="isOutProvince">Hors-Province ?</label>
-          <input class="inRequests__form__pibInfo__outProvince input" name="outProvince" type="checkbox" name="isOutProvince">
+          <input class="inRequests__form__pibInfo__outProvince input" type="checkbox" name="isOutProvince">
         </span>
         <h2 class="title">Informations du lecteur</h2>
         <span class="inRequests__form__readerInfo flex">
-          <input class="inRequests__form__readerInfo__name input" list="inRequests__form__readerInfo__dataset" name="readerName" type="text" placeholder="Nom du lecteur..." required="true">
+          <input class="inRequests__form__readerInfo__name input" list="inRequests__form__readerInfo__dataset" type="text" placeholder="Nom du lecteur..." required="true">
           <datalist id="inRequests__form__readerInfo__dataset"></datalist>
         </span>
         <h2 class="title">Informations du document</h2>
         <span class="inRequests__form__docInfo flex">
-          <input class="inRequests__form__docInfo__title input" name="title" type="text" placeholder="Titre du document..." required="true">
-          <input class="inRequests__form__docInfo__author input" name="author" type="text" placeholder="Auteur du document..." required="true">
-          <input class="inRequests__form__docInfo__cdu input" name="cdu" type="text" placeholder="CDU..." required="true">
-          <input class="inRequests__form__docInfo__inv input" name="inventoryNb" type="text" placeholder="N° d'inventaire..." required="true">
+          <input class="inRequests__form__docInfo__title input" type="text" placeholder="Titre du document..." required="true">
+          <input class="inRequests__form__docInfo__author input" type="text" placeholder="Auteur du document..." required="true">
+          <input class="inRequests__form__docInfo__cdu input" type="text" placeholder="CDU..." required="true">
+          <input class="inRequests__form__docInfo__inv input" type="text" placeholder="N° d'inventaire..." required="true">
         </span>
         <span class="inRequests__form__btnContainer flex">
-          <button class="inRequests__form__btnContainer__reset btn" type="reset" name="button">Effacer les champs</button>
-          <button class="inRequests__form__btnContainer__submit inRequests__step1__btn btn" type="submit" name="button">Valider</button>
+          <button class="inRequests__form__btnContainer__reset btn" type="reset">Effacer les champs</button>
+          <button class="inRequests__form__btnContainer__submit inRequests__step1__btn btn" type="submit">Valider</button>
         </span>
       </form>
       <span class="inRequests__barcode flex"></span>
     </section>
     <section class="inRequests__step2 hidden">
       <h2 class="inRequests__step2__title title">Encoder le document dans le module <i>PIB</i> d'AdLib</h2>
-      <button class="inRequests__step2__btn btn home-btn" type="button" name="step1">C'est fait !</button>
+      <button class="inRequests__step2__btn btn home-btn" type="button">C'est fait !</button>
       <span class="inRequests__step2__reminder flex">
         <section class="inRequests__step2__reminder__content flex">
           <h3 class="inRequests__step2__reminder__content__title title">Informations du document</h3>
@@ -112,19 +112,40 @@
     </section>
     <section class="inRequests__step3 hidden">
       <h2 class="inRequests__step3__title title">Faire la demande via Samarcande</h2>
-      <button class="inRequests__step3__btn btn home-btn" type="button" name="step3">Direction Samarcande !</button>
-      <button class="inRequests__step3__confirmation btn btn__green" type="button" name="step3_confirmation">C'est fait !</button>
+      <button class="inRequests__step3__btn btn home-btn" type="button">Direction Samarcande !</button>
+      <button class="inRequests__step3__confirmation btn btn__green" type="button">C'est fait !</button>
     </section>
     <section class="inReturns__step1 hidden">
       <h2 class="inReturns__step1__title title">Effectuer le retour dans Adlib</h2>
-      <button class="inReturns__step1__btn btn home-btn" type="button" name="step1">C'est fait !</button>
-      <p class="protip">Les amendes dues par les autres bibliothèques ne sont jamais prises en compte 😉</p>
+      <button class="inReturns__step1__btn btn home-btn" type="button">C'est fait !</button>
+      <p class="protip">Modifier le statut de l'exemplaire en indiquant <i>mise au retrait (retour bibliothèque)</i> 😉</p>
     </section>
     <section class="inReturns__step2 hidden">
-      <h2 class="inReturns__step2__title title">Effectuer le retour dans PIB Manager</h2>
-      <input class="inReturns__step2__input input" type="text" placeholder="Numéro d'exemplaire...">
-      <button class="inReturns__step2__btn btn home-btn" type="submit" name="button">Valider</button>
-      <button class="inReturns__step2__confirmation btn btn__green" type="button" name="step2_confirmation">J'ai terminé !</button>
+      <h2 class="inReturns__step2__title title">Effectuer le retour dans Samarcande</h2>
+      <button class="inReturns__step2__btn btn home-btn" type="button">Direction Samarcande !</button>
+      <button class="inReturns__step2__confirmation btn btn__green" type="button">C'est fait !</button>
+    </section>
+    <section class="inReturns__step3 hidden">
+      <h2 class="inReturns__step3__title title">Effectuer le retour dans PIB Manager</h2>
+      <input class="inReturns__step3__input input" type="text" placeholder="Numéro d'exemplaire...">
+      <button class="inReturns__step3__btn btn home-btn" type="submit">Valider</button>
+      <button class="inReturns__step3__confirmation btn btn__green" type="button">J'ai terminé !</button>
+    </section>
+    <section class="outReturns__step1 hidden">
+      <h2 class="outReturns__step1__title title">Effectuer le retour dans Adlib</h2>
+      <button class="outReturns__step1__btn btn home-btn" type="button">C'est fait !</button>
+      <p class="protip">Les amendes dues par les autres bibliothèques ne sont jamais prises en compte 😉</p>
+    </section>
+    <section class="outReturns__step2 hidden">
+      <h2 class="outReturns__step2__title title">Effectuer le retour dans Samarcande</h2>
+      <button class="outReturns__step2__btn btn home-btn" type="button">Direction Samarcande !</button>
+      <button class="outReturns__step2__confirmation btn btn__green" type="button">C'est fait !</button>
+    </section>
+    <section class="outReturns__step3 hidden">
+      <h2 class="outReturns__step3__title title">Effectuer le retour dans PIB Manager</h2>
+      <input class="outReturns__step3__input input" type="text" placeholder="Numéro PIB...">
+      <button class="outReturns__step3__btn btn home-btn" type="submit">Valider</button>
+      <button class="outReturns__step3__confirmation btn btn__green" type="button">J'ai terminé !</button>
     </section>
   </div>
   <div class="confirmation hidden">

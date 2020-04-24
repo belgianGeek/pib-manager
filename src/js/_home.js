@@ -24,3 +24,4 @@ const handleHomeBtnClick = (element) => {
 handleHomeBtnClick('outRequests');
 handleHomeBtnClick('inRequests');
 handleHomeBtnClick('inReturns');
+handleHomeBtnClick('outReturns');

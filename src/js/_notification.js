@@ -1,11 +1,11 @@
 socket.on('notification', notification => {
   if (notification.type === 'success') {
     $('.notification__icon').attr('src', './src/scss/icons/thumbs-up.svg');
-    $('.notification').toggleClass('notificationSuccess');
+    $('.notification').addClass('notificationSuccess');
     $('.notification__msg').text('Changements enregistrés avec succès ! 😉');
   } else if (notification.type === 'error') {
     $('.notification__icon').attr('src', './src/scss/icons/error.svg');
-    $('.notification').toggleClass('notificationFailure');
+    $('.notification').addClass('notificationFailure');
     $('.notification__msg').text('Une erreur s\'est produite... 😱');
   }
 
@@ -16,7 +16,8 @@ socket.on('notification', notification => {
       .fadeOut(() => {
         $('.notification')
           .removeAttr('style')
+          .removeClass('notificationSuccess notificationFailure')
           .toggleClass('flex hidden notificationTranslate');
       });
-  }, 2000);
+  }, 5000);
 });

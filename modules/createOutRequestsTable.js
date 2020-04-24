@@ -8,9 +8,7 @@ const createOutRequestsTable = client => {
     'book_author_firstname TEXT,' +
     'book_author_name TEXT,' +
     'cdu TEXT,' +
-    'out_province BOOLEAN,' +
-    'date_arrival DATE,' +
-    'return_date DATE)', (err, res) => {
+    'out_province BOOLEAN)', (err, res) => {
       if (err) {
         console.error(`Error creating out_requests table : ${JSON.stringify(err, null, 2)}`);
       } else {

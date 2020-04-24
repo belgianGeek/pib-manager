@@ -72,14 +72,16 @@ const createDB = (client, config, DBname) => {
     });
 }
 
-const DBquery = (query) => {
+const DBquery = (io, query) => {
   return new Promise((fullfill, reject) => {
     newClient.query(query)
       .then(res => {
+        sendSuccessNotification(io);
         console.log(res);
         fullfill(res);
       })
       .catch(err => {
+        sendErrorNotification(io);
         console.log(err);
         reject(err);
       });
@@ -142,36 +144,27 @@ app.get('/', (req, res) => {
       if (data.table === 'out_requests') {
         // Si le nom de l'auteur ne contient pas de prénom
         if (!data.authorFirstName) {
-          DBquery({
+          DBquery(io, {
             text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, book_title, book_author_name, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8)`,
             values: data.values
-          })
-          .then(() => {
-            sendSuccessNotification(io);
-          })
-          .catch(err => {
-            console.log(err);
-            sendErrorNotification(io);
           });
         } else {
           // Si le nom de l'auteur contient un prénom
-          DBquery({
-            text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, book_author_firstname, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+          DBquery(io, {
+            text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, book_title, book_author_name, book_author_firstname, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
             values: data.values
           });
-
-          sendSuccessNotification(io);
         }
       } else if (data.table === 'in_requests') {
         // Si le nom de l'auteur ne contient pas de prénom
         if (!data.authorFirstName) {
-          DBquery({
+          DBquery(io, {
             text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
             values: data.values
           });
 
           if (data.email.send) {
-            DBquery({
+            DBquery(io, {
               text: `SELECT name, email FROM readers WHERE name ILIKE '${data.email.receiver}'`
             })
             .then(res => {
@@ -183,13 +176,11 @@ app.get('/', (req, res) => {
           }
         } else {
           // Si le nom de l'auteur contient un prénom
-          DBquery({
+          DBquery(io, {
             text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, book_author_firstname, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
             values: data.values
           });
         }
-
-        sendSuccessNotification(io);
 
         // On supprime le code-barres utilisé
         unusedBarcodes.shift();
@@ -199,18 +190,21 @@ app.get('/', (req, res) => {
 
     io.on('delete data', data => {
       if (data.table === 'in_requests') {
-        DBquery({
-          text: `DELETE FROM ${data.table} WHERE barcode = '${data.barcode}'`
+        DBquery(io, {
+          text: `DELETE FROM ${data.table} WHERE barcode = '${data.data}'`
         })
         .then(barcode => {
           unusedBarcodes.push(data.barcode);
-          sendSuccessNotification(io);
         })
         .catch(err => {
           console.error(err);
-          io.emit('notification', {
-            type: 'error'
-          });
+        });
+      } else if (data.table === 'out_requests') {
+        DBquery(io, {
+          text: `DELETE FROM ${data.table} WHERE pib_number = '${data.data}'`
+        })
+        .catch(err => {
+          console.error(err);
         });
       }
     });

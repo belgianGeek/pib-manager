@@ -42,14 +42,19 @@ handleSimpleStep('.inRequests', 'step2', 'step3', 'btn');
 handleSimpleStep('.outRequests', 'step1', 'step2', 'btn');
 handleSimpleStep('.outRequests', 'step2', 'step3', 'confirmation');
 handleSimpleStep('.inReturns', 'step1', 'step2', 'btn');
+handleSimpleStep('.inReturns', 'step2', 'step3', 'confirmation');
+handleSimpleStep('.outReturns', 'step1', 'step2', 'btn');
+handleSimpleStep('.outReturns', 'step2', 'step3', 'confirmation');
 
-$('.inRequests__step3__btn, .outRequests__step2__btn').click(() => {
+$('.inRequests__step3__btn, .outRequests__step2__btn', '.inReturns__step2__btn', '.outReturns__step2__btn').click(() => {
   window.open('https://www.samarcande-bibliotheques.be/pro/');
 });
 
 $('.returnIcon').click(() => {
   const backHome = step => {
-    $(step).toggleClass('translateXonwards hidden');
+    $(step)
+      .removeClass('translateXbackwards')
+      .toggleClass('translateXonwards hidden');
     $('.home').toggleClass('hidden flex');
     $('.returnIcon, .header__msg').toggleClass('hidden');
 
@@ -58,28 +63,33 @@ $('.returnIcon').click(() => {
     }, 500);
   }
 
-  if ($('.outRequests__step1').is(':visible')) {
-    backHome('.outRequests__step1');
-  } else if ($('.outRequests__step2').is(':visible')) {
-    $('.outRequests__step2').toggleClass('translateXonwards flex hidden');
-    $('.outRequests__step1').toggleClass('translateXbackwards hidden flex');
-  } else if ($('.outRequests__step3').is(':visible')) {
-    $('.outRequests__step3').toggleClass('translateXonwards flex hidden');
-    $('.outRequests__step2').toggleClass('translateXbackwards hidden flex');
-  } else if ($('.inRequests__step1').is(':visible')) {
-    backHome('.inRequests__step1');
-  } else if ($('.inRequests__step2').is(':visible')) {
-    $('.inRequests__step2').toggleClass('translateXonwards flex hidden');
-    $('.inRequests__step1')
-      .removeClass('translateXbackwards')
-      .toggleClass('hidden flex');
-  } else if ($('.inRequests__step3').is(':visible')) {
-    $('.inRequests__step3').toggleClass('translateXonwards flex hidden');
-    $('.inRequests__step2').toggleClass('translateXbackwards hidden flex');
-  } else if ($('.inReturns__step1').is(':visible')) {
-    backHome('.inReturns__step1');
-  } else if ($('.inReturns__step2').is(':visible')) {
-    $('.inReturns__step2').toggleClass('translateXonwards flex hidden');
-    $('.inReturns__step1').toggleClass('translateXbackwards hidden flex');
+  const goBack = (elt1, elt2) => {
+    if (elt1 === '.outRequests__step1' || elt1 === '.inRequests__step1' || elt1 === '.inReturns__step1' || elt1 === '.outReturns__step1') {
+      if ($(elt1).is(':visible')) {
+        backHome(elt1);
+      }
+    } else {
+      if ($(elt1).is(':visible')) {
+        $(elt1).toggleClass('translateXonwards flex hidden');
+
+        $(elt2)
+          .removeClass('translateXbackwards')
+          .toggleClass('hidden flex');
+      }
+    }
   }
+
+  goBack('.outRequests__step1');
+  goBack('.inRequests__step1');
+  goBack('.inReturns__step1');
+  goBack('.outReturns__step1');
+
+  goBack('.outRequests__step2', '.outRequests__step1');
+  goBack('.outRequests__step3', '.outRequests__step2');
+  goBack('.inRequests__step2', '.inRequests__step1');
+  goBack('.inRequests__step3', '.inRequests__step2');
+  goBack('.inReturns__step2', '.inReturns__step1');
+  goBack('.inReturns__step3', '.inReturns__step2');
+  goBack('.outReturns__step2', '.outReturns__step1');
+  goBack('.outReturns__step3', '.outReturns__step2');
 });
