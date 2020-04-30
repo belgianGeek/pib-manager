@@ -69,8 +69,11 @@
         </span>
         <h2 class="title">Informations du lecteur</h2>
         <span class="inRequests__form__readerInfo flex">
-          <input class="inRequests__form__readerInfo__name input" list="inRequests__form__readerInfo__dataset" type="text" placeholder="Nom du lecteur..." required="true">
-          <datalist id="inRequests__form__readerInfo__dataset"></datalist>
+          <span class="inRequests__form__readerInfo__container flex">
+            <input class="inRequests__form__readerInfo__container__name input" type="text" placeholder="Nom du lecteur..." required="true">
+            <span class="inRequests__form__readerInfo__container__autocomplete hidden"></span>
+          </span>
+          <input class="inRequests__form__readerInfo__mail input" type="email" placeholder="Adresse email...">
         </span>
         <h2 class="title">Informations du document</h2>
         <span class="inRequests__form__docInfo flex">

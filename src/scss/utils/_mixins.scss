@@ -5,7 +5,13 @@
   background-size: cover;
   background-attachment: fixed;
 }
-
+@mixin input {
+  border: 2px solid $input-border;
+  background-color: rgba(0,0,0,.4);
+  border-radius: 0.2em;
+  padding: 0.5em;
+  margin: 1em 0;
+}
 @mixin simple-step {
   justify-content: center;
   align-items: center;

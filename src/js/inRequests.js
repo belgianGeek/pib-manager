@@ -16,8 +16,9 @@ const inRequests = () => {
     barcode.val(data.number);
   });
 
-  let dataset = '#inRequests__form__readerInfo__dataset';
-  let readerName = $('.inRequests__form__readerInfo__name');
+  let dataset = '.inRequests__form__readerInfo__container__autocomplete';
+  let readerName = $('.inRequests__form__readerInfo__container__name');
+  let readerMail = $('.inRequests__form__readerInfo__mail');
   let pibNb = $('.inRequests__form__pibInfo__pibNb');
   let borrowingLibrary = $('.inRequests__form__pibInfo__borrowingLibrary');
   let requestDate = $('.inRequests__form__pibInfo__requestDate');
@@ -27,6 +28,9 @@ const inRequests = () => {
   let cdu = $('.inRequests__form__docInfo__cdu');
   let outProvince = $('.inRequests__form__pibInfo__outProvince').is(':checked');
 
+  // Genre du destinataure du mail de rappel
+  let gender = '';
+
   // Séparer le nom de l'auteur de son prénom
   let author = '';
 
@@ -35,19 +39,65 @@ const inRequests = () => {
   });
 
   socket.on('readers retrieved', readers => {
+    $('.inRequests__form__readerInfo__container__name')
+      .css({
+        marginBottom: 0,
+        borderBottom: "2px solid transparent"
+      });
+
+    // Positionner les suggestions
+    $('.inRequests__form__readerInfo__container__name').ready(() => {
+      let position = $('.inRequests__form__readerInfo__container__name').position();
+      $(dataset).css({
+        left: position.left,
+        top: position.top + $('.inRequests__form__readerInfo__container__name').outerHeight() + 12,
+        width: $('.inRequests__form__readerInfo__container__name').outerWidth()
+      });
+    });
+
+    $(dataset)
+      .empty()
+      .toggleClass('hidden flex');
+
     for (const reader of readers) {
-      let option = $('<option></option')
-        .append(reader.name)
-        .appendTo(dataset);
+      if (!$(`.${reader.name.match(/[^,\s]/gi).join('')}`).length) {
+        let option = $('<p></p>')
+          .append(reader.name)
+          .addClass(reader.name.match(/[^,\s]/gi).join(''))
+          .appendTo(dataset);
+
+        option.click(function() {
+          $('.inRequests__form__readerInfo__container__name')
+            .val($(this).text())
+            .removeAttr('style');
+
+          $(dataset)
+            .toggleClass('hidden flex')
+            .empty();
+
+          socket.emit('mail request', $(this).text());
+
+          socket.on('mail retrieved', receiver => {
+            $('.inRequests__form__readerInfo__mail').val(receiver.mail);
+            gender = receiver.gender[0];
+          });
+        });
+      }
     }
   });
 
   readerName.focusout(() => {
-    $(dataset).empty();
+    $('.inRequests__form__readerInfo__container__name').removeAttr('style', () => {
+      $(dataset)
+        .toggleClass('hidden flex')
+        .empty();
+    });
   });
 
-  $(`${dataset} option`).on('click', () => {
-    $(dataset).empty();
+  $(dataset).focusout(function() {
+    $(this)
+      .toggleClass('hidden flex')
+      .empty();
   });
 
   // Variables utilisées pour le rappel à l'étape 2
@@ -59,7 +109,7 @@ const inRequests = () => {
     data2send.table = 'in_requests';
 
     // N° PIB
-    if (!pibNb.val().match(/\d{6}/)) {
+    if (!pibNb.val().match(/\d{6}/) || pibNb.val().match(/\d{7,}/)) {
       invalid(pibNb);
     }
 
@@ -81,6 +131,11 @@ const inRequests = () => {
     // Nom du lecteur
     if (readerName.val() === '') {
       invalid(readerName);
+    }
+
+    // Adresse mail du lecteur
+    if (readerMail.val() === '') {
+      invalid(readerMail);
     }
 
     // Titre du document
@@ -189,6 +244,14 @@ const inRequests = () => {
       $('.inRequests__step3')
         .fadeOut(() => {
           confirmation();
+
+          // Envoi du mail de notification au lecteur
+          socket.emit('send mail', {
+            name: readerName.val(),
+            mail: readerMail.val(),
+            gender: gender,
+            request: $('.inRequests__form__docInfo__title').val()
+          });
 
           // Suppression du code-barres inventaire précédent
           $('.inRequests__step2__barcode #inRequests__barcode__svg').remove();

@@ -87,10 +87,50 @@
       }
     }
 
+    &__readerInfo {
+      align-items: center;
+
+      &__container {
+        flex-direction: column;
+
+        &__autocomplete {
+          flex-direction: column;
+          @include input;
+          margin: 0 0 1em;
+          background-color: rgba(0, 0, 0, 0.8);
+          position: absolute;
+          max-height: 10em;
+          overflow: auto;
+
+          p {
+            margin: 0;
+            padding: 0.5em;
+            text-overflow: ellipsis;
+            min-width: 0;
+            white-space: nowrap;
+
+            &:hover {
+              color: black;
+              background-color: $input-border;
+              cursor: pointer;
+            }
+          }
+        }
+      }
+    }
+
     &__docInfo,
     &__readerInfo {
-      .input {
+      &__container,
+      &__mail {
         width: 45%;
+      }
+
+      &__container {
+        &__autocomplete,
+        .input {
+          width: 100%;
+        }
       }
     }
 

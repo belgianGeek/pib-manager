@@ -12,6 +12,8 @@ const qr = require('qrcode');
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
+const mail = require('./modules/mail');
+
 server.listen(8000);
 
 const {
@@ -72,16 +74,19 @@ const createDB = (client, config, DBname) => {
     });
 }
 
-const DBquery = (io, query) => {
+const DBquery = (io, table, query) => {
   return new Promise((fullfill, reject) => {
     newClient.query(query)
       .then(res => {
-        sendSuccessNotification(io);
-        console.log(res);
+        if (table !== 'readers') {
+          sendSuccessNotification(io);
+        }
         fullfill(res);
       })
       .catch(err => {
-        sendErrorNotification(io);
+        if (table !== 'readers') {
+          sendErrorNotification(io);
+        }
         console.log(err);
         reject(err);
       });
@@ -140,17 +145,16 @@ app.get('/', (req, res) => {
     updateBarcode();
 
     io.on('append data', data => {
-      console.log(JSON.stringify(data, null, 2));
       if (data.table === 'out_requests') {
         // Si le nom de l'auteur ne contient pas de prénom
         if (!data.authorFirstName) {
-          DBquery(io, {
+          DBquery(io, data.table, {
             text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, book_title, book_author_name, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8)`,
             values: data.values
           });
         } else {
           // Si le nom de l'auteur contient un prénom
-          DBquery(io, {
+          DBquery(io, data.table, {
             text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, book_title, book_author_name, book_author_firstname, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
             values: data.values
           });
@@ -158,25 +162,13 @@ app.get('/', (req, res) => {
       } else if (data.table === 'in_requests') {
         // Si le nom de l'auteur ne contient pas de prénom
         if (!data.authorFirstName) {
-          DBquery(io, {
+          DBquery(io, data.table, {
             text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
             values: data.values
           });
-
-          if (data.email.send) {
-            DBquery(io, {
-              text: `SELECT name, email FROM readers WHERE name ILIKE '${data.email.receiver}'`
-            })
-            .then(res => {
-              console.log(res.rows[0].email.substring(7, 100));
-            })
-            .catch(err => {
-              console.log(JSON.stringify(err, null, 2));
-            });
-          }
         } else {
           // Si le nom de l'auteur contient un prénom
-          DBquery(io, {
+          DBquery(io, data.table, {
             text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, book_author_firstname, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
             values: data.values
           });
@@ -190,28 +182,47 @@ app.get('/', (req, res) => {
 
     io.on('delete data', data => {
       if (data.table === 'in_requests') {
-        DBquery(io, {
-          text: `DELETE FROM ${data.table} WHERE barcode = '${data.data}'`
-        })
-        .then(barcode => {
-          unusedBarcodes.push(data.barcode);
-        })
-        .catch(err => {
-          console.error(err);
-        });
+        DBquery(io, data.table, {
+            text: `DELETE FROM ${data.table} WHERE barcode = '${data.data}'`
+          })
+          .then(barcode => {
+            unusedBarcodes.push(data.barcode);
+          })
+          .catch(err => {
+            console.error(err);
+          });
       } else if (data.table === 'out_requests') {
-        DBquery(io, {
-          text: `DELETE FROM ${data.table} WHERE pib_number = '${data.data}'`
+        DBquery(io, data.table, {
+            text: `DELETE FROM ${data.table} WHERE pib_number = '${data.data}'`
+          })
+          .catch(err => {
+            console.error(err);
+          });
+      }
+    });
+
+    io.on('mail request', reader => {
+      DBquery(io, 'readers', {
+          text: `SELECT email, gender FROM readers WHERE name ILIKE '${reader}'`
+        })
+        .then(res => {
+          io.emit('mail retrieved', {
+            mail: res.rows[0].email.substring(7, 100),
+            gender: res.rows[0].gender
+          });
         })
         .catch(err => {
-          console.error(err);
+          console.log(JSON.stringify(err, null, 2));
         });
-      }
+    });
+
+    io.on('send mail', receiver => {
+      mail(receiver);
     });
 
     io.on('retrieve readers', name => {
       if (name.length >= 3) {
-        newClient.query(`SELECT name FROM readers WHERE name ILIKE '${name}%'`)
+        newClient.query(`SELECT name FROM readers WHERE name ILIKE '${name}%' LIMIT 5`)
           .then(res => {
             io.emit('readers retrieved', res.rows);
           })
@@ -221,4 +232,8 @@ app.get('/', (req, res) => {
       }
     });
   });
+})
+
+.get('/search', (req, res) => {
+  res.render('search.ejs');
 });

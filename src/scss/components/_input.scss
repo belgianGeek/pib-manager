@@ -1,9 +1,5 @@
 .input {
-  border: 2px solid lightblue;
-  background-color: rgba(0, 0, 0, 0.4);
-  border-radius: 0.2em;
-  padding: 0.5em;
-  margin: 1em 0;
+  @include input;
 }
 
 .invalid {

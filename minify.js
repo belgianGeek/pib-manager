@@ -16,16 +16,29 @@ fs.readdir('./src/js/', (err, files) => {
   } else {
     for (const [i, file] of files.entries()) {
       let filename = `./src/js/${file}`;
-      minify(filename).then((code) => {
-          fs.appendFile('./src/js/app.min.js', code, (err) => {
-            if (err) {
-              console.log(`Error writing file : ${err}`);
-            } else {
-              console.log(`Successfully minified file : ${file}`);
-            }
-          });
-        })
-        .catch(console.error);
+      if (file !== 'search.js') {
+        minify(filename).then((code) => {
+            fs.appendFile('./src/js/app.min.js', code, (err) => {
+              if (err) {
+                console.log(`Error writing file : ${err}`);
+              } else {
+                console.log(`Successfully minified file : ${file}`);
+              }
+            });
+          })
+          .catch(console.error);
+      } else {
+        minify(filename).then((code) => {
+            fs.appendFile('./src/js/search.min.js', code, (err) => {
+              if (err) {
+                console.log(`Error writing file : ${err}`);
+              } else {
+                console.log(`Successfully minified file : ${file}`);
+              }
+            });
+          })
+          .catch(console.error);
+      }
     }
   }
 });
