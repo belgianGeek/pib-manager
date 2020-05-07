@@ -18,10 +18,14 @@
       <h1 class="home__mainTitle">Bienvenue dans PIB Manager</h1>
       <h2 class="home__title title">Que veux-tu faire ?</h2>
       <span class="home__btnContainer flex">
-        <button class="home__btnContainer__outRequests btn home-btn">Perwez prête</button>
-        <button class="home__btnContainer__inRequests btn home-btn">Perwez emprunte</button>
-        <button class="home__btnContainer__inReturns btn home-btn">Retour vers une autre bibliothèque</button>
-        <button class="home__btnContainer__outReturns btn home-btn">Retour vers Perwez</button>
+        <button class="home__btnContainer__outRequests btn home-btn" type="button">Perwez prête</button>
+        <button class="home__btnContainer__inRequests btn home-btn" type="button">Perwez emprunte</button>
+        <button class="home__btnContainer__inReturns btn home-btn" type="button">Retour vers une autre bibliothèque</button>
+        <button class="home__btnContainer__outReturns btn home-btn" type="button">Retour vers Perwez</button>
+      </span>
+      <span class="home__optionsContainer flex">
+        <button class="home__optionsContainer__addReader btn home-btn">Ajouter un lecteur</button>
+        <button class="home__optionsContainer__search btn home-btn">Effectuer une recherche</button>
       </span>
     </section>
     <section class="outRequests__step1 hidden">
@@ -31,7 +35,7 @@
     <section class="outRequests__step2 hidden">
       <h2 class="outRequests__step2__title title">Faire la demande via Samarcande</h2>
       <button class="outRequests__step2__btn btn home-btn" type="button">Direction Samarcande !</button>
-      <button class="outRequests__step2__confirmation btn btn__green" type="button">C'est fait !</button>
+      <button class="outRequests__step2__confirmation btn btn--green" type="button">C'est fait !</button>
     </section>
     <section class="outRequests outRequests__step3 hidden">
       <form class="outRequests__form flex" action="/" method="post">
@@ -51,8 +55,8 @@
           <input class="outRequests__form__docInfo__cdu input" type="text" placeholder="CDU..." required="true">
         </span>
         <span class="outRequests__form__btnContainer flex">
-          <button class="outRequests__form__btnContainer__reset btn" type="reset">Effacer les champs</button>
-          <button class="outRequests__form__btnContainer__submit btn" type="submit">Valider</button>
+          <button class="outRequests__form__btnContainer__reset btn btn--reset" type="reset">Effacer les champs</button>
+          <button class="outRequests__form__btnContainer__submit btn btn--submit" type="submit">Valider</button>
         </span>
       </form>
     </section>
@@ -83,8 +87,8 @@
           <input class="inRequests__form__docInfo__inv input" type="text" placeholder="N° d'inventaire..." required="true">
         </span>
         <span class="inRequests__form__btnContainer flex">
-          <button class="inRequests__form__btnContainer__reset btn" type="reset">Effacer les champs</button>
-          <button class="inRequests__form__btnContainer__submit inRequests__step1__btn btn" type="submit">Valider</button>
+          <button class="inRequests__form__btnContainer__reset btn btn--reset" type="reset">Effacer les champs</button>
+          <button class="inRequests__form__btnContainer__submit inRequests__step1__btn btn btn--submit" type="submit">Valider</button>
         </span>
       </form>
       <span class="inRequests__barcode flex"></span>
@@ -116,7 +120,7 @@
     <section class="inRequests__step3 hidden">
       <h2 class="inRequests__step3__title title">Faire la demande via Samarcande</h2>
       <button class="inRequests__step3__btn btn home-btn" type="button">Direction Samarcande !</button>
-      <button class="inRequests__step3__confirmation btn btn__green" type="button">C'est fait !</button>
+      <button class="inRequests__step3__confirmation btn btn--green" type="button">C'est fait !</button>
     </section>
     <section class="inReturns__step1 hidden">
       <h2 class="inReturns__step1__title title">Effectuer le retour dans Adlib</h2>
@@ -126,13 +130,13 @@
     <section class="inReturns__step2 hidden">
       <h2 class="inReturns__step2__title title">Effectuer le retour dans Samarcande</h2>
       <button class="inReturns__step2__btn btn home-btn" type="button">Direction Samarcande !</button>
-      <button class="inReturns__step2__confirmation btn btn__green" type="button">C'est fait !</button>
+      <button class="inReturns__step2__confirmation btn btn--green" type="button">C'est fait !</button>
     </section>
     <section class="inReturns__step3 hidden">
       <h2 class="inReturns__step3__title title">Effectuer le retour dans PIB Manager</h2>
       <input class="inReturns__step3__input input" type="text" placeholder="Numéro d'exemplaire...">
       <button class="inReturns__step3__btn btn home-btn" type="submit">Valider</button>
-      <button class="inReturns__step3__confirmation btn btn__green" type="button">J'ai terminé !</button>
+      <button class="inReturns__step3__confirmation btn btn--green" type="button">J'ai terminé !</button>
     </section>
     <section class="outReturns__step1 hidden">
       <h2 class="outReturns__step1__title title">Effectuer le retour dans Adlib</h2>
@@ -142,13 +146,38 @@
     <section class="outReturns__step2 hidden">
       <h2 class="outReturns__step2__title title">Effectuer le retour dans Samarcande</h2>
       <button class="outReturns__step2__btn btn home-btn" type="button">Direction Samarcande !</button>
-      <button class="outReturns__step2__confirmation btn btn__green" type="button">C'est fait !</button>
+      <button class="outReturns__step2__confirmation btn btn--green" type="button">C'est fait !</button>
     </section>
     <section class="outReturns__step3 hidden">
       <h2 class="outReturns__step3__title title">Effectuer le retour dans PIB Manager</h2>
       <input class="outReturns__step3__input input" type="text" placeholder="Numéro PIB...">
       <button class="outReturns__step3__btn btn home-btn" type="submit">Valider</button>
-      <button class="outReturns__step3__confirmation btn btn__green" type="button">J'ai terminé !</button>
+      <button class="outReturns__step3__confirmation btn btn--green" type="button">J'ai terminé !</button>
+    </section>
+    <section class="addReader__step1 hidden">
+      <h2 class="addReader__step1__title title">Ajouter un lecteur</h2>
+      <form class="addReader__step1__form flex" action="/" method="post">
+        <h3 class="addReader__step1__form__title title">Nom et prénom</h3>
+        <span class="addReader__step1__form__nameContainer flex">
+          <input class="addReader__step1__form__nameContainer__readerName input" type="text" placeholder="Nom">
+          <input class="addReader__step1__form__nameContainer__readerFirstName input" type="text" placeholder="Prénom">
+        </span>
+        <h3 class="addReader__step1__form__title title">Adresse email</h3>
+        <input class="addReader__step1__form__email__input input" type="email" placeholder="Adresse email">
+        <h3 class="addReader__step1__form__title title">Sexe</h3>
+        <span class="addReader__step1__form__male flex">
+          <input class="addReader__step1__form__male__input input radio" name="gender" type="radio" value="masculin">
+          <label class"addReader__step1__form__male__label" for="male">Masculin</label>
+        </span>
+        <span class="addReader__step1__form__female flex">
+          <input class="addReader__step1__form__female__input input radio" name="gender" type="radio" value="féminin">
+          <label class"addReader__step1__form__female__label" for="female">Féminin</label>
+        </span>
+        <span class="addReader__step1__form__btnContainer flex">
+          <button class="addReader__step1__form__btnContainer__reset btn btn--reset" type="reset">Effacer les champs</button>
+          <button class="addReader__step1__form__btnContainer__submit btn btn--submit" type="submit">Valider</button>
+        </span>
+      </form>
     </section>
   </div>
   <div class="confirmation hidden">

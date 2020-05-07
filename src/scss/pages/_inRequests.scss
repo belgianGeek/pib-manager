@@ -77,14 +77,6 @@
       width: 100%;
       align-self: center;
       justify-content: space-evenly;
-
-      &__reset {
-        background-color: red;
-      }
-
-      &__submit {
-        background-color: green;
-      }
     }
 
     &__readerInfo {
@@ -135,14 +127,7 @@
     }
 
     .warning {
-      color: red;
-      font-style: italic;
-      align-self: center;
-      margin-top: 1.5em;
-      font-size: 1.05em;
-      padding: 1em;
-      border-radius: 0.5em;
-      background-color: rgba(0,0,0,0.5);
+      @include warning;
     }
   }
 }

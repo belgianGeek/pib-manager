@@ -1,5 +1,5 @@
-const handleHomeBtnClick = (element) => {
-  $(`.home__btnContainer__${element}`).click(() => {
+const handleHomeBtnClick = (element, parent) => {
+  $(`.home__${parent}__${element}`).click(() => {
     $('.home')
       .fadeOut(() => {
         $(`.${element}__step1`)
@@ -21,7 +21,8 @@ const handleHomeBtnClick = (element) => {
   });
 }
 
-handleHomeBtnClick('outRequests');
-handleHomeBtnClick('inRequests');
-handleHomeBtnClick('inReturns');
-handleHomeBtnClick('outReturns');
+handleHomeBtnClick('outRequests', 'btnContainer');
+handleHomeBtnClick('inRequests', 'btnContainer');
+handleHomeBtnClick('inReturns', 'btnContainer');
+handleHomeBtnClick('outReturns', 'btnContainer');
+handleHomeBtnClick('addReader', 'optionsContainer');

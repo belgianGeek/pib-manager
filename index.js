@@ -177,6 +177,19 @@ app.get('/', (req, res) => {
         // On supprime le code-barres utilisé
         unusedBarcodes.shift();
         updateBarcode();
+      } else if (data.table === 'readers') {
+        // S'il n'y a pas d'email
+        if (data.values.length === 2) {
+          DBquery(io, data.table, {
+            text: `INSERT INTO ${data.table}(name, gender) VALUES($1, $2)`,
+            values: data.values
+          });
+        } else if (data.values.length === 3) {
+          DBquery(io, data.table, {
+            text: `INSERT INTO ${data.table}(name, email, gender) VALUES($1, $2, $3)`,
+            values: data.values
+          });
+        }
       }
     });
 

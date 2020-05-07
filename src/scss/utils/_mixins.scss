@@ -20,3 +20,13 @@
   flex-direction: column;
   height: 60vh;
 }
+@mixin warning {
+  color: red;
+  font-style: italic;
+  align-self: center;
+  margin-top: 1.5em;
+  font-size: 1.05em;
+  padding: 1em;
+  border-radius: 0.5em;
+  background-color: rgba(0,0,0,0.5);
+}

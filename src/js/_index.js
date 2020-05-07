@@ -6,6 +6,10 @@ let data2send = {
   authorFirstName: true
 };
 
+const capitalizeFirstLetter = string => {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 // Tous les champs du formulaire sont-ils complets ?
 let validationErr = false;
 
@@ -64,7 +68,7 @@ $('.returnIcon').click(() => {
   }
 
   const goBack = (elt1, elt2) => {
-    if (elt1 === '.outRequests__step1' || elt1 === '.inRequests__step1' || elt1 === '.inReturns__step1' || elt1 === '.outReturns__step1') {
+    if (elt1.match('step1')) {
       if ($(elt1).is(':visible')) {
         backHome(elt1);
       }
@@ -83,6 +87,7 @@ $('.returnIcon').click(() => {
   goBack('.inRequests__step1');
   goBack('.inReturns__step1');
   goBack('.outReturns__step1');
+  goBack('.addReader__step1');
 
   goBack('.outRequests__step2', '.outRequests__step1');
   goBack('.outRequests__step3', '.outRequests__step2');

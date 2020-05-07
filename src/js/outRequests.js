@@ -92,10 +92,10 @@ const outRequests = () => {
         data2send.values = [];
 
         $('.outRequests__step3')
-          .fadeOut(() => {
+          .fadeOut(function() {
             confirmation();
 
-            $('.outRequests__step3')
+            $(this)
               .removeAttr('style')
               .toggleClass('hidden flex');
 

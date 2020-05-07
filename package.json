@@ -14,12 +14,14 @@
     "minify": "node minify.js"
   },
   "dependencies": {
+    "csvtojson": "^2.0.10",
     "ejs": "^3.0.1",
     "express": "^4.17.1",
     "http": "^0.0.1-security",
     "ip": "^1.1.5",
+    "nodemailer": "^6.4.6",
     "opn": "^6.0.0",
-    "pg": "^7.18.2",
+    "pg": "^8.0.3",
     "pg-native": "^3.0.0",
     "qrcode": "^1.4.4",
     "socket.io": "^2.3.0",
