@@ -133,16 +133,19 @@ body {
     }
   }
 
+  .notification.flex {
+    animation: slide 5s cubic-bezier(0,.53,0,.98);
+  }
+
+  .notificationInfo {
+    background-color: $electric-blue;
+  }
+
   .notificationSuccess {
     background-color: $green;
   }
 
   .notificationFailure {
     background-color: $red;
-  }
-
-  .notificationTranslate {
-    transform: translateX(-62vw);
-    transition: transform 1s $ease;
   }
 }

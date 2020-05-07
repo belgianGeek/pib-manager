@@ -24,7 +24,7 @@ const outRequests = () => {
     data2send.table = 'out_requests';
 
     // N° PIB
-    if (!pibNb.val().match(/\d{6}/)) {
+    if (!pibNb.val().match(/\d{6}/) || pibNb.val().match(/\d{7,}/)) {
       invalid(pibNb);
     }
 

@@ -50,7 +50,7 @@ handleSimpleStep('.inReturns', 'step2', 'step3', 'confirmation');
 handleSimpleStep('.outReturns', 'step1', 'step2', 'btn');
 handleSimpleStep('.outReturns', 'step2', 'step3', 'confirmation');
 
-$('.inRequests__step3__btn, .outRequests__step2__btn', '.inReturns__step2__btn', '.outReturns__step2__btn').click(() => {
+$('.inRequests__step3__btn, .outRequests__step2__btn, .inReturns__step2__btn, .outReturns__step2__btn').click(() => {
   window.open('https://www.samarcande-bibliotheques.be/pro/');
 });
 

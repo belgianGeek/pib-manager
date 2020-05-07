@@ -1,8 +1,10 @@
 const returnDocument = (elt, confirmationElt) => {
+  let confirmationTimeout;
+
   $(confirmationElt).click(() => {
     confirmation();
 
-    setTimeout(() => {
+    confirmationTimeout = setTimeout(() => {
       $(elt)
         .fadeOut(() => {
           confirmation();
@@ -15,6 +17,10 @@ const returnDocument = (elt, confirmationElt) => {
           $('.header__icon, .header__msg').toggleClass('hidden');
         })
     }, 5000);
+  });
+
+  $('.confirmation__body__cancel').click(() => {
+    clearTimeout(confirmationTimeout);
   });
 }
 

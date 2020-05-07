@@ -7,17 +7,21 @@ socket.on('notification', notification => {
     $('.notification__icon').attr('src', './src/scss/icons/error.svg');
     $('.notification').addClass('notificationFailure');
     $('.notification__msg').text('Une erreur s\'est produite... 😱');
+  } else if (notification.type === 'info') {
+    $('.notification__icon').attr('src', './src/scss/icons/info.svg');
+    $('.notification').addClass('notificationInfo');
+    $('.notification__msg').text('Aucune donnée correspondante n\'a été trouvée... 😶');
   }
 
-  $('.notification').toggleClass('hidden flex notificationTranslate');
+  $('.notification').toggleClass('hidden flex');
 
   setTimeout(() => {
     $('.notification')
       .fadeOut(() => {
         $('.notification')
           .removeAttr('style')
-          .removeClass('notificationSuccess notificationFailure')
-          .toggleClass('flex hidden notificationTranslate');
+          .removeClass('notificationSuccess notificationFailure notificationInfo')
+          .toggleClass('flex hidden');
       });
   }, 5000);
 });
