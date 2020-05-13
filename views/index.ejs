@@ -4,16 +4,25 @@
 <head>
   <meta charset="utf-8">
   <link rel="stylesheet" href="src/scss/prefixed/index.css">
-  <title>📚 PIB Manager</title>
+  <link rel="icon" type="image/png" href="src/scss/icons/favicon.png">
+  <title>PIB Manager</title>
 </head>
 
 <body>
   <div class="backgroundColor"></div>
   <header class="header">
-    <img class="header__icon returnIcon hidden" alt="Retour en arrière" src="src/scss/icons/return.svg">
-    <span class="header__msg hidden">Étape précédente</span>
+    <span class="header__container flex">
+      <img class="header__container__icon returnIcon hidden" alt="Retour en arrière" src="src/scss/icons/return.svg">
+      <span class="header__container__msg hidden">Étape précédente</span>
+    </span>
+    <a class="header__search" href="/search" target="_blank">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="arcs">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </a>
   </header>
-  <div class="wrapper flex">
+  <main class="wrapper flex">
     <section class="home flex">
       <h1 class="home__mainTitle">Bienvenue dans PIB Manager</h1>
       <h2 class="home__title title">Que veux-tu faire ?</h2>
@@ -25,7 +34,9 @@
       </span>
       <span class="home__optionsContainer flex">
         <button class="home__optionsContainer__addReader btn home-btn">Ajouter un lecteur</button>
-        <button class="home__optionsContainer__search btn home-btn">Effectuer une recherche</button>
+        <button class="home__optionsContainer__search btn home-btn">
+          <a href="/search" target="_blank">Effectuer une recherche</a>
+        </button>
       </span>
     </section>
     <section class="outRequests__step1 hidden">
@@ -34,7 +45,9 @@
     </section>
     <section class="outRequests__step2 hidden">
       <h2 class="outRequests__step2__title title">Faire la demande via Samarcande</h2>
-      <button class="outRequests__step2__btn btn home-btn" type="button">Direction Samarcande !</button>
+      <button class="outRequests__step2__btn btn home-btn" type="button">
+        <%- include('samarcande'); %>
+      </button>
       <button class="outRequests__step2__confirmation btn btn--green" type="button">C'est fait !</button>
     </section>
     <section class="outRequests outRequests__step3 hidden">
@@ -119,7 +132,9 @@
     </section>
     <section class="inRequests__step3 hidden">
       <h2 class="inRequests__step3__title title">Faire la demande via Samarcande</h2>
-      <button class="inRequests__step3__btn btn home-btn" type="button">Direction Samarcande !</button>
+      <button class="inRequests__step3__btn btn home-btn" type="button">
+        <%- include('samarcande'); %>
+      </button>
       <button class="inRequests__step3__confirmation btn btn--green" type="button">C'est fait !</button>
     </section>
     <section class="inReturns__step1 hidden">
@@ -129,7 +144,9 @@
     </section>
     <section class="inReturns__step2 hidden">
       <h2 class="inReturns__step2__title title">Effectuer le retour dans Samarcande</h2>
-      <button class="inReturns__step2__btn btn home-btn" type="button">Direction Samarcande !</button>
+      <button class="inReturns__step2__btn btn home-btn" type="button">
+        <%- include('samarcande'); %>
+      </button>
       <button class="inReturns__step2__confirmation btn btn--green" type="button">C'est fait !</button>
     </section>
     <section class="inReturns__step3 hidden">
@@ -145,7 +162,9 @@
     </section>
     <section class="outReturns__step2 hidden">
       <h2 class="outReturns__step2__title title">Effectuer le retour dans Samarcande</h2>
-      <button class="outReturns__step2__btn btn home-btn" type="button">Direction Samarcande !</button>
+      <button class="outReturns__step2__btn btn home-btn" type="button">
+        <%- include('samarcande'); %>
+      </button>
       <button class="outReturns__step2__confirmation btn btn--green" type="button">C'est fait !</button>
     </section>
     <section class="outReturns__step3 hidden">
@@ -179,7 +198,7 @@
         </span>
       </form>
     </section>
-  </div>
+  </main>
   <div class="confirmation hidden">
     <div class="confirmation__body flex">
       <span class="confirmation__body__msg">La demande a bien été enregistrée 😉</span>
@@ -187,10 +206,7 @@
       <span class="confirmation__body__cancel">J'ai oublié quelque-chose 😱 !</span>
     </div>
   </div>
-  <span class="notification hidden">
-    <img class="notification__icon" src="./src/scss/icons/thumbs-up.svg" alt="Notification icon">
-    <p class="notification__msg"></p>
-  </span>
+  <%- include('notification'); %>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js" charset="utf-8" type="application/javascript"></script>
   <script src="/socket.io/socket.io.js" type="application/javascript"></script>
   <script src="/src/js/app.min.js" charset="utf-8" type="application/javascript"></script>

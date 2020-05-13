@@ -44,43 +44,43 @@ const createDB = (client, config, DBname) => {
     newClient = new Client(config);
     newClient.connect()
       .then(() => {
-        console.log('successfully connected, creating tables...');
+        console.log('Connexion établie, création des tables...');
         createInRequestsTable(newClient);
         createOutRequestsTable(newClient);
         createReadersTable(newClient);
       })
       .catch(err => {
-        console.error(`Error reconnecting... ${err}`);
+        console.error(`Erreur de reconnexion... ${err}`);
       });
   }
 
-  console.log(`Creating DB ${DBname}...`);
+  console.log(`Création de la base de données ${DBname}...`);
   client.query(`CREATE DATABASE ${DBname}`)
     .then(res => {
       console.log(JSON.stringify(res, null, 2));
       config.database = DBname;
-      console.log(`${DBname} successfully created, reconnecting...`);
+      console.log(`${DBname} créée avec succès, reconnexion en cours...`);
       reconnect(client, config);
     })
     .catch(err => {
       if (!err.message.match('already exists')) {
-        console.error(`Error creating db : ${err}`);
+        console.error(`Erreur lors de la création de la base de données ${DBname} : ${err}`);
       } else {
-        console.log(`${DBname} already exists !`);
+        console.log(`${DBname} existe déjà !`);
         config.database = DBname;
         reconnect(client, config);
       }
     });
 }
 
-const DBquery = (io, table, query) => {
+const DBquery = (io, action, table, query) => {
   return new Promise((fullfill, reject) => {
     newClient.query(query)
       .then(res => {
-        if (res.rowCount === 0) {
+        if (res.rowCount === 0 || res.rowCount === null) {
           notify(io, 'info');
         } else {
-          if (table !== 'readers') {
+          if (action !== 'SELECT') {
             notify(io, 'success');
           }
         }
@@ -88,7 +88,7 @@ const DBquery = (io, table, query) => {
         fullfill(res);
       })
       .catch(err => {
-        if (table !== 'readers') {
+        if (action !== 'SELECT') {
           notify(io, 'error');
         }
         console.log(err);
@@ -152,13 +152,13 @@ app.get('/', (req, res) => {
         if (data.table === 'out_requests') {
           // Si le nom de l'auteur ne contient pas de prénom
           if (!data.authorFirstName) {
-            DBquery(io, data.table, {
+            DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, book_title, book_author_name, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8)`,
               values: data.values
             });
           } else {
             // Si le nom de l'auteur contient un prénom
-            DBquery(io, data.table, {
+            DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, book_title, book_author_name, book_author_firstname, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
               values: data.values
             });
@@ -166,13 +166,13 @@ app.get('/', (req, res) => {
         } else if (data.table === 'in_requests') {
           // Si le nom de l'auteur ne contient pas de prénom
           if (!data.authorFirstName) {
-            DBquery(io, data.table, {
+            DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
               values: data.values
             });
           } else {
             // Si le nom de l'auteur contient un prénom
-            DBquery(io, data.table, {
+            DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, book_author_firstname, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
               values: data.values
             });
@@ -184,12 +184,12 @@ app.get('/', (req, res) => {
         } else if (data.table === 'readers') {
           // S'il n'y a pas d'email
           if (data.values.length === 2) {
-            DBquery(io, data.table, {
+            DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(name, gender) VALUES($1, $2)`,
               values: data.values
             });
           } else if (data.values.length === 3) {
-            DBquery(io, data.table, {
+            DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(name, email, gender) VALUES($1, $2, $3)`,
               values: data.values
             });
@@ -199,7 +199,7 @@ app.get('/', (req, res) => {
 
       io.on('delete data', data => {
         if (data.table === 'in_requests') {
-          DBquery(io, data.table, {
+          DBquery(io, 'DELETE FROM', data.table, {
               text: `DELETE FROM ${data.table} WHERE barcode = '${data.data}'`
             })
             .then(barcode => {
@@ -209,7 +209,7 @@ app.get('/', (req, res) => {
               console.error(err);
             });
         } else if (data.table === 'out_requests') {
-          DBquery(io, data.table, {
+          DBquery(io, 'DELETE FROM', data.table, {
               text: `DELETE FROM ${data.table} WHERE pib_number = '${data.data}'`
             })
             .catch(err => {
@@ -219,7 +219,7 @@ app.get('/', (req, res) => {
       });
 
       io.on('mail request', reader => {
-        DBquery(io, 'readers', {
+        DBquery(io, 'SELECT', 'readers', {
             text: `SELECT email, gender FROM readers WHERE name ILIKE '${reader}'`
           })
           .then(res => {
@@ -253,4 +253,36 @@ app.get('/', (req, res) => {
 
   .get('/search', (req, res) => {
     res.render('search.ejs');
+
+    io.on('connection', io => {
+      io.on('search', data => {
+        let query = '';
+        console.log(JSON.stringify(data, null, 2));
+        if (data.table === 'in_requests') {
+          if (data.getTitle && !data.getReader) {
+            query = `SELECT * FROM ${data.table} WHERE book_title ILIKE '%${data.title}%'`;
+          } else if (data.getReader && !data.title) {
+            query = `SELECT * FROM ${data.table} WHERE reader_name ILIKE '%${data.reader}%'`;
+          } else if (data.getReader && data.title) {
+            query = `SELECT * FROM ${data.table} WHERE (book_title ILIKE '%${data.title}%') AND (reader_name ILIKE '%${data.reader}%')`;
+          }
+        } else if (data.table === 'out_requests') {
+          if (data.getTitle) {
+            query = `SELECT * FROM ${data.table} WHERE book_title ILIKE '%${data.title}%'`;
+          }
+        }
+
+        DBquery(io, 'SELECT', data.table, {
+          text: query
+        })
+        .then(res => {
+          if (res.rowCount === 0 || res.rowCount === null) {
+            notify(io, 'info');
+          } else {
+            console.log(JSON.stringify(res.rows, null, 2));
+            io.emit('search results', res.rows);
+          }
+        });
+      });
+    });
   });

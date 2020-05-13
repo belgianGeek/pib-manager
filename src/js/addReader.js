@@ -51,7 +51,7 @@ const addReader = () => {
               .toggleClass('hidden flex');
 
            $('.home').toggleClass('hidden flex');
-           $('.header__icon, .header__msg').toggleClass('hidden');
+           $('.header__container__icon, .header__container__msg').toggleClass('hidden');
 
            $('.addReader__step1 input').not('.radio').val('');
           });

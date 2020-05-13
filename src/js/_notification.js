@@ -17,8 +17,8 @@ socket.on('notification', notification => {
 
   setTimeout(() => {
     $('.notification')
-      .fadeOut(() => {
-        $('.notification')
+      .fadeOut(function() {
+        $(this)
           .removeAttr('style')
           .removeClass('notificationSuccess notificationFailure notificationInfo')
           .toggleClass('flex hidden');

@@ -1,5 +1,9 @@
 .input {
   @include input;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 }
 
 .invalid {

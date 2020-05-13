@@ -1,24 +1,81 @@
 .search {
   margin-left: 3em;
   width: 100%;
+  height: 100%;
 
   &__container {
     font-size: 1em;
-    width: 50%;
+    width: 70%;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
 
-    &__submit {
+    &__submit,
+    &__submit__svg {
       cursor: pointer;
     }
 
-    &__title {
-      font-family: 'Lobster Two Bold Italic', sans-serif;
-      font-size: 2em;
+    &__submit {
+      background: none;
+      border: none;
     }
 
     select {
       color: black;
+    }
+  }
+
+  &__results {
+    width: 90%;
+    height: 100%;
+    justify-content: flex-start;
+    overflow: auto;
+    @include box-shadow;
+
+    &__container {
+      width: 100%;
+      height: 100%;
+      font-size: 1.05em;
+      align-self: center;
+      overflow: auto;
+      flex-direction: column;
+      background-color: $translucent-black;
+
+      &__header {
+        background-color: rgba(0,0,0,0.5);
+        height: max-content;
+        position: sticky;
+        top: 0;
+        left: 0;
+
+        &__item {
+          text-align: center;
+          flex: 1;
+          padding: 1em;
+          border: 2px solid $electric-blue;
+        }
+      }
+
+      &__row {
+        width: 100%;
+        justify-content: flex-start;
+        align-items: center;
+
+        &__item {
+          text-align: center;
+          flex: 1;
+          padding: 1em;
+        }
+      }
+    }
+  }
+
+  &__title {
+    font-family: 'Lobster Two Bold Italic', sans-serif;
+    font-size: 2em;
+
+    &__h2 {
+      font-size: 1.6em;
     }
   }
 }

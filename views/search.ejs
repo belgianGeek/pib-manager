@@ -4,36 +4,41 @@
 <head>
   <meta charset="utf-8">
   <link rel="stylesheet" href="src/scss/prefixed/index.css">
-  <title>📚 PIB Manager</title>
+  <link rel="icon" type="image/png" href="src/scss/icons/favicon.png">
+  <title>PIB Manager</title>
 </head>
 
 <body>
   <div class="backgroundColor"></div>
-  <div class="wrapper flex">
+  <main class="wrapper flex">
     <section class="search">
-      <h1 class="search__container__title">Module de recherche</h1>
+      <h1 class="search__title title">Module de recherche</h1>
       <form class="search__container flex" method="GET" action="/">
         <label for="search__container__select">Effectuer une recherche</label>
         <select class="search__container__select" name="search__select">
           <option value="Choisissez une catégorie">Choisissez une catégorie</option>
-          <option value="outRequests">Prêts</option>
-          <option value="inRequests">Emprunts</option>
+          <option value="out_requests">Prêts</option>
+          <option value="in_requests">Emprunts</option>
         </select>
-        <input class="search__container__reader input" type="text" placeholder="Nom du lecteur">
-        <svg class="search__container__submit" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="lightgrey" stroke-width="3" stroke-linecap="round" stroke-linejoin="arcs">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
+        <input class="search__container__readerInput input" type="text" placeholder="Nom du lecteur">
+        <input class="search__container__titleInput input" type="text" placeholder="Titre du document">
+        <button class="search__container__submit" type="submit">
+          <svg class="search__container__submit__svg" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="arcs">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
       </form>
-      <section class="search__results">
-        <h2 class="search__results__title">Résultats de recherche</h2>
-        <span class="search__results__container"></span>
+      <h2 class="search__title search__title__h2 title">Résultats de recherche</h2>
+      <section class="search__results flex">
+        <span class="search__results__container flex"></span>
       </section>
     </section>
-  </div>
+  </main>
+  <%- include('notification'); %>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js" charset="utf-8" type="application/javascript"></script>
   <script src="/socket.io/socket.io.js" type="application/javascript"></script>
-  <script src="/src/js/search.min.js" charset="utf-8" type="application/javascript"></script>
+  <script src="/src/js/app.min.js" charset="utf-8" type="application/javascript"></script>
 </body>
 
 </html>

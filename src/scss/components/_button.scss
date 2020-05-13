@@ -5,6 +5,10 @@
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0.5);
 
+  a {
+    text-decoration: none;
+  }
+
   &--green {
     border: 2px solid $green;
     margin-top: 1.5em;

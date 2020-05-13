@@ -50,17 +50,13 @@ handleSimpleStep('.inReturns', 'step2', 'step3', 'confirmation');
 handleSimpleStep('.outReturns', 'step1', 'step2', 'btn');
 handleSimpleStep('.outReturns', 'step2', 'step3', 'confirmation');
 
-$('.inRequests__step3__btn, .outRequests__step2__btn, .inReturns__step2__btn, .outReturns__step2__btn').click(() => {
-  window.open('https://www.samarcande-bibliotheques.be/pro/');
-});
-
 $('.returnIcon').click(() => {
   const backHome = step => {
     $(step)
       .removeClass('translateXbackwards')
       .toggleClass('translateXonwards hidden');
     $('.home').toggleClass('hidden flex');
-    $('.returnIcon, .header__msg').toggleClass('hidden');
+    $('.returnIcon, .header__container__msg').toggleClass('hidden');
 
     setTimeout(() => {
       $(step).toggleClass('translateXonwards flex');

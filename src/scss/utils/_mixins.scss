@@ -5,6 +5,9 @@
   background-size: cover;
   background-attachment: fixed;
 }
+@mixin box-shadow {
+  box-shadow: 10px 10px 12px 2px $translucent-black;
+}
 @mixin input {
   border: 2px solid $input-border;
   background-color: rgba(0,0,0,.4);
@@ -28,5 +31,5 @@
   font-size: 1.05em;
   padding: 1em;
   border-radius: 0.5em;
-  background-color: rgba(0,0,0,0.5);
+  background-color: $translucent-black;
 }
