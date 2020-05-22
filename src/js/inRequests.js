@@ -1,6 +1,4 @@
 const inRequests = () => {
-  $('.inRequests__form__pibInfo__requestDate').val(`${new Date().getFullYear()}-${month}-${day}`);
-
   let barcode = $('.inRequests__form__docInfo__inv');
   let inRequestsTimeOut;
 
@@ -28,7 +26,7 @@ const inRequests = () => {
   let cdu = $('.inRequests__form__docInfo__cdu');
   let outProvince = $('.inRequests__form__pibInfo__outProvince').is(':checked');
 
-  // Genre du destinataure du mail de rappel
+  // Genre du destinataire du mail de rappel
   let gender = '';
 
   // Séparer le nom de l'auteur de son prénom
@@ -269,17 +267,7 @@ const inRequests = () => {
   });
 
   $('.confirmation__body__cancel').click(() => {
-    $('.confirmation')
-      .fadeOut(function() {
-        $(this)
-          .addClass('hidden')
-          .removeClass('flex')
-          .removeAttr('style');
-
-        $('.wrapper, .header').removeClass('blur');
-
-        clearTimeout(inRequestsTimeOut);
-      });
+    smartHide('.confirmation', 'out', inRequestsTimeOut);
   });
 }
 

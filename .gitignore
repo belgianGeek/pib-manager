@@ -1,4 +1,6 @@
 node_modules
+backups
+adlib.csv
 dist/
 *.log
 .env

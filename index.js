@@ -2,9 +2,7 @@ const fs = require('fs');
 const express = require('express');
 const app = express();
 const ip = require('ip');
-const {
-  execFile
-} = require('child_process');
+const cp = require('child_process').exec;
 const path = require('path');
 const process = require('process');
 const qr = require('qrcode');
@@ -30,13 +28,14 @@ const config = {
 const client = new Client(config);
 let newClient;
 
-// Tableau permettant de stocker les code-barres
-let unusedBarcodes = [];
-
+const createBarcodesTable = require('./modules/createBarcodesTable');
+const createDraftsTable = require('./modules/createDraftsTable');
 const createInRequestsTable = require('./modules/createInRequestsTable');
 const createOutRequestsTable = require('./modules/createOutRequestsTable');
 const createReadersTable = require('./modules/createReadersTable');
+const exportDB = require('./modules/exportDB');
 const notify = require('./modules/notify');
+const existPath = require('./modules/existPath');
 const createDB = (client, config, DBname) => {
   const reconnect = (client, config) => {
     client.end();
@@ -44,7 +43,16 @@ const createDB = (client, config, DBname) => {
     newClient = new Client(config);
     newClient.connect()
       .then(() => {
+        newClient.query('SET datestyle TO sql, dmy;')
+          .then(res => {
+            console.log("Le format de date de la DB a bien été reglé sur 'SQL, DMY'");
+          })
+          .catch(err => {
+            console.error(`Erreur lors du réglage de la date de la DB : ${err}`);
+          });
         console.log('Connexion établie, création des tables...');
+        createBarcodesTable(newClient);
+        createDraftsTable(newClient);
         createInRequestsTable(newClient);
         createOutRequestsTable(newClient);
         createReadersTable(newClient);
@@ -55,9 +63,8 @@ const createDB = (client, config, DBname) => {
   }
 
   console.log(`Création de la base de données ${DBname}...`);
-  client.query(`CREATE DATABASE ${DBname}`)
+  client.query(`CREATE DATABASE ${DBname} WITH ENCODING = 'UTF-8'`)
     .then(res => {
-      console.log(JSON.stringify(res, null, 2));
       config.database = DBname;
       console.log(`${DBname} créée avec succès, reconnexion en cours...`);
       reconnect(client, config);
@@ -74,37 +81,48 @@ const createDB = (client, config, DBname) => {
 }
 
 const DBquery = (io, action, table, query) => {
+  if (arguments.length === 3) {
+    action = arguments[0];
+    table = arguments[1];
+    query = arguments[2];
+    io = null;
+  }
+
   return new Promise((fullfill, reject) => {
     newClient.query(query)
       .then(res => {
         if (res.rowCount === 0 || res.rowCount === null) {
-          notify(io, 'info');
+          if (io !== null) {
+            notify(io, 'info');
+          }
         } else {
-          if (action !== 'SELECT') {
-            notify(io, 'success');
+          if (action !== 'SELECT' && table !== 'barcodes') {
+            if (io !== null) {
+              notify(io, 'success');
+            }
           }
         }
 
         fullfill(res);
+        return;
       })
       .catch(err => {
-        if (action !== 'SELECT') {
+        if (action !== 'SELECT' && table !== 'barcodes') {
           notify(io, 'error');
         }
         console.log(err);
         reject(err);
+        return;
       });
   });
 }
 
-// Récupérer les code-barres inutilisés au démarrage de l'application
-unusedBarcodes = fs.readFileSync('./barcodes/unused.json', 'utf-8');
-unusedBarcodes = JSON.parse(unusedBarcodes);
-JSON.stringify(unusedBarcodes, null, 2);
+existPath('./backups/');
 
-// Sauvegarder les code-barres toutes les 5 minutes
-const saveBarcodes = require('./modules/saveBarcodes');
-saveBarcodes(unusedBarcodes);
+// Exporter une sauvegarde de la DB toutes les demi-heures
+setInterval(() => {
+  exportDB(`./backups/pib_${Date.now()}.pgsql`);
+}, 30 * 60 * 1000);
 
 client.connect()
   .then(() => {
@@ -115,6 +133,7 @@ client.connect()
     }
 
     createDB(client, config, 'pib');
+    return;
   })
   .catch(err => {
     console.log(JSON.stringify(err, null, 2));
@@ -124,6 +143,7 @@ client.connect()
 
       console.log(errMsg);
     }
+    return;
   });
 
 app.use("/src", express.static(__dirname + "/src"));
@@ -133,18 +153,24 @@ app.get('/', (req, res) => {
 
     io.once('connection', io => {
       const updateBarcode = () => {
-        qr.toString(unusedBarcodes[0], {
-            type: 'svg'
+        DBquery(io, 'SELECT', 'barcodes', {
+            text: `SELECT barcode FROM barcodes LIMIT 1`
           })
-          .then(url => {
-            io.emit('barcode', {
-              code: url,
-              number: unusedBarcodes[0]
-            });
+          .then(res => {
+            let code = res.rows[0].barcode;
+            qr.toString(code, {
+                type: 'svg'
+              })
+              .then(url => {
+                io.emit('barcode', {
+                  code: url,
+                  number: code
+                });
+              })
+              .catch(err => {
+                console.error(err);
+              });
           })
-          .catch(err => {
-            console.error(err);
-          });
       }
       updateBarcode();
 
@@ -179,8 +205,15 @@ app.get('/', (req, res) => {
           }
 
           // On supprime le code-barres utilisé
-          unusedBarcodes.shift();
-          updateBarcode();
+          DBquery(io, 'DELETE FROM', 'barcodes', {
+              text: `DELETE FROM barcodes WHERE barcode ILIKE '${data.values[data.values.length - 1]}'`
+            })
+            .then(() => {
+              updateBarcode();
+            })
+            .catch(err => {
+              console.error(`Erreur lors de la mise à jour de la table barcodes : ${err}`);
+            });
         } else if (data.table === 'readers') {
           // S'il n'y a pas d'email
           if (data.values.length === 2) {
@@ -200,10 +233,16 @@ app.get('/', (req, res) => {
       io.on('delete data', data => {
         if (data.table === 'in_requests') {
           DBquery(io, 'DELETE FROM', data.table, {
-              text: `DELETE FROM ${data.table} WHERE barcode = '${data.data}'`
+              text: `DELETE FROM ${data.table} WHERE barcode ILIKE '${data.data}'`
             })
-            .then(barcode => {
-              unusedBarcodes.push(data.barcode);
+            .then(() => {
+              DBquery(io, 'INSERT INTO', 'barcodes', {
+                  text: `INSERT INTO barcodes(barcode) VALUES($1)`,
+                  values: [data.data]
+                })
+                .catch(err => {
+                  console.error(`Erreur lors de la mise à jour de la table barcodes : ${err}`);
+                });
             })
             .catch(err => {
               console.error(err);
@@ -215,6 +254,27 @@ app.get('/', (req, res) => {
             .catch(err => {
               console.error(err);
             });
+        }
+      });
+
+      io.on('export db', format => {
+        if (format === 'csv') {
+          DBquery(io, 'COPY', 'in_requests', {
+              text: `COPY in_requests TO '/psql/in_requests.csv' DELIMITER ',' CSV HEADER`
+            })
+            .then(() => {
+              DBquery(io, 'COPY', 'out_requests', {
+                  text: `COPY out_requests TO '/psql/out_requests.csv' DELIMITER ',' CSV HEADER`
+                })
+                .catch(err => {
+                  console.error(err);
+                });
+            })
+            .catch(err => {
+              console.error(err);
+            });
+        } else if (format === 'pgsql') {
+          exportDB('pib.pgsql');
         }
       });
 
@@ -234,7 +294,7 @@ app.get('/', (req, res) => {
       });
 
       io.on('send mail', receiver => {
-        mail(receiver);
+        // mail(receiver);
       });
 
       io.on('retrieve readers', name => {
@@ -273,16 +333,14 @@ app.get('/', (req, res) => {
         }
 
         DBquery(io, 'SELECT', data.table, {
-          text: query
-        })
-        .then(res => {
-          if (res.rowCount === 0 || res.rowCount === null) {
-            notify(io, 'info');
-          } else {
-            console.log(JSON.stringify(res.rows, null, 2));
-            io.emit('search results', res.rows);
-          }
-        });
+            text: query
+          })
+          .then(res => {
+            if (res.rowCount !== 0 || res.rowCount !== null) {
+              console.log(JSON.stringify(res.rows, null, 2));
+              io.emit('search results', res.rows);
+            }
+          });
       });
     });
   });

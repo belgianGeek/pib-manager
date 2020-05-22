@@ -1,0 +1,13 @@
+.confirmation,
+.export,
+.draft {
+  width: 100vw;
+  height: 100vh;
+  font-size: 1em;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  background-color: $translucent-black;
+}

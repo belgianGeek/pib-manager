@@ -15,12 +15,21 @@
       <img class="header__container__icon returnIcon hidden" alt="Retour en arrière" src="src/scss/icons/return.svg">
       <span class="header__container__msg hidden">Étape précédente</span>
     </span>
-    <a class="header__search" href="/search" target="_blank">
-      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="arcs">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    <span class="header__actionsContainer flex">
+      <svg class="header__actionsContainer__draft" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 11.08V8l-6-6H6a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h6" />
+        <path d="M14 3v5h5M18 21v-6M15 18h6" /></svg>
+      <a class="header__actionsContainer__search" href="/search" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </a>
+      <svg class="header__actionsContainer__importExport" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21.2 15c.7-1.2 1-2.5.7-3.9-.6-2-2.4-3.5-4.4-3.5h-1.2c-.7-3-3.2-5.2-6.2-5.6-3-.3-5.9 1.3-7.3 4-1.2 2.5-1 6.5.5 8.8m8.7-1.6V21" />
+        <path d="M16 16l-4-4-4 4" />
       </svg>
-    </a>
+    </span>
   </header>
   <main class="wrapper flex">
     <section class="home flex">
@@ -207,6 +216,58 @@
     </div>
   </div>
   <%- include('notification'); %>
+  <span class="export hidden">
+    <span class="export__child flex">
+      <h2 class="export__child__title title">Exporter la base de données</h2>
+      <section class="export__child__container flex">
+        <form class="export__child__container__format flex">
+          <h3 class="title">Format</h3>
+          <label class"export__child__container__format__csv">
+            <input class="export__child__container__format__csv__input input radio" name="DBformat" type="radio" value="csv">
+            CSV (compatible Excel)
+          </label>
+          <label class"export__child__container__format__pgsql">
+            <input class="export__child__container__format__pgsql__input input radio" name="DBformat" type="radio" value="pgsql">
+            PostgreSQL (format base de données)
+          </label>
+        </form>
+        <span class="export__child__container__btnContainer flex">
+          <button class="export__child__container__btnContainer__btn btn btn--submit" type="button">Exporter</button>
+          <button class="export__child__container__btnContainer__btn btn btn--reset" type="button">Annuler</button>
+        </span>
+      </section>
+    </span>
+  </span>
+  <span class="draft hidden">
+    <span class="draft__child flex">
+      <h2 class="draft__child__title title">Requête express</h2>
+      <section class="draft__child__container flex">
+        <form class="draft__child__container__reader flex" action="/" method="post">
+          <h3 class="draft__child__container__reader__title title">Informations du lecteur</h3>
+          <label class="draft__child__container__reader__label draft__child__container__reader__name flex">
+            Nom du lecteur
+            <input class="input" type="text" placeholder="Nom du lecteur...">
+          </label>
+          <label class="draft__child__container__reader__label draft__child__container__reader__date flex">
+            Date de la demande
+            <input class="input" type="date">
+          </label>
+          <label class="draft__child__container__reader__label draft__child__container__reader__bookTitle flex">
+            Titre du document
+            <input class="input" type="text" placeholder="Titre du document...">
+          </label>
+          <span class="draft__child__container__reader__btnContainer flex">
+            <button class="draft__child__container__reader__btnContainer__submit btn btn--submit" type="submit">Valider</button>
+            <button class="draft__child__container__reader__btnContainer__reset btn btn--reset" type="button">Annuler</button>
+          </span>
+        </form>
+        <span class="draft__child__container__comment flex">
+          <h3 class="draft__child__container__comment__title title">Commentaires</h3>
+          <textarea class="draft__child__container__comment__textarea" name="name" rows="8" cols="80"></textarea>
+        </span>
+      </section>
+    </span>
+  </span>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js" charset="utf-8" type="application/javascript"></script>
   <script src="/socket.io/socket.io.js" type="application/javascript"></script>
   <script src="/src/js/app.min.js" charset="utf-8" type="application/javascript"></script>

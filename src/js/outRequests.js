@@ -126,17 +126,7 @@ const outRequests = () => {
   });
 
   $('.confirmation__body__cancel').click(() => {
-    $('.confirmation')
-      .fadeOut(function() {
-        $(this)
-          .addClass('hidden')
-          .removeClass('flex')
-          .removeAttr('style');
-
-        $('.wrapper, .header').removeClass('blur');
-
-        clearTimeout(outRequestsTimeOut);
-      });
+    smartHide('.confirmation', 'out', outRequestsTimeOut);
   });
 }
 
