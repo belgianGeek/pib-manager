@@ -7,6 +7,8 @@ const draftNewRequest = () => {
     smartHide('.draft', 'in');
   });
 
+  autocomplete('.draft__child__container__reader__name input', '.draft__child__container__reader__label__autocomplete');
+
   $('.draft__child__container__reader').submit(event => {
     event.preventDefault();
     data2send.table = 'drafts';

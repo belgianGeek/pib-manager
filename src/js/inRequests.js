@@ -32,71 +32,7 @@ const inRequests = () => {
   // Séparer le nom de l'auteur de son prénom
   let author = '';
 
-  readerName.keyup(() => {
-    socket.emit('retrieve readers', readerName.val());
-  });
-
-  socket.on('readers retrieved', readers => {
-    $('.inRequests__form__readerInfo__container__name')
-      .css({
-        marginBottom: 0,
-        borderBottom: "2px solid transparent"
-      });
-
-    // Positionner les suggestions
-    $('.inRequests__form__readerInfo__container__name').ready(() => {
-      let position = $('.inRequests__form__readerInfo__container__name').position();
-      $(dataset).css({
-        left: position.left,
-        top: position.top + $('.inRequests__form__readerInfo__container__name').outerHeight() + 12,
-        width: $('.inRequests__form__readerInfo__container__name').outerWidth()
-      });
-    });
-
-    $(dataset)
-      .empty()
-      .toggleClass('hidden flex');
-
-    for (const reader of readers) {
-      if (!$(`.${reader.name.match(/[^,\s]/gi).join('')}`).length) {
-        let option = $('<p></p>')
-          .append(reader.name)
-          .addClass(reader.name.match(/[^,\s]/gi).join(''))
-          .appendTo(dataset);
-
-        option.click(function() {
-          $('.inRequests__form__readerInfo__container__name')
-            .val($(this).text())
-            .removeAttr('style');
-
-          $(dataset)
-            .toggleClass('hidden flex')
-            .empty();
-
-          socket.emit('mail request', $(this).text());
-
-          socket.on('mail retrieved', receiver => {
-            $('.inRequests__form__readerInfo__mail').val(receiver.mail);
-            gender = receiver.gender[0];
-          });
-        });
-      }
-    }
-  });
-
-  readerName.focusout(() => {
-    $('.inRequests__form__readerInfo__container__name').removeAttr('style', () => {
-      $(dataset)
-        .toggleClass('hidden flex')
-        .empty();
-    });
-  });
-
-  $(dataset).focusout(function() {
-    $(this)
-      .toggleClass('hidden flex')
-      .empty();
-  });
+  autocomplete('.inRequests__form__readerInfo__container__name', '.inRequests__form__readerInfo__container__autocomplete');
 
   // Variables utilisées pour le rappel à l'étape 2
   let reminderTitle, reminderAuthor;

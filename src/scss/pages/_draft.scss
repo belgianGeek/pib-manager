@@ -37,6 +37,10 @@
           input {
             width: 50%;
           }
+
+          &__autocomplete {
+            @include autocomplete;
+          }
         }
       }
 
