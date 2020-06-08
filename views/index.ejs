@@ -208,13 +208,6 @@
       </form>
     </section>
   </main>
-  <div class="confirmation hidden">
-    <div class="confirmation__body flex">
-      <span class="confirmation__body__msg">La demande a bien été enregistrée 😉</span>
-      <span class="confirmation__body__comment">Retour au menu principal dans 5 secondes</span>
-      <span class="confirmation__body__cancel">J'ai oublié quelque-chose 😱 !</span>
-    </div>
-  </div>
   <%- include('notification'); %>
   <span class="export hidden">
     <span class="export__child flex">
@@ -269,6 +262,13 @@
       </section>
     </span>
   </span>
+  <div class="confirmation hidden">
+    <div class="confirmation__body flex">
+      <span class="confirmation__body__msg">La demande a bien été enregistrée 😉</span>
+      <span class="confirmation__body__comment">Retour au menu principal dans 5 secondes</span>
+      <span class="confirmation__body__cancel">J'ai oublié quelque-chose 😱 !</span>
+    </div>
+  </div>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js" charset="utf-8" type="application/javascript"></script>
   <script src="/socket.io/socket.io.js" type="application/javascript"></script>
   <script src="/src/js/app.min.js" charset="utf-8" type="application/javascript"></script>

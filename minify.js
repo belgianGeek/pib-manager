@@ -10,22 +10,19 @@ fs.unlink('./src/js/app.min.js', (err) => {
   }
 });
 
-fs.readdir('./src/js/', (err, files) => {
-  if (err) {
-    console.log('Error reading dir ' + err);
-  } else {
-    for (const [i, file] of files.entries()) {
-      let filename = `./src/js/${file}`;
-      minify(filename).then((code) => {
-          fs.appendFile('./src/js/app.min.js', code, (err) => {
-            if (err) {
-              console.log(`Error writing file : ${err}`);
-            } else {
-              console.log(`Successfully minified file : ${file}`);
-            }
-          });
-        })
-        .catch(console.error);
-    }
-  }
+let files = fs.readdirSync('./src/js/');
+console.log(files);
+
+files.forEach((file, i) => {
+  console.log(file);
+  minify(`./src/js/${file}`).then(code => {
+      fs.appendFile('./src/js/app.min.js', code, (err) => {
+        if (err) {
+          console.log(`Error writing file : ${err}`);
+        } else {
+          console.log(`Successfully minified file : ${file}`);
+        }
+      });
+    })
+    .catch(console.error);
 });

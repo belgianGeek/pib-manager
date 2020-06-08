@@ -13,20 +13,6 @@ const capitalizeFirstLetter = string => {
 // Tous les champs du formulaire sont-ils complets ?
 let validationErr = false;
 
-// Récupérer la date du jour et l'utiliser comme valeur pour les champs date
-let day, month;
-if (new Date().getDate() < '10') {
-  day = `0${new Date().getDate()}`;
-} else {
-  day = new Date().getDate();
-}
-
-if (new Date().getMonth() < '10') {
-  month = `0${new Date().getMonth() + 1}`;
-} else {
-  month = new Date().getMonth() + 1;
-}
-
 const handleSimpleStep = (element, step1, step2, btn) => {
   $(`${element}__${step1}__${btn}`).click(() => {
     if (!validationErr) {

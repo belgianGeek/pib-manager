@@ -1,8 +1,3 @@
-const invalid = (element) => {
-  element.addClass('invalid');
-  validationErr = true;
-}
-
 const outRequests = () => {
   let outRequestsTimeOut = '';
   let pibNb = $('.outRequests__form__pibInfo__pibNb');
@@ -16,8 +11,6 @@ const outRequests = () => {
 
   // Séparer le nom de l'auteur de son prénom
   let author = '';
-
-  $('.outRequests__form__pibInfo__requestDate').val(`${new Date().getFullYear()}-${month}-${day}`);
 
   $('.outRequests__form__btnContainer__submit').click(event => {
     event.preventDefault();

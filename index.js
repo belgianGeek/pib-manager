@@ -227,7 +227,13 @@ app.get('/', (req, res) => {
               values: data.values
             });
           }
+        } else if (data.table === 'drafts') {
+          DBquery(io, 'INSERT INTO', data.table, {
+            text: `INSERT INTO ${data.table}(reader_name, request_date, book_title, comment) VALUES($1, $2, $3, $4)`,
+            values: data.values
+          });
         }
+
       });
 
       io.on('delete data', data => {

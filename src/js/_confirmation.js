@@ -1,4 +1,4 @@
 const confirmation = () => {
   $('.confirmation').toggleClass('hidden flex');
-  $('.wrapper, .header').toggleClass('blur');
+  $('.wrapper, .header, .draft').toggleClass('blur');
 }
