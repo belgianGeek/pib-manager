@@ -98,7 +98,13 @@ const inRequests = () => {
       $('form .warning').hide();
 
       // Cloner le QR code pour le réutiliser à l'étape suivante
-      $('#inRequests__barcode__svg').clone().appendTo('.inRequests__step2__barcode');
+      let clonedSvg = $('#inRequests__barcode__svg').clone();
+      if ($('.inRequests__step2__barcode svg').length === 0) {
+        clonedSvg.appendTo('.inRequests__step2__barcode');
+      } else {
+        $('.inRequests__step2__barcode svg').replaceWith(clonedSvg);
+      }
+      
       $('.inRequests__step2__reminder__content__item__title').text(reminderTitle);
       $('.inRequests__step2__reminder__content__item__author').text(reminderAuthor);
       $('.inRequests__step2__reminder__content__item__inv').text(reminderInv);

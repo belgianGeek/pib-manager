@@ -1,8 +1,8 @@
 module.exports = function createDraftsTable(client) {
   client.query('CREATE TABLE IF NOT EXISTS drafts (' +
     'id SERIAL,' +
-    'reader_name TEXT,' +
     'request_date DATE,' +
+    'reader_name TEXT,' +
     'book_title TEXT,' +
     'comment TEXT)', (err, res) => {
       if (err) {

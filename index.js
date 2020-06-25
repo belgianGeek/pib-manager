@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('fs-extra');
 const express = require('express');
 const app = express();
 const ip = require('ip');
@@ -136,7 +136,7 @@ client.connect()
     return;
   })
   .catch(err => {
-    console.log(JSON.stringify(err, null, 2));
+    console.log(`Connection error : ${JSON.stringify(err, null, 2)}`);
     if (err.code === 'ECONNREFUSED') {
       let errMsg = 'Désolé, la connexion à la base de données n\'a pas pu être établie...\n' +
         'Vérifie que le service PostgreSQL est bien démarré et relance PIB Manager.';
@@ -266,18 +266,26 @@ app.get('/', (req, res) => {
       io.on('export db', format => {
         if (format === 'csv') {
           DBquery(io, 'COPY', 'in_requests', {
-              text: `COPY in_requests TO '/psql/in_requests.csv' DELIMITER ',' CSV HEADER`
+              text: `COPY in_requests TO '${path.join(__dirname + 'prêts.csv')}' DELIMITER ',' CSV HEADER`
             })
             .then(() => {
               DBquery(io, 'COPY', 'out_requests', {
-                  text: `COPY out_requests TO '/psql/out_requests.csv' DELIMITER ',' CSV HEADER`
+                  text: `COPY out_requests TO '${path.join(__dirname + 'emprunts.csv')}' DELIMITER ',' CSV HEADER`
+                })
+                .then(() => {
+                  DBquery(io, 'COPY', 'drafts', {
+                    text: `COPY drafts TO '${path.join(__dirname + 'drafts.csv')}' DELIMITER ',' CSV HEADER`
+                  })
+                  .catch(err => {
+                    console.error(`Une erreur est survenue lorts de l'export de la table des requêtes express : ${err}`);
+                  });
                 })
                 .catch(err => {
-                  console.error(err);
+                  console.error(`Une erreur est survenue lors de l'export de la table des prêts : ${err}`);
                 });
             })
             .catch(err => {
-              console.error(err);
+              console.error(`Une erreur est survenue lors de l'export de la table des emprunts : ${err}`);
             });
         } else if (format === 'pgsql') {
           exportDB('pib.pgsql');
@@ -300,7 +308,7 @@ app.get('/', (req, res) => {
       });
 
       io.on('send mail', receiver => {
-        // mail(receiver);
+        mail(receiver);
       });
 
       io.on('retrieve readers', name => {
@@ -336,6 +344,12 @@ app.get('/', (req, res) => {
           if (data.getTitle) {
             query = `SELECT * FROM ${data.table} WHERE book_title ILIKE '%${data.title}%'`;
           }
+        } else if (data.table === 'drafts') {
+          if (data.getTitle && !data.getReader) {
+            query = `SELECT * FROM ${data.table} WHERE book_title ILIKE '%${data.title}%'`;
+          } else if (!data.getTitle && data.getReader) {
+            query = `SELECT * FROM ${data.table} WHERE reader_name ILIKE '%${data.reader}%'`;
+          }
         }
 
         DBquery(io, 'SELECT', data.table, {
@@ -343,7 +357,7 @@ app.get('/', (req, res) => {
           })
           .then(res => {
             if (res.rowCount !== 0 || res.rowCount !== null) {
-              console.log(JSON.stringify(res.rows, null, 2));
+              console.log('Results : ' + JSON.stringify(res.rows, null, 2));
               io.emit('search results', res.rows);
             }
           });

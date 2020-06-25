@@ -10,20 +10,19 @@ const search = () => {
   $('.search__container__select').on('change', function() {
     if ($(this).val() === 'out_requests') {
       $('.search__container__readerInput').attr('disabled', true);
-    } else {
-      $('.search__container__readerInput').attr('disabled', false);
+      $('.search__container__titleInput').attr('disabled', false);
+    } else if ($(this).val() === 'in_requests' || $(this).val() === 'drafts') {
+      $('.search__container__titleInput, .search__container__readerInput').attr('disabled', false);
+    } else if ($(this).val() === 'default') {
+      $('.search__container__titleInput, .search__container__readerInput').attr('disabled', true);
     }
   });
 
   $('.search__container').submit(event => {
     event.preventDefault();
-    $('.search__results__container').empty(function() {
-      $(this).fadeOut();
-    });
+    searchData.getReader = searchData.getTitle = false;
 
-    if ($('.search__container__select').val() === 'in_requests') {
-      searchData.table = $('.search__container__select').val();
-    } else if ($('.search__container__select').val() === 'out_requests') {
+    if ($('.search__container__select').val() !== 'default' ) {
       searchData.table = $('.search__container__select').val();
     }
 
@@ -44,6 +43,10 @@ const search = () => {
   });
 
   socket.on('search results', results => {
+    $('.search__results__container').empty(function() {
+      $(this).fadeOut();
+    });
+
     let header = $('<span></span>')
       .addClass('search__results__container__header flex')
       .appendTo('.search__results__container');
@@ -80,6 +83,15 @@ const search = () => {
           case 'barcode':
             columnTitle = 'N° inv.';
             break;
+          case 'id':
+            columnTitle = 'N° de demande';
+            break;
+          case 'comment':
+            columnTitle = 'Commentaires';
+            break;
+          case 'reader_name':
+            columnTitle = 'Lecteur';
+            break;
           default:
             columnTitle;
         }
@@ -97,20 +109,36 @@ const search = () => {
         .addClass('search__results__container__row flex')
         .appendTo('.search__results__container');
 
-      let pibNb = $('<span></span>')
-        .addClass('search__results__container__row__item')
-        .append(data.pib_number)
-        .appendTo(row);
+      if (data.id !== undefined) {
+        let id = $('<span></span>')
+          .addClass('search__results__container__row__item')
+          .append(data.id)
+          .appendTo(row);
+      }
 
-      let library = $('<span></span>')
-        .addClass('search__results__container__row__item')
-        .append(data.borrowing_library)
-        .appendTo(row);
+      if (data.pib_number !== undefined) {
+        let pibNb = $('<span></span>')
+          .addClass('search__results__container__row__item')
+          .append(data.pib_number)
+          .appendTo(row);
+      }
 
-      let date = $('<span></span>')
-        .addClass('search__results__container__row__item')
-        .append(data.request_date.substring(0, 10))
-        .appendTo(row);
+      if (data.borrowing_library !== undefined) {
+        let library = $('<span></span>')
+          .addClass('search__results__container__row__item')
+          .append(data.borrowing_library)
+          .appendTo(row);
+      }
+
+      let date = $('<span></span>').addClass('search__results__container__row__item');
+
+      if (data.request_date !== null) {
+        date.append(data.request_date.substring(0, 10));
+      } else {
+        date.append('Inconnue');
+      }
+
+      date.appendTo(row);
 
       if (data.reader_name !== undefined) {
         let reader = $('<span></span>')
@@ -126,27 +154,30 @@ const search = () => {
 
       let author = $('<span></span>').addClass('search__results__container__row__item');
 
-      if (data.book_author_firstname !== undefined && data.book_author_firstname !== null) {
-        author.append(`${data.book_author_name}, ${data.book_author_firstname}`);
-      } else {
-        author.append(data.book_author_name);
+      if (data.book_author_name !== undefined || data.book_author_firstname !== undefined) {
+        if (data.book_author_firstname !== undefined && data.book_author_firstname !== null) {
+          author.append(`${data.book_author_name}, ${data.book_author_firstname}`);
+        } else {
+          author.append(data.book_author_name);
+        }
+        
+        author.appendTo(row);
       }
 
-      author.appendTo(row);
+      if (data.cdu !== undefined) {
+        let cdu = $('<span></span>')
+          .addClass('search__results__container__row__item')
+          .append(data.cdu)
+          .appendTo(row);
+      }
 
-      let cdu = $('<span></span>')
-        .addClass('search__results__container__row__item')
-        .append(data.cdu)
-        .appendTo(row);
-
-      let out_province = $('<input>')
-        .addClass('search__results__container__row__item')
-        .attr('type', 'checkbox')
-        .attr('disabled', true)
-        .appendTo(row);
-
+      let out_province = $('<input>').addClass('search__results__container__row__item');
       if (data.out_province) {
-        out_province.attr('checked', true);
+        out_province
+          .attr('type', 'checkbox')
+          .attr('disabled', true)
+          .attr('checked', true)
+          .appendTo(row);
       } else {
         out_province.attr('checked', false);
       }
@@ -155,6 +186,13 @@ const search = () => {
         let barcode = $('<span></span>')
           .addClass('search__results__container__row__item')
           .append(data.barcode)
+          .appendTo(row);
+      }
+
+      if (data.comment !== undefined) {
+        let comment = $('<span></span>')
+          .addClass('search__results__container__row__item')
+          .append(data.comment)
           .appendTo(row);
       }
     }
