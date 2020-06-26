@@ -133,9 +133,9 @@ const search = () => {
       let date = $('<span></span>').addClass('search__results__container__row__item');
 
       if (data.request_date !== null) {
-        date.append(data.request_date.substring(0, 10));
+        date.append(new Date(data.request_date).toLocaleDateString());
       } else {
-        date.append('Inconnue');
+        date.append(`Problème d'affichage...`);
       }
 
       date.appendTo(row);
@@ -160,7 +160,7 @@ const search = () => {
         } else {
           author.append(data.book_author_name);
         }
-        
+
         author.appendTo(row);
       }
 
@@ -172,14 +172,17 @@ const search = () => {
       }
 
       let out_province = $('<input>').addClass('search__results__container__row__item');
-      if (data.out_province) {
+      if (data.out_province !== undefined) {
         out_province
           .attr('type', 'checkbox')
           .attr('disabled', true)
-          .attr('checked', true)
           .appendTo(row);
-      } else {
-        out_province.attr('checked', false);
+
+        if (data.out_province) {
+          out_province.attr('checked', true);
+        } else {
+          out_province.attr('checked', false);
+        }
       }
 
       if (data.barcode !== undefined) {

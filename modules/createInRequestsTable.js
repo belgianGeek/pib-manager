@@ -2,7 +2,7 @@ module.exports = function createInRequestsTable(client) {
   client.query('CREATE TABLE IF NOT EXISTS in_requests (' +
     'pib_number INT,' +
     'borrowing_library TEXT,' +
-    'request_date DATE,' +
+    'request_date TIMESTAMPTZ,' +
     'loan_library TEXT,' +
     'reader_name TEXT,' +
     'book_title TEXT,' +

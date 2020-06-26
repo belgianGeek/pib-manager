@@ -36,7 +36,9 @@ const draftNewRequest = () => {
 
       draftTimeOut = setTimeout(() => {
         data2send.values.push($(reader).val());
-        data2send.values.push($(date).val());
+
+        // Stocker la date en timestamp
+        data2send.values.push(new Date($(date).val()).toUTCString());
         data2send.values.push($(title).val());
 
         if (comment.val() !== '') {

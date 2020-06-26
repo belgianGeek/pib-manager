@@ -59,7 +59,9 @@ const outRequests = () => {
       outRequestsTimeOut = setTimeout(() => {
         data2send.values.push(pibNb.val());
         data2send.values.push(borrowingLibrary.val());
-        data2send.values.push(requestDate.val());
+
+        // Stocker la date en timestamp
+        data2send.values.push(new Date(requestDate.val()).toUTCString());
         data2send.values.push(loanLibrary.val());
         data2send.values.push(title.val());
 

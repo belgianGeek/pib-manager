@@ -11,10 +11,8 @@ fs.unlink('./src/js/app.min.js', (err) => {
 });
 
 let files = fs.readdirSync('./src/js/');
-console.log(files);
 
 files.forEach((file, i) => {
-  console.log(file);
   minify(`./src/js/${file}`).then(code => {
       fs.appendFile('./src/js/app.min.js', code, (err) => {
         if (err) {

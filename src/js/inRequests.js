@@ -104,7 +104,7 @@ const inRequests = () => {
       } else {
         $('.inRequests__step2__barcode svg').replaceWith(clonedSvg);
       }
-      
+
       $('.inRequests__step2__reminder__content__item__title').text(reminderTitle);
       $('.inRequests__step2__reminder__content__item__author').text(reminderAuthor);
       $('.inRequests__step2__reminder__content__item__inv').text(reminderInv);
@@ -149,7 +149,9 @@ const inRequests = () => {
     inRequestsTimeOut = setTimeout(() => {
       data2send.values.push(pibNb.val());
       data2send.values.push(borrowingLibrary.val());
-      data2send.values.push(requestDate.val());
+
+      // Stocker la date en timestamp
+      data2send.values.push(new Date(requestDate.val()).toUTCString());
       data2send.values.push(loanLibrary.val());
       data2send.values.push(readerName.val());
       data2send.email = {

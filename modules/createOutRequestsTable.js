@@ -2,7 +2,7 @@ const createOutRequestsTable = client => {
   client.query('CREATE TABLE IF NOT EXISTS out_requests (' +
     'pib_number INT,' +
     'borrowing_library TEXT,' +
-    'request_date DATE,' +
+    'request_date TIMESTAMPTZ,' +
     'loan_library TEXT,' +
     'book_title TEXT,' +
     'book_author_firstname TEXT,' +
