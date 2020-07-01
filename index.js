@@ -307,7 +307,8 @@ app.get('/', (req, res) => {
       });
 
       io.on('send mail', receiver => {
-        mail(receiver);
+        console.log('mail sent to ' + receiver);
+        // mail(receiver);
       });
 
       io.on('retrieve readers', name => {

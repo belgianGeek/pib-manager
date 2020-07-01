@@ -195,7 +195,7 @@ const search = () => {
       if (data.comment !== undefined) {
         let comment = $('<span></span>')
           .addClass('search__results__container__row__item')
-          .append(data.comment)
+          .append(data.comment.replace(/\n/gi, '<br>'))
           .appendTo(row);
       }
     }

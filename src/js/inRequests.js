@@ -80,7 +80,16 @@ const inRequests = () => {
     }
 
     if (authorField.val() !== '') {
-      reminderAuthor = authorField.val();
+      // Si le nom de l'auteur est de forme NOM, Prénom
+      if (authorField.val().indexOf(',') !== -1) {
+        author = authorField.val().split(',');
+        author = `${author[0].toUpperCase().trim()}, ${author[1].trim()}`;
+      } else {
+        // Sinon, il n'y a que le nom de famille
+        author = authorField.val();
+      }
+
+      reminderAuthor = author;
     } else {
       invalid(authorField);
     }
@@ -160,19 +169,14 @@ const inRequests = () => {
       };
       data2send.values.push(title.val());
 
-      // Si le nom de l'auteur est de forme NOM, Prénom
-      if (authorField.val().indexOf(',') !== -1) {
-        author = authorField.val().split(',');
-        data2send.values.push(author[0].toUpperCase().trim(), author[1].trim());
-
-        // On ne change pas la valeur de data2send.authorFirstName car la condition est vérifiée
-      } else {
-        // Sinon, il n'y a que le nom de famille
-        author = authorField.val();
-        data2send.values.push(author);
-
+      // Si le nom de l'auteur est n'est pas de forme NOM, Prénom
+      if (author.indexOf(',') === -1) {
         // On change la valeur de data2send.authorFirstName car la condition est fausse
         data2send.authorFirstName = false;
+        data2send.values.push(author);
+      } else {
+        author = author.split(',');
+        data2send.values.push(author[0].trim(), author[1].trim());
       }
 
       data2send.values.push(cdu.val());
