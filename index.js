@@ -6,6 +6,7 @@ const cp = require('child_process').exec;
 const path = require('path');
 const process = require('process');
 const qr = require('qrcode');
+const zip = require('adm-zip');
 
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
@@ -116,6 +117,7 @@ const DBquery = (io, action, table, query) => {
 }
 
 existPath('./backups/');
+existPath('./exports/');
 
 // Exporter une sauvegarde de la DB toutes les demi-heures
 setInterval(() => {
@@ -265,18 +267,28 @@ app.get('/', (req, res) => {
       io.on('export db', format => {
         if (format === 'csv') {
           DBquery(io, 'COPY', 'in_requests', {
-              text: `COPY in_requests TO '${path.join(__dirname + 'prêts.csv')}' DELIMITER ',' CSV HEADER`
+              text: `COPY in_requests TO '${path.join(__dirname + '/exports/loans.csv')}' DELIMITER ',' CSV HEADER`
             })
             .then(() => {
               DBquery(io, 'COPY', 'out_requests', {
-                  text: `COPY out_requests TO '${path.join(__dirname + 'emprunts.csv')}' DELIMITER ',' CSV HEADER`
+                  text: `COPY out_requests TO '${path.join(__dirname + '/exports/borrowings.csv')}' DELIMITER ',' CSV HEADER`
                 })
                 .then(() => {
                   DBquery(io, 'COPY', 'drafts', {
-                    text: `COPY drafts TO '${path.join(__dirname + 'drafts.csv')}' DELIMITER ',' CSV HEADER`
+                    text: `COPY drafts TO '${path.join(__dirname + '/exports/drafts.csv')}' DELIMITER ',' CSV HEADER`
+                  })
+                  .then(() => {
+                    // Zip the received files before sending them to the client
+                    let zip = new zip();
+
+                    zip.addLocalFolder('exports', 'pib-manager-export.zip');
+
+                    zip.writeZip('exports/pib-manager-export.zip');
+
+                    next();
                   })
                   .catch(err => {
-                    console.error(`Une erreur est survenue lorts de l'export de la table des requêtes express : ${err}`);
+                    console.error(`Une erreur est survenue lors de l'export de la table des requêtes express : ${err}`);
                   });
                 })
                 .catch(err => {
@@ -363,4 +375,8 @@ app.get('/', (req, res) => {
           });
       });
     });
+  })
+
+  .get('/download', (req, res, next) => {
+    res.download('./exports/pib-manager-export.zip');
   });

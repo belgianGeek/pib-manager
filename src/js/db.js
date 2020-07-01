@@ -25,3 +25,10 @@ $('.header__actionsContainer__importExport').click(() => {
 
   format = '';
 });
+
+socket.on('export successfull', () => {
+  $.ajax({
+    method: 'GET',
+    url: '/zip'
+  });
+});
