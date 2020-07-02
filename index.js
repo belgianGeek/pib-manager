@@ -5,7 +5,6 @@ const ip = require('ip');
 const cp = require('child_process').exec;
 const path = require('path');
 const process = require('process');
-const qr = require('qrcode');
 const zip = require('adm-zip');
 
 const server = require('http').Server(app);
@@ -159,21 +158,14 @@ app.get('/', (req, res) => {
           })
           .then(res => {
             let code = res.rows[0].barcode;
-            qr.toString(code, {
-                type: 'svg'
-              })
-              .then(url => {
-                io.emit('barcode', {
-                  code: url,
-                  number: code
-                });
-              })
-              .catch(err => {
-                console.error(err);
-              });
+
+            io.emit('barcode', code);
           })
-      }
-      updateBarcode();
+          .catch(err => {
+            console.error(err);
+          });
+        }
+        updateBarcode();
 
       io.on('append data', data => {
         if (data.table === 'out_requests') {
@@ -299,7 +291,7 @@ app.get('/', (req, res) => {
               console.error(`Une erreur est survenue lors de l'export de la table des emprunts : ${err}`);
             });
         } else if (format === 'pgsql') {
-          exportDB('pib.pgsql');
+          exportDB('exports/pib.pgsql');
         }
       });
 

@@ -2,16 +2,16 @@ const inRequests = () => {
   let barcode = $('.inRequests__form__docInfo__inv');
   let inRequestsTimeOut;
 
-  socket.on('barcode', data => {
-    if ($('#inRequests__barcode__svg').length) {
-      $('#inRequests__barcode__svg').replaceWith(data.code);
-      $('.inRequests__barcode svg').attr('id', 'inRequests__barcode__svg');
-    } else {
-      $('.inRequests__barcode').append(data.code);
-      $('.inRequests__barcode svg').attr('id', 'inRequests__barcode__svg');
-    }
+  autocomplete('.inRequests__form__readerInfo__container__name', '.inRequests__form__readerInfo__container__autocomplete');
 
-    barcode.val(data.number);
+  socket.on('barcode', code => {
+    barcode.val(code);
+
+    JsBarcode('.inRequests__barcode__svg', code, {
+      format: 'CODE39',
+      lineColor: "#000000",
+      displayValue: true
+    });
   });
 
   let dataset = '.inRequests__form__readerInfo__container__autocomplete';
@@ -32,11 +32,9 @@ const inRequests = () => {
   // Séparer le nom de l'auteur de son prénom
   let author = '';
 
-  autocomplete('.inRequests__form__readerInfo__container__name', '.inRequests__form__readerInfo__container__autocomplete');
-
   // Variables utilisées pour le rappel à l'étape 2
   let reminderTitle, reminderAuthor;
-  let reminderInv = $('.inRequests__form__docInfo__inv').val();
+  let reminderInv = barcode.val();
 
   $('.inRequests__form__btnContainer__submit').click(event => {
     event.preventDefault();
@@ -107,7 +105,7 @@ const inRequests = () => {
       $('form .warning').hide();
 
       // Cloner le QR code pour le réutiliser à l'étape suivante
-      let clonedSvg = $('#inRequests__barcode__svg').clone();
+      let clonedSvg = $('.inRequests__barcode__svg').clone();
       if ($('.inRequests__step2__barcode svg').length === 0) {
         clonedSvg.appendTo('.inRequests__step2__barcode');
       } else {
@@ -200,7 +198,7 @@ const inRequests = () => {
           });
 
           // Suppression du code-barres inventaire précédent
-          $('.inRequests__step2__barcode #inRequests__barcode__svg').remove();
+          $('.inRequests__step2__barcode .inRequests__barcode__svg').remove();
 
           $('.inRequests__form .input').not('.inRequests__form__pibInfo__requestDate, .inRequests__form__pibInfo__loanLibrary, .inRequests__form__docInfo__inv').val('');
 
