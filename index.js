@@ -366,6 +366,18 @@ app.get('/', (req, res) => {
             }
           });
       });
+
+      io.on('update', record => {
+        console.log(record);
+        query = `UPDATE ${record.table} SET request_date = '${record.date}', reader_name = '${record.reader}', book_title = '${record.title}', comment = '${record.comment}' WHERE id = ${record.id}`;
+        console.log(query);
+        DBquery(io, 'UPDATE', record.table, {
+          text: query
+        })
+        .then(res => {
+          console.log('row ' + record.id + ' updated');
+        })
+      });
     });
   })
 

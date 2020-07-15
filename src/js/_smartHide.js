@@ -3,8 +3,7 @@ const smartHide = (className, method, timeout) => {
     $(className)
       .fadeIn(function() {
         $(this)
-          .addClass('flex')
-          .removeClass('hidden')
+          .toggleClass('hidden flex')
           .removeAttr('style');
 
         $('.wrapper, .header').removeClass('blur');
@@ -13,8 +12,7 @@ const smartHide = (className, method, timeout) => {
     $(className)
       .fadeOut(function() {
         $(this)
-          .addClass('hidden')
-          .removeClass('flex')
+          .toggleClass('hidden flex')
           .removeAttr('style');
 
         $('.wrapper, .header').removeClass('blur');
