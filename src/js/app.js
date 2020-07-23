@@ -1075,17 +1075,20 @@ const search = () => {
           .appendTo(row);
       }
 
-      let out_province = $('<input>').addClass('search__results__container__row__item search__results__container__row__item--op');
+      let out_province = $('\
+      <svg xmlns="http://www.w3.org/2000/svg">\
+        <circle cx="50%" cy="50%" r="5"/>\
+      </svg>\
+      ').addClass('search__results__container__row__item search__results__container__row__item--op flex');
       if (data.out_province !== undefined) {
         out_province
-          .attr('type', 'checkbox')
-          .attr('disabled', true)
+          .attr('viewBox', '0 0 75 10')
           .appendTo(row);
 
         if (data.out_province) {
-          out_province.attr('checked', true);
+          out_province.addClass('checked');
         } else {
-          out_province.attr('checked', false);
+          out_province.addClass('unchecked');
         }
       }
 
@@ -1160,18 +1163,14 @@ const search = () => {
           comment: $('.draft__child__container__comment__textarea').val(),
           title: $('.draft__child__container__reader__bookTitle input').val()
         };
-        console.log(JSON.stringify(updatedRecord, null, 2));
 
         let updatedComment = updatedRecord.comment.trim().split('\n');
-        console.log(updatedComment);
 
         $(updatedComment).each((i, item) => {
           if (item === '') {
             updatedComment.splice(i, 1, $('<br>')[0]);
           }
         });
-
-        console.log(updatedComment);
 
         // Update the web interface with the changes
         $(`.${record2modify[1]} .search__results__container__row__item--date`).text(new Date(updatedRecord.date).toLocaleDateString());

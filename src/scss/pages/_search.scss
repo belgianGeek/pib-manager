@@ -80,6 +80,18 @@
           text-align: center;
           flex: 1;
           padding: 1em;
+
+          &--op {
+            justify-content: center;
+          }
+
+          &--op.checked circle {
+            fill: $green;
+          }
+
+          &--op.unchecked circle {
+            fill: $red;
+          }
         }
       }
     }
