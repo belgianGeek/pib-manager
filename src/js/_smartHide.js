@@ -1,4 +1,5 @@
 const smartHide = (className, method, timeout) => {
+  console.log('smartHide');
   if (method === 'in') {
     $(className)
       .fadeIn(function() {

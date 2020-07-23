@@ -1,4 +1,5 @@
 const inRequests = () => {
+  console.log('inRequests !');
   let barcode = $('.inRequests__form__docInfo__inv');
   let inRequestsTimeOut;
 
@@ -213,6 +214,7 @@ const inRequests = () => {
   });
 
   $('.confirmation__body__cancel').click(() => {
+    console.log('hide');
     smartHide('.confirmation', 'out', inRequestsTimeOut);
   });
 }

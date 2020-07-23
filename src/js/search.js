@@ -1,4 +1,5 @@
 const search = () => {
+  let recordDelTimeOut;
   let searchData = {
     table: '',
     reader: '',
@@ -6,6 +7,11 @@ const search = () => {
     getReader: false,
     getTitle: true
   };
+
+  // Actions du menu contextuel
+  const hideParent = () => {
+    $('.search__results__container__row .actionsMenu').toggleClass('hidden flex');
+  }
 
   $('.search__container__select').on('change', function() {
     if ($(this).val() === 'out_requests') {
@@ -222,13 +228,15 @@ const search = () => {
                 .appendTo($(this).parent());
             }
 
-            $('.search__results__container__row .actionsMenu').toggleClass('hidden flex');
-
-            // Actions du menu contextuel
-            const hideParent = () => {
-              $('.search__results__container__row .actionsMenu').toggleClass('hidden flex');
+            const confirmation = () => {
+              $('.confirmation').toggleClass('hidden flex');
+              $('.wrapper, .header, .draft').toggleClass('blur');
+              $('.wrapper *').removeClass('translateXbackwards');
             }
 
+            $('.search__results__container__row .actionsMenu').toggleClass('hidden flex');
+
+            console.log('handling action');
             $('.search__results__container__row .actionsMenu__item--modify svg, \
             .search__results__container__row .actionsMenu__item--modify p').click(function() {
               hideParent();
@@ -266,13 +274,43 @@ const search = () => {
                 socket.emit('update', updatedRecord);
               });
             });
+
+            //  svg, \
+            // .search__results__container__row .actionsMenu__item--del p
+            $('.search__results__container__row .actionsMenu__item--del').click(() => {
+              console.log('Waiting for confirmation...');
+              hideParent();
+              confirmation();
+
+              // Hide the record from the interface
+              $(`.${record[1]}`).toggleClass('hidden flex');
+
+              let record = $(this).parents('.search__results__container__row').attr('class').split(' ');
+
+              recordDelTimeOut = setTimeout(() => {
+                // Delete the record from the interface
+                $(`.${record[1]}`).remove(() => {
+                  console.log('remove record');
+                  confirmation();
+
+                  // Send the record ID to delete to the server
+                  socket.emit('delete data', $(`.${record[1]} .search__results__container__row__item--id`).text());
+
+                  // TODO: Server-side changes !
+                });
+              }, 5000);
+            });
+
+            $('.confirmation__body__cancel').click(() => {
+              console.log('Cancelling request...');
+              smartHide('.confirmation', 'out', recordDelTimeOut);
+            });
           });
       }
     }
 
     $('.search__results__container').fadeIn();
   });
-
 }
 
 search();

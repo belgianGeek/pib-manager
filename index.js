@@ -164,8 +164,8 @@ app.get('/', (req, res) => {
           .catch(err => {
             console.error(err);
           });
-        }
-        updateBarcode();
+      }
+      updateBarcode();
 
       io.on('append data', data => {
         if (data.table === 'out_requests') {
@@ -267,21 +267,21 @@ app.get('/', (req, res) => {
                 })
                 .then(() => {
                   DBquery(io, 'COPY', 'drafts', {
-                    text: `COPY drafts TO '${path.join(__dirname + '/exports/drafts.csv')}' DELIMITER ',' CSV HEADER`
-                  })
-                  .then(() => {
-                    // Zip the received files before sending them to the client
-                    let zip = new zip();
+                      text: `COPY drafts TO '${path.join(__dirname + '/exports/drafts.csv')}' DELIMITER ',' CSV HEADER`
+                    })
+                    .then(() => {
+                      // Zip the received files before sending them to the client
+                      let zip = new zip();
 
-                    zip.addLocalFolder('exports', 'pib-manager-export.zip');
+                      zip.addLocalFolder('exports', 'pib-manager-export.zip');
 
-                    zip.writeZip('exports/pib-manager-export.zip');
+                      zip.writeZip('exports/pib-manager-export.zip');
 
-                    next();
-                  })
-                  .catch(err => {
-                    console.error(`Une erreur est survenue lors de l'export de la table des requêtes express : ${err}`);
-                  });
+                      next();
+                    })
+                    .catch(err => {
+                      console.error(`Une erreur est survenue lors de l'export de la table des requêtes express : ${err}`);
+                    });
                 })
                 .catch(err => {
                   console.error(`Une erreur est survenue lors de l'export de la table des prêts : ${err}`);
@@ -332,7 +332,7 @@ app.get('/', (req, res) => {
   .get('/search', (req, res) => {
     res.render('search.ejs');
 
-    io.on('connection', io => {
+    io.once('connection', io => {
       io.on('search', data => {
         let query = '';
         console.log(JSON.stringify(data, null, 2));
@@ -343,16 +343,22 @@ app.get('/', (req, res) => {
             query = `SELECT * FROM ${data.table} WHERE reader_name ILIKE '%${data.reader}%'`;
           } else if (data.getReader && data.title) {
             query = `SELECT * FROM ${data.table} WHERE (book_title ILIKE '%${data.title}%') AND (reader_name ILIKE '%${data.reader}%')`;
+          } else {
+            query = `SELECT * FROM ${data.table}`;
           }
         } else if (data.table === 'out_requests') {
           if (data.getTitle) {
             query = `SELECT * FROM ${data.table} WHERE book_title ILIKE '%${data.title}%'`;
+          } else {
+            query = `SELECT * FROM ${data.table}`;
           }
         } else if (data.table === 'drafts') {
           if (data.getTitle && !data.getReader) {
             query = `SELECT * FROM ${data.table} WHERE book_title ILIKE '%${data.title}%'`;
           } else if (!data.getTitle && data.getReader) {
             query = `SELECT * FROM ${data.table} WHERE reader_name ILIKE '%${data.reader}%'`;
+          } else {
+            query = `SELECT * FROM ${data.table}`;
           }
         }
 
@@ -372,11 +378,22 @@ app.get('/', (req, res) => {
         query = `UPDATE ${record.table} SET request_date = '${record.date}', reader_name = '${record.reader}', book_title = '${record.title}', comment = '${record.comment}' WHERE id = ${record.id}`;
         console.log(query);
         DBquery(io, 'UPDATE', record.table, {
-          text: query
-        })
-        .then(res => {
-          console.log('row ' + record.id + ' updated');
-        })
+            text: query
+          })
+          .then(res => {
+            console.log('row ' + record.id + ' updated');
+          })
+      });
+
+      io.on('delete data', data => {
+        if (data.table === 'drafts') {
+          DBquery(io, 'DELETE FROM', data.table, {
+              text: `DELETE FROM ${data.table} WHERE id = ${data.id}`
+            })
+            .catch(err => {
+              console.error(err);
+            });
+        }
       });
     });
   })
