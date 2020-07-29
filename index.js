@@ -124,6 +124,10 @@ setInterval(() => {
   exportDB(`./backups/pib_${Date.now()}.pgsql`);
 }, 30 * 60 * 1000);
 
+
+// Define a variable to store a file to download when exporting DB
+let file2download;
+
 client.connect()
   .then(() => {
     if (!ip.address().match(/169.254/) || !ip.address().match(/127.0/)) {
@@ -275,9 +279,10 @@ app.get('/', (req, res) => {
 
                       zip.addLocalFolder('exports', 'pib-manager-export.zip');
 
-                      zip.writeZip('exports/pib-manager-export.zip');
+                      file2download = 'exports/pib-manager-export.zip';
 
-                      next();
+                      zip.writeZip(file2download);
+                      io.emit('export successfull');
                     })
                     .catch(err => {
                       console.error(`Une erreur est survenue lors de l'export de la table des requêtes express : ${err}`);
@@ -331,11 +336,10 @@ app.get('/', (req, res) => {
 
   .get('/search', (req, res) => {
     res.render('search.ejs');
+    let query = '';
 
     io.once('connection', io => {
       io.on('search', data => {
-        let query = '';
-        console.log(JSON.stringify(data, null, 2));
         if (data.table === 'in_requests') {
           if (data.getTitle && !data.getReader) {
             query = `SELECT * FROM ${data.table} WHERE book_title ILIKE '%${data.title}%'`;
@@ -374,30 +378,41 @@ app.get('/', (req, res) => {
       });
 
       io.on('update', record => {
-        console.log(record);
-        query = `UPDATE ${record.table} SET request_date = '${record.date}', reader_name = '${record.reader}', book_title = '${record.title}', comment = '${record.comment}' WHERE id = ${record.id}`;
+        if (record.table === 'drafts') {
+          query = `UPDATE ${record.table} SET request_date = '${record.date}', reader_name = '${record.reader}', book_title = '${record.title}', comment = '${record.comment}' WHERE id = ${record.id}`;
+        } else if (record.table === 'in_requests') {
+          console.log(JSON.stringify(record, null, 2));
+          if (record.authorFirstName) {
+            query = `UPDATE ${record.table} SET pib_number = '${record.values[0]}', borrowing_library = '${record.values[1]}', request_date = '${record.values[2]}', reader_name = '${record.values[4]}', book_title = '${record.values[5]}', book_author_name = '${record.values[6]}', book_author_firstname = '${record.values[7]}', cdu = '${record.values[8]}', out_province = ${record.values[9]}, barcode = '${record.values[10]}' WHERE pib_number = '${record.key}'`;
+          } else {
+            query = `UPDATE ${record.table} SET pib_number = '${record.values[0]}', borrowing_library = '${record.values[1]}', request_date = '${record.values[2]}', reader_name = '${record.values[4]}', book_title = '${record.values[5]}', book_author_name = '${record.values[6]}', cdu = '${record.values[7]}', out_province = ${record.values[8]}, barcode = '${record.values[9]}' WHERE pib_number = '${record.key}'`;
+          }
+        }
         console.log(query);
         DBquery(io, 'UPDATE', record.table, {
-            text: query
-          })
-          .then(res => {
-            console.log('row ' + record.id + ' updated');
-          })
+          text: query
+        })
       });
 
       io.on('delete data', data => {
+        console.log(data);
         if (data.table === 'drafts') {
-          DBquery(io, 'DELETE FROM', data.table, {
-              text: `DELETE FROM ${data.table} WHERE id = ${data.id}`
-            })
-            .catch(err => {
-              console.error(err);
-            });
+          query = `DELETE FROM ${data.table} WHERE id = ${data.key}`;
+        } else if (data.table === 'in_requests') {
+          query = `DELETE FROM ${data.table} WHERE pib_number = ${data.key}`;
         }
+        console.log(query);
+
+        DBquery(io, 'DELETE FROM', data.table, {
+            text: query
+          })
+          .catch(err => {
+            console.error(err);
+          });
       });
     });
   })
 
   .get('/download', (req, res, next) => {
-    res.download('./exports/pib-manager-export.zip');
+    res.download(file2download);
   });

@@ -398,7 +398,7 @@ $('.header__actionsContainer__importExport').click(() => {
 socket.on('export successfull', () => {
   $.ajax({
     method: 'GET',
-    url: '/zip'
+    url: '/download'
   });
 });
 
@@ -497,7 +497,7 @@ const draftNewRequest = () => {
 
 draftNewRequest();
 
-
+let initialPibNb;
 const inRequests = () => {
   let barcode = $('.inRequests__form__docInfo__inv');
   let inRequestsTimeOut;
@@ -532,6 +532,87 @@ const inRequests = () => {
   let reminderTitle, reminderAuthor;
   let reminderInv = barcode.val();
 
+  const sendData = () => {
+    confirmation();
+
+    inRequestsTimeOut = setTimeout(() => {
+      data2send.values.push(pibNb.val());
+      data2send.values.push(borrowingLibrary.val());
+
+      // Stocker la date en timestamp
+      data2send.values.push(new Date(requestDate.val()).toUTCString());
+      data2send.values.push(loanLibrary.val());
+      data2send.values.push(readerName.val());
+
+      // We don't send a confirmation email to the reader if we're updating a record
+      if (!$('.inRequests').hasClass('absolute')) {
+        data2send.email = {
+          send: true,
+          receiver: readerName.val()
+        };
+      }
+      data2send.values.push(title.val());
+
+      // Si le nom de l'auteur est n'est pas de forme NOM, Prénom
+      if (author.indexOf(',') === -1) {
+        // On change la valeur de data2send.authorFirstName car la condition est fausse
+        data2send.authorFirstName = false;
+        data2send.values.push(author);
+      } else {
+        author = author.split(',');
+        data2send.values.push(author[0].trim(), author[1].trim());
+      }
+
+      data2send.values.push(cdu.val());
+      data2send.values.push(outProvince);
+      data2send.values.push(barcode.val());
+
+      // Send data to the server
+      // If the form has the class 'absolute', append data to the DB and proceed to the next step
+      if (!$('.inRequests').hasClass('absolute')) {
+        socket.emit('append data', data2send);
+
+        $('.inRequests__step3')
+          .fadeOut(() => {
+            confirmation();
+
+            // Envoi du mail de notification au lecteur
+            socket.emit('send mail', {
+              name: readerName.val(),
+              mail: readerMail.val(),
+              gender: gender,
+              request: $('.inRequests__form__docInfo__title').val()
+            });
+
+            // Suppression du code-barres inventaire précédent
+            $('.inRequests__step2__barcode .inRequests__barcode__svg').remove();
+
+            $('.inRequests__form .input').not('.inRequests__form__pibInfo__requestDate, .inRequests__form__pibInfo__loanLibrary, .inRequests__form__docInfo__inv').val('');
+
+            $('.inRequests__step3')
+              .removeAttr('style')
+              .toggleClass('hidden flex');
+
+            $('.home').toggleClass('hidden flex');
+            $('.header__container__icon, .header__container__msg').toggleClass('hidden');
+          });
+      } else {
+        // Else, update the existing record and hide the update form
+
+        // Append the initial pib number to the array to send to the server as it'll be the key to update the specified record
+        data2send.key = initialPibNb;
+        confirmation();
+        $('.inRequests.absolute').toggleClass('hidden flex');
+        $('.wrapper').toggleClass('backgroundColor blur');
+
+        socket.emit('update', data2send);
+      }
+
+
+      data2send.values = [];
+    }, 5000);
+  }
+
   $('.inRequests__form__btnContainer__submit').click(event => {
     event.preventDefault();
     data2send.table = 'in_requests';
@@ -561,9 +642,12 @@ const inRequests = () => {
       invalid(readerName);
     }
 
-    // Adresse mail du lecteur
-    if (readerMail.val() === '') {
-      invalid(readerMail);
+    // An email doesn't need to be sent when a record is being updated
+    if (!$('.inRequests').hasClass('absolute')) {
+      // Adresse mail du lecteur
+      if (readerMail.val() === '') {
+        invalid(readerMail);
+      }
     }
 
     // Titre du document
@@ -600,30 +684,35 @@ const inRequests = () => {
       $('.input').removeClass('invalid');
       $('form .warning').hide();
 
-      // Cloner le QR code pour le réutiliser à l'étape suivante
-      let clonedSvg = $('.inRequests__barcode__svg').clone();
-      if ($('.inRequests__step2__barcode svg').length === 0) {
-        clonedSvg.appendTo('.inRequests__step2__barcode');
+      // Avoid style modification while updating a record through the search module
+      if (!$('.inRequests').hasClass('absolute')) {
+        // Cloner le QR code pour le réutiliser à l'étape suivante
+        let clonedSvg = $('.inRequests__barcode__svg').clone();
+        if ($('.inRequests__step2__barcode svg').length === 0) {
+          clonedSvg.appendTo('.inRequests__step2__barcode');
+        } else {
+          $('.inRequests__step2__barcode svg').replaceWith(clonedSvg);
+        }
+
+        $('.inRequests__step2__reminder__content__item__title').text(reminderTitle);
+        $('.inRequests__step2__reminder__content__item__author').text(reminderAuthor);
+        $('.inRequests__step2__reminder__content__item__inv').text(reminderInv);
+
+        $('.inRequests__step1')
+          .fadeOut(() => {
+            $('.inRequests__step1')
+              .removeAttr('style')
+              .toggleClass('hidden flex');
+          });
+
+        $(`.inRequests__step2`)
+          .fadeIn()
+          .removeAttr('style')
+          .removeClass('translateXonwards translateXbackwards hidden')
+          .toggleClass('fixed flex');
       } else {
-        $('.inRequests__step2__barcode svg').replaceWith(clonedSvg);
+        sendData();
       }
-
-      $('.inRequests__step2__reminder__content__item__title').text(reminderTitle);
-      $('.inRequests__step2__reminder__content__item__author').text(reminderAuthor);
-      $('.inRequests__step2__reminder__content__item__inv').text(reminderInv);
-
-      $('.inRequests__step1')
-        .fadeOut(() => {
-          $('.inRequests__step1')
-            .removeAttr('style')
-            .toggleClass('hidden flex');
-        });
-
-      $(`.inRequests__step2`)
-        .fadeIn()
-        .removeAttr('style')
-        .removeClass('translateXonwards translateXbackwards hidden')
-        .toggleClass('fixed flex');
     } else {
       if (!$('form .warning').length) {
         let warning = $('<span></span>')
@@ -633,10 +722,10 @@ const inRequests = () => {
       };
 
       validationErr = false;
-    }
 
-    // Vider les champs pour éviter des erreurs lors des prochaines requêtes
-    data2send.values = [];
+      // Empty the data2send.values array to avoid validation errors
+      data2send.values = [];
+    }
   });
 
   $('.inRequests__form__btnContainer__reset').click(() => {
@@ -646,67 +735,11 @@ const inRequests = () => {
     data2send.values = [];
   });
 
-  $('.inRequests__step3__confirmation').click(() => {
-    confirmation();
-
-    inRequestsTimeOut = setTimeout(() => {
-      data2send.values.push(pibNb.val());
-      data2send.values.push(borrowingLibrary.val());
-
-      // Stocker la date en timestamp
-      data2send.values.push(new Date(requestDate.val()).toUTCString());
-      data2send.values.push(loanLibrary.val());
-      data2send.values.push(readerName.val());
-      data2send.email = {
-        send: true,
-        receiver: readerName.val()
-      };
-      data2send.values.push(title.val());
-
-      // Si le nom de l'auteur est n'est pas de forme NOM, Prénom
-      if (author.indexOf(',') === -1) {
-        // On change la valeur de data2send.authorFirstName car la condition est fausse
-        data2send.authorFirstName = false;
-        data2send.values.push(author);
-      } else {
-        author = author.split(',');
-        data2send.values.push(author[0].trim(), author[1].trim());
-      }
-
-      data2send.values.push(cdu.val());
-      data2send.values.push(outProvince);
-      data2send.values.push(barcode.val());
-
-      // Envoi des données au serveur
-      socket.emit('append data', data2send);
-      data2send.values = [];
-
-      $('.inRequests__step3')
-        .fadeOut(() => {
-          confirmation();
-
-          // Envoi du mail de notification au lecteur
-          socket.emit('send mail', {
-            name: readerName.val(),
-            mail: readerMail.val(),
-            gender: gender,
-            request: $('.inRequests__form__docInfo__title').val()
-          });
-
-          // Suppression du code-barres inventaire précédent
-          $('.inRequests__step2__barcode .inRequests__barcode__svg').remove();
-
-          $('.inRequests__form .input').not('.inRequests__form__pibInfo__requestDate, .inRequests__form__pibInfo__loanLibrary, .inRequests__form__docInfo__inv').val('');
-
-          $('.inRequests__step3')
-            .removeAttr('style')
-            .toggleClass('hidden flex');
-
-          $('.home').toggleClass('hidden flex');
-          $('.header__container__icon, .header__container__msg').toggleClass('hidden');
-        });
-    }, 5000);
-  });
+  if (!$('.inRequests').hasClass('absolute')) {
+    $('.inRequests__step3__confirmation').click(() => {
+      sendData();
+    });
+  }
 
   $('.confirmation__body__cancel').click(() => {
     clearTimeout(inRequestsTimeOut);
@@ -898,7 +931,7 @@ sendDeletion('.inReturns__step3');
 
 
 const search = () => {
-  let recordDelTimeOut, recordUpdateTimeOut, record2modify;
+  let recordDelTimeOut, recordUpdateTimeOut, inRequestsTimeOut, record2modify;
   let updatedRecord = {};
   let searchData = {
     table: '',
@@ -1190,74 +1223,86 @@ const search = () => {
           });
         });
       } else if ($('.search__container__select').val() === 'in_requests') {
-        $('.inRequests').toggleClass('hidden flex absolute');
+        $('.inRequests')
+          .addClass('absolute')
+          .toggleClass('hidden flex');
         $('.wrapper').toggleClass('blur backgroundColor');
 
         // Hide the mail field to prevent duplicate mailings
-        $('.inRequests__form__readerInfo__mail').addClass('hidden');
+        $('.inRequests.absolute .inRequests__form__readerInfo__mail').addClass('hidden');
+
+        // Set the initial PIB number
+        initialPibNb = $(`.${record2modify[1]} .search__results__container__row__item--pib`).text();
 
         // Fill in all the fields with the selected record data
-        $('.inRequests__form__pibInfo__pibNb').val($(`.${record2modify[1]} .search__results__container__row__item--pib`).text());
-        $('.inRequests__form__pibInfo__borrowingLibrary').val($(`.${record2modify[1]} .search__results__container__row__item--borrowing_library`).text());
-        $('.inRequests__form__pibInfo__requestDate').val(`${date[2]}-${date[1]}-${date[0]}`);
-        $('.inRequests__form__readerInfo__container__name').val($(`.${record2modify[1]} .search__results__container__row__item--reader`).text());
-        $('.inRequests__form__docInfo__title').val($(`.${record2modify[1]} .search__results__container__row__item--title`).text());
-        $('.inRequests__form__docInfo__author').val($(`.${record2modify[1]} .search__results__container__row__item--author`).text());
-        $('.inRequests__form__docInfo__cdu').val($(`.${record2modify[1]} .search__results__container__row__item--cdu`).text());
-        $('.inRequests__form__docInfo__inv').val($(`.${record2modify[1]} .search__results__container__row__item--code`).text());
+        $('.inRequests.absolute .inRequests__form__pibInfo__pibNb').val($(`.${record2modify[1]} .search__results__container__row__item--pib`).text());
+        $('.inRequests.absolute .inRequests__form__pibInfo__borrowingLibrary').val($(`.${record2modify[1]} .search__results__container__row__item--borrowing_library`).text());
+        $('.inRequests.absolute .inRequests__form__pibInfo__requestDate').val(`${date[2]}-${date[1]}-${date[0]}`);
+        $('.inRequests.absolute .inRequests__form__readerInfo__container__name').val($(`.${record2modify[1]} .search__results__container__row__item--reader`).text());
+        $('.inRequests.absolute .inRequests__form__docInfo__title').val($(`.${record2modify[1]} .search__results__container__row__item--title`).text());
+        $('.inRequests.absolute .inRequests__form__docInfo__author').val($(`.${record2modify[1]} .search__results__container__row__item--author`).text());
+        $('.inRequests.absolute .inRequests__form__docInfo__cdu').val($(`.${record2modify[1]} .search__results__container__row__item--cdu`).text());
+        $('.inRequests.absolute .inRequests__form__docInfo__inv').val($(`.${record2modify[1]} .search__results__container__row__item--code`).text());
 
         // out_province checkbox
         if ($(`.${record2modify[1]} .search__results__container__row__item--op`).hasClass('checked')) {
-          $('.inRequests__form__pibInfo__outProvince').attr('checked', true);
+          $('.inRequests.absolute .inRequests__form__pibInfo__outProvince').attr('checked', true);
         } else {
-          $('.inRequests__form__pibInfo__outProvince').attr('checked', false);
+          $('.inRequests.absolute .inRequests__form__pibInfo__outProvince').attr('checked', false);
         }
 
         // Generate the barcode
-        JsBarcode('.inRequests__barcode__svg', $('.inRequests__form__docInfo__inv').val(), barcodeOptions);
+        JsBarcode('.inRequests.absolute .inRequests__barcode__svg', $('.inRequests.absolute .inRequests__form__docInfo__inv').val(), barcodeOptions);
 
-        // Handle form submit
-        $('.inRequests__form__btnContainer__submit').click(() => {
-          confirmation();
-          inRequestsTimeOut = setTimeout(function () {
-            updatedRecord = {
-              pib: $('.inRequests__form__pibInfo__pibNb').val(),
-              borrowing_library: $('.inRequests__form__pibInfo__borrowingLibrary').val(),
-              date: $('.inRequests__form__pibInfo__requestDate').val(),
-              reader: $('.inRequests__form__readerInfo__container__name').val(),
-              title: $('.inRequests__form__docInfo__title').val(),
-              author: $('.inRequests__form__docInfo__author').val(),
-              cdu: $('.inRequests__form__docInfo__cdu').val()
-            }
+        // The form submit is handled in the inRequests function
+        $('.inRequests.absolute .inRequests__form__btnContainer__submit').click(() => {
+          // Update the web interface with the changes
+          $(`.${record2modify[1]} .search__results__container__row__item--pib`).text($('.inRequests__form__pibInfo__pibNb').val());
+          $(`.${record2modify[1]} .search__results__container__row__item--borrowing_library`).text($('.inRequests__form__pibInfo__borrowingLibrary').val());
+          $(`.${record2modify[1]} .search__results__container__row__item--date`).text(new Date($('.inRequests__form__pibInfo__requestDate').val()).toLocaleDateString());
+          $(`.${record2modify[1]} .search__results__container__row__item--reader`).text($('.inRequests__form__readerInfo__container__name').val());
+          $(`.${record2modify[1]} .search__results__container__row__item--title`).text($('.inRequests__form__docInfo__title').val());
+          $(`.${record2modify[1]} .search__results__container__row__item--author`).text($('.inRequests__form__docInfo__author').val());
+          $(`.${record2modify[1]} .search__results__container__row__item--cdu`).text($('.inRequests__form__docInfo__cdu').val());
+          $(`.${record2modify[1]} .search__results__container__row__item--code`).text($('.inRequests__form__docInfo__inv').val());
 
-            $('.inRequests').parents('.inRequests').toggleClass('hidden');
-            confirmation();
-            console.log(updatedRecord);
-
-            // TODO: server-side changes !
-          }, 5000);
-        })
-
+          if ($('.inRequests__form__pibInfo__outProvince').is(':checked')) {
+            $(`.${record2modify[1]} .search__results__container__row__item--op`).addClass('checked');
+          } else {
+            $(`.${record2modify[1]} .search__results__container__row__item--op`).addClass('unchecked');
+          }
+        });
       }
     });
 
     $('.search__results__container__row .actionsMenu__item--del').click(function() {
-      console.log('Waiting for confirmation...');
       let record = $(this).parents('.search__results__container__row').attr('class').split(' ');
+      let deletionKey = {};
       hideParent(record[1]);
       confirmation();
+
+      if ($('.search__container__select').val() === 'drafts') {
+        deletionKey = {
+          table: 'drafts',
+          key: $(`.${record[1]} .search__results__container__row__item--id`).text()
+        };
+      } else if ($('.search__container__select').val() === 'in_requests') {
+        deletionKey = {
+          table: 'in_requests',
+          key: $(`.${record[1]} .search__results__container__row__item--pib`).text()
+        };
+      }
 
       // Hide the record from the interface
       $(`.${record[1]}`).toggleClass('hidden flex');
 
-      recordDelTimeOut = setTimeout(function() {
+      recordDelTimeOut = setTimeout(() => {
         // Delete the record from the interface
         $(`.${record[1]}`).remove();
-        console.log('remove record');
         confirmation();
 
         // Send the record ID to delete to the server
-        socket.emit('delete data', updatedRecord);
+        socket.emit('delete data', deletionKey);
       }, 5000);
 
       $('.confirmation__body__cancel').click(() => {
