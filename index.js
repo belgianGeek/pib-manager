@@ -5,7 +5,7 @@ const ip = require('ip');
 const cp = require('child_process').exec;
 const path = require('path');
 const process = require('process');
-const zip = require('adm-zip');
+const admZip = require('adm-zip');
 
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
@@ -34,6 +34,7 @@ const createInRequestsTable = require('./modules/createInRequestsTable');
 const createOutRequestsTable = require('./modules/createOutRequestsTable');
 const createReadersTable = require('./modules/createReadersTable');
 const exportDB = require('./modules/exportDB');
+const emptyDir = require('./modules/emptyDir');
 const notify = require('./modules/notify');
 const existPath = require('./modules/existPath');
 const createDB = (client, config, DBname) => {
@@ -49,11 +50,6 @@ const createDB = (client, config, DBname) => {
         createInRequestsTable(newClient);
         createOutRequestsTable(newClient);
         createReadersTable(newClient);
-
-        newClient.query('SELECT request_date FROM drafts')
-          .then(res => {
-            console.log(res.rows);
-          })
       })
       .catch(err => {
         console.error(`Erreur de reconnexion... ${err}`);
@@ -94,7 +90,7 @@ const DBquery = (io, action, table, query) => {
             notify(io, 'info');
           }
         } else {
-          if (action !== 'SELECT' && table !== 'barcodes') {
+          if (action !== 'SELECT' && action !== 'COPY' && table !== 'barcodes') {
             if (io !== null) {
               notify(io, 'success');
             }
@@ -126,7 +122,7 @@ setInterval(() => {
 
 
 // Define a variable to store a file to download when exporting DB
-let file2download;
+let file2download = {};
 
 client.connect()
   .then(() => {
@@ -261,6 +257,8 @@ app.get('/', (req, res) => {
       });
 
       io.on('export db', format => {
+        emptyDir('exports');
+
         if (format === 'csv') {
           DBquery(io, 'COPY', 'in_requests', {
               text: `COPY in_requests TO '${path.join(__dirname + '/exports/loans.csv')}' DELIMITER ',' CSV HEADER`
@@ -275,13 +273,14 @@ app.get('/', (req, res) => {
                     })
                     .then(() => {
                       // Zip the received files before sending them to the client
-                      let zip = new zip();
+                      let zip = new admZip();
 
                       zip.addLocalFolder('exports', 'pib-manager-export.zip');
 
-                      file2download = 'exports/pib-manager-export.zip';
+                      file2download.path = 'exports/pib-manager-export.zip';
+                      file2download.name = 'pib-manager-export.zip';
 
-                      zip.writeZip(file2download);
+                      zip.writeZip(file2download.path);
                       io.emit('export successfull');
                     })
                     .catch(err => {
@@ -296,7 +295,11 @@ app.get('/', (req, res) => {
               console.error(`Une erreur est survenue lors de l'export de la table des emprunts : ${err}`);
             });
         } else if (format === 'pgsql') {
-          exportDB('exports/pib.pgsql');
+          file2download.path = 'exports/pib.pgsql';
+          file2download.name = 'pib.pgsql';
+          exportDB(file2download.path);
+
+          io.emit('export successfull');
         }
       });
 
@@ -414,5 +417,7 @@ app.get('/', (req, res) => {
   })
 
   .get('/download', (req, res, next) => {
-    res.download(file2download);
+    res.download(file2download.path, file2download.name, err => {
+      if (err) console.log(JSON.stringify(err, null, 2));
+    });
   });
