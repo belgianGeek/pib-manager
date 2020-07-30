@@ -1,3 +1,4 @@
+const env = require('dotenv').config();
 const fs = require('fs-extra');
 const express = require('express');
 const app = express();
@@ -28,51 +29,11 @@ const config = {
 const client = new Client(config);
 let newClient;
 
-const createBarcodesTable = require('./modules/createBarcodesTable');
-const createDraftsTable = require('./modules/createDraftsTable');
-const createInRequestsTable = require('./modules/createInRequestsTable');
-const createOutRequestsTable = require('./modules/createOutRequestsTable');
-const createReadersTable = require('./modules/createReadersTable');
+const createRole = require('./modules/createRole');
 const exportDB = require('./modules/exportDB');
 const emptyDir = require('./modules/emptyDir');
 const notify = require('./modules/notify');
 const existPath = require('./modules/existPath');
-const createDB = (client, config, DBname) => {
-  const reconnect = (client, config) => {
-    client.end();
-
-    newClient = new Client(config);
-    newClient.connect()
-      .then(() => {
-        console.log('Connexion établie, création des tables...');
-        createBarcodesTable(newClient);
-        createDraftsTable(newClient);
-        createInRequestsTable(newClient);
-        createOutRequestsTable(newClient);
-        createReadersTable(newClient);
-      })
-      .catch(err => {
-        console.error(`Erreur de reconnexion... ${err}`);
-      });
-  }
-
-  console.log(`Création de la base de données ${DBname}...`);
-  client.query(`CREATE DATABASE ${DBname} WITH ENCODING = 'UTF-8'`)
-    .then(res => {
-      config.database = DBname;
-      console.log(`Base de données ${DBname} créée avec succès, reconnexion en cours...`);
-      reconnect(client, config);
-    })
-    .catch(err => {
-      if (!err.message.match('already exists')) {
-        console.error(`Erreur lors de la création de la base de données ${DBname} : ${err}`);
-      } else {
-        console.log(`La base de données ${DBname} existe déjà !`);
-        config.database = DBname;
-        reconnect(client, config);
-      }
-    });
-}
 
 const DBquery = (io, action, table, query) => {
   if (arguments.length === 3) {
@@ -128,20 +89,17 @@ client.connect()
   .then(() => {
     if (!ip.address().match(/169.254/) || !ip.address().match(/127.0/)) {
       console.log(`Tu peux te connecter à PIB Manager ici : http://${ip.address()}:8000.`);
+      createRole(client, config, 'pib', process.env.PG_PASSWD);
     } else {
       console.log(`Désolé, il semble que tu n'aies pas accès à Internet... Rétablis ta connexion et réessaie :-)`);
     }
-
-    createDB(client, config, 'pib');
     return;
   })
   .catch(err => {
-    console.log(`Connection error : ${JSON.stringify(err, null, 2)}`);
+    console.log(`Connection error : ${err}`);
     if (err.code === 'ECONNREFUSED') {
-      let errMsg = 'Désolé, la connexion à la base de données n\'a pas pu être établie...\n' +
-        'Vérifie que le service PostgreSQL est bien démarré et relance PIB Manager.';
-
-      console.log(errMsg);
+      console.log('Désolé, la connexion à la base de données n\'a pas pu être établie...\n' +
+        'Vérifie que le service PostgreSQL est bien démarré et relance PIB Manager.');
     }
     return;
   });
