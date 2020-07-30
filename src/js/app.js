@@ -143,6 +143,10 @@ socket.on('notification', notification => {
     $('.notification__icon').attr('src', './src/scss/icons/info.svg');
     $('.notification').addClass('notificationInfo');
     $('.notification__msg').text('Aucune donnée correspondante n\'a été trouvée... 😶');
+  } else if (notification.type === 'mail') {
+    $('.notification__icon').attr('src', './src/scss/icons/mail.svg');
+    $('.notification').addClass('notificationMail');
+    $('.notification__msg').text('Mail envoyé au lecteur 😎');
   }
 
   $('.notification').toggleClass('hidden flex');

@@ -6,7 +6,7 @@ const createRole = (client, config, DBname, password) => {
   config.user = os.userInfo().username;
   config.password = password;
   config.database = DBname;
-  client.query(`CREATE ROLE ${os.userInfo().username} LOGIN PASSWORD '${password}'`, (err, res) => {
+  client.query(`CREATE ROLE ${os.userInfo().username} LOGIN CREATEDB PASSWORD '${password}'`, (err, res) => {
       if (err) {
         client.query(`DROP ROLE IF EXISTS ${os.userInfo().username}`, (err, res) => {
           if (err) {

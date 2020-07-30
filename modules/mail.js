@@ -1,10 +1,12 @@
+const env = require('dotenv').config();
 const nodemailer = require('nodemailer');
+const process = require('process');
 
 const mail = receiver => {
-  let sender = smtpUsername = 'maximevanderwegen@disroot.org';
+  let sender = smtpUsername = process.env.MAIL_SENDER;
   let tempReceiverName = receiver.name.split(',');
 
-  let smtpPass = 'Legrosestmon@mi';
+  let smtpPass = process.env.SMTP_PASSWD;
 
   let htmlMsg = '';
 
@@ -13,8 +15,10 @@ const mail = receiver => {
 
   if (receiver.gender.match('f')) {
     msg.unshift(`Bonjour Madame ${tempReceiverName[0].trim()},`);
-  } else {
+  } else if (receiver.gender.match('m')) {
     msg.unshift(`Bonjour Monsieur ${tempReceiverName[0].trim()},`);
+  } else {
+    msg.unshift(`Bonjour Madame/Monsieur ${tempReceiverName[0].trim()},`);
   }
 
   // Convert the message to the HTML format
@@ -25,7 +29,7 @@ const mail = receiver => {
   const sendMail = () => {
     // Create and send the mail
     let mail = nodemailer.createTransport({
-      host: 'disroot.org',
+      host: process.env.SMTP_HOST,
       port: 587,
       secure: false,
       auth: {
@@ -35,7 +39,7 @@ const mail = receiver => {
     });
 
     let options = {
-      from: `Max <${sender}>`,
+      from: `Grimoire d'Éole <${sender}>`,
       to: receiver.mail,
       subject: "PIB",
       text: msg.join('\n\n'),

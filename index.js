@@ -27,7 +27,6 @@ const config = {
   host: 'localhost'
 };
 const client = new Client(config);
-let newClient;
 
 const createRole = require('./modules/createRole');
 const exportDB = require('./modules/exportDB');
@@ -44,7 +43,7 @@ const DBquery = (io, action, table, query) => {
   }
 
   return new Promise((fullfill, reject) => {
-    newClient.query(query)
+    client.query(query)
       .then(res => {
         if (res.rowCount === 0 || res.rowCount === null) {
           if (io !== null) {
@@ -277,13 +276,15 @@ app.get('/', (req, res) => {
       });
 
       io.on('send mail', receiver => {
-        console.log('mail sent to ' + receiver);
-        // mail(receiver);
+        setTimeout(function () {
+          mail(receiver);
+          notify(io, 'mail');
+        }, 10000);
       });
 
       io.on('retrieve readers', name => {
         if (name.length >= 3) {
-          newClient.query(`SELECT name FROM readers WHERE name ILIKE '${name}%' LIMIT 5`)
+          client.query(`SELECT name FROM readers WHERE name ILIKE '${name}%' LIMIT 5`)
             .then(res => {
               io.emit('readers retrieved', res.rows);
             })

@@ -11,10 +11,10 @@ const createReadersTable = client => {
         console.log('readers table exists, moving on...');
         client.query('SELECT * FROM readers')
           .then(res => {
-            if (res.rowCount === 0 || res.rowCount === undefined) {
+            if (res.rowCount === 0 || res.rowCount === undefined || res.rowCount === null) {
               client.query(`COPY readers(name, email, gender) FROM '${path.join(__dirname, '../')}adlib.csv' DELIMITER ',' CSV HEADER;`)
                 .then(res => {
-                  console.log(`res.rowCount enregistrements ont été ajoutés à la table readers ;-)`);
+                  console.log(`${res.rowCount} enregistrements ont été ajoutés à la table readers ;-)`);
                 })
                 .catch(err => {
                   console.error(`Une erreur est survenue lors du remplissage de la table readers : ${err}`);

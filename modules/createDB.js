@@ -6,23 +6,6 @@ const createReadersTable = require('./createReadersTable');
 const createRole = require('./createRole');
 
 const createDB = (client, config, DBname) => {
-  // const reconnect = (client, config) => {
-  //   client.end();
-  //
-  //   newClient = new Client(config);
-  //   newClient.connect()
-  //     .then(() => {
-  //       console.log('Connexion établie, création des tables...');
-  //       createBarcodesTable(newClient);
-  //       createDraftsTable(newClient);
-  //       createInRequestsTable(newClient);
-  //       createOutRequestsTable(newClient);
-  //       createReadersTable(newClient);
-  //     })
-  //     .catch(err => {
-  //       console.error(`Erreur de reconnexion... ${err}`);
-  //     });
-  // }
   const reconnect = (client, config) => {
     createBarcodesTable(client);
     createDraftsTable(client);
