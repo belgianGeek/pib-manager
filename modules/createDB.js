@@ -4,6 +4,7 @@ const createInRequestsTable = require('./createInRequestsTable');
 const createOutRequestsTable = require('./createOutRequestsTable');
 const createReadersTable = require('./createReadersTable');
 const createRole = require('./createRole');
+const createSettingsTable = require('./createSettingsTable');
 
 const createDB = (client, config, DBname) => {
   const reconnect = (client, config) => {
@@ -12,6 +13,7 @@ const createDB = (client, config, DBname) => {
     createInRequestsTable(client);
     createOutRequestsTable(client);
     createReadersTable(client);
+    createSettingsTable(client);
   }
 
   console.log(`Création de la base de données ${DBname}...`);

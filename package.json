@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "adm-zip": "^0.4.16",
-    "csvtojson": "^2.0.10",
     "dotenv": "^8.2.0",
     "ejs": "^3.0.1",
     "express": "^4.17.1",
@@ -25,10 +24,8 @@
     "jsbarcode": "^3.11.0",
     "lodash": "^4.17.19",
     "nodemailer": "^6.4.6",
-    "opn": "^6.0.0",
     "pg": "^8.0.3",
     "pg-native": "^3.0.0",
-    "pm2": "^4.4.0",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0"
   },

@@ -18,8 +18,6 @@ const createRole = (client, config, DBname, password) => {
         });
       } else {
         console.log(`Rôle ${os.userInfo().username} créé avec succès !`);
-        console.log('dbname : ' + config.database);
-
         createDB(client, config, DBname);
       }
     });
