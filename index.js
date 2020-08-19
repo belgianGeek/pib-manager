@@ -7,6 +7,7 @@ const cp = require('child_process').exec;
 const path = require('path');
 const process = require('process');
 const admZip = require('adm-zip');
+const os = require('os');
 
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
@@ -19,20 +20,98 @@ const {
   Client
 } = require('pg');
 
-const config = {
+let config = {
   user: 'postgres',
   password: 'psql',
   database: 'postgres',
   port: 5432,
   host: 'localhost'
 };
-const client = new Client(config);
+const initClient = new Client(config);
+let client;
 
-const createRole = require('./modules/createRole');
 const exportDB = require('./modules/exportDB');
 const emptyDir = require('./modules/emptyDir');
 const notify = require('./modules/notify');
 const existPath = require('./modules/existPath');
+
+const createBarcodesTable = require('./modules/createBarcodesTable');
+const createDraftsTable = require('./modules/createDraftsTable');
+const createInRequestsTable = require('./modules/createInRequestsTable');
+const createOutRequestsTable = require('./modules/createOutRequestsTable');
+const createReadersTable = require('./modules/createReadersTable');
+const createSettingsTable = require('./modules/createSettingsTable');
+
+const createDB = (config, DBname) => {
+  const createTables = () => {
+    client = new Client(config);
+
+    client.connect()
+      .then(() => {
+        console.log('Reconnexion effectuée !');
+        createBarcodesTable(client);
+        createDraftsTable(client);
+        createInRequestsTable(client);
+        createOutRequestsTable(client);
+        createReadersTable(client);
+        createSettingsTable(client);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  const setPrivileges = () => {
+    // Grant all privileges to the current user connected to the OS
+    initClient.query(`GRANT ALL PRIVILEGES ON DATABASE ${DBname} TO ${config.user}`)
+      .then(res => {
+        console.log(res, 'Privileges granted to ' + config.user + ' !');
+      })
+      .catch(err => {
+        console.log(err);
+      });
+
+    // Set database owner
+    initClient.query(`ALTER DATABASE ${DBname} OWNER TO ${config.user}`)
+      .then(res => {
+        console.log('Ownership granted to ' + config.user + ' !');
+        initClient
+          .end()
+          .then(() => console.log('Reconnexion en cours...'))
+          .catch(err => console.error('Une erreur est survenue lors de la tentative de reconnexion à la base de données', err));
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  console.log(`Création de la base de données ${DBname}...`);
+  initClient.query(`CREATE DATABASE ${DBname} WITH ENCODING = 'UTF-8'`)
+    .then(res => {
+      setPrivileges();
+      console.log(`Base de données ${DBname} créée avec succès, création des tables en cours...`);
+      createTables();
+    })
+    .catch(err => {
+      if (!err.message.match('already exists')) {
+        console.error(`Erreur lors de la création de la base de données ${DBname} : ${err}`);
+      } else {
+        console.log(`La base de données ${DBname} existe déjà !`);
+        setPrivileges();
+        createTables();
+      }
+    });
+}
+
+const createRole = (config, DBname, password) => {
+  config.user = os.userInfo().username;
+  config.password = password;
+  config.database = DBname;
+  initClient.query(`CREATE ROLE ${config.user} WITH SUPERUSER LOGIN PASSWORD '${password}'`, (err, res) => {
+    console.log(`Rôle ${config.user} créé avec succès !`);
+    createDB(config, DBname);
+  });
+}
 
 const DBquery = (io, action, table, query) => {
   if (arguments.length === 3) {
@@ -84,11 +163,11 @@ setInterval(() => {
 // Define a variable to store a file to download when exporting DB
 let file2download = {};
 
-client.connect()
+initClient.connect()
   .then(() => {
     if (!ip.address().match(/169.254/) || !ip.address().match(/127.0/)) {
       console.log(`Tu peux te connecter à PIB Manager ici : http://${ip.address()}:8000.`);
-      createRole(client, config, 'pib', process.env.PG_PASSWD);
+      createRole(config, 'pib', process.env.PG_PASSWD);
     } else {
       console.log(`Désolé, il semble que tu n'aies pas accès à Internet... Rétablis ta connexion et réessaie :-)`);
     }
