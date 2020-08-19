@@ -65,7 +65,7 @@ const createDB = (config, DBname) => {
     // Grant all privileges to the current user connected to the OS
     initClient.query(`GRANT ALL PRIVILEGES ON DATABASE ${DBname} TO ${config.user}`)
       .then(res => {
-        console.log(res, 'Privileges granted to ' + config.user + ' !');
+        console.log(`Privilèges accordés à l'utilisateur ${config.user} !`);
       })
       .catch(err => {
         console.log(err);
@@ -74,7 +74,7 @@ const createDB = (config, DBname) => {
     // Set database owner
     initClient.query(`ALTER DATABASE ${DBname} OWNER TO ${config.user}`)
       .then(res => {
-        console.log('Ownership granted to ' + config.user + ' !');
+        console.log(`L'utilisateur ${config.user} est désormais le propriétaire de la base de données ${DBname} !`);
         initClient
           .end()
           .then(() => console.log('Reconnexion en cours...'))

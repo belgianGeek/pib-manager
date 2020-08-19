@@ -164,7 +164,6 @@ socket.on('notification', notification => {
 
 
 const smartHide = (className, method, timeout) => {
-  console.log('smartHide');
   if (method === 'in') {
     $(className)
       .fadeIn(function() {
@@ -278,8 +277,16 @@ addReader();
 
 
 const autocomplete = (input, dataset) => {
-  $(input).keyup(() => {
+  $(input).on('keydown', function() {
     socket.emit('retrieve readers', $(input).val());
+
+    if ($(this).val() === '') {
+      $(dataset)
+        .empty()
+        .toggleClass('hidden flex');
+
+      $(input).removeAttr('style');
+    }
   });
 
   socket.on('readers retrieved', readers => {
@@ -301,34 +308,33 @@ const autocomplete = (input, dataset) => {
 
     $(dataset)
       .empty()
-      .toggleClass('hidden flex');
+      .addClass('flex')
+      .removeClass('hidden');
 
     for (const reader of readers) {
-      if (!$(`.${reader.name.match(/[^,\s]/gi).join('')}`).length) {
-        let option = $('<p></p>')
-          .append(reader.name)
-          .addClass(reader.name.match(/[^,\s]/gi).join(''))
-          .appendTo(dataset);
+      let option = $('<p></p>')
+        .append(reader.name)
+        .addClass(reader.name.match(/[^,\s]/gi).join(''))
+        .appendTo(dataset);
 
-        option.click(function() {
-          $(input)
-            .val($(this).text())
-            .removeAttr('style');
+      option.click(function() {
+        $(input)
+          .val($(this).text())
+          .removeAttr('style');
 
-          $(dataset)
-            .toggleClass('hidden flex')
-            .empty();
+        $(dataset)
+          .toggleClass('hidden flex')
+          .empty();
 
-          if (input === '.inRequests__form__readerInfo__container__name') {
-            socket.emit('mail request', $(this).text());
+        if (input === '.inRequests__form__readerInfo__container__name') {
+          socket.emit('mail request', $(this).text());
 
-            socket.on('mail retrieved', receiver => {
-              $('.inRequests__form__readerInfo__mail').val(receiver.mail);
-              gender = receiver.gender[0];
-            });
-          }
-        });
-      }
+          socket.on('mail retrieved', receiver => {
+            $('.inRequests__form__readerInfo__mail').val(receiver.mail);
+            gender = receiver.gender[0];
+          });
+        }
+      });
     }
   });
 
@@ -399,7 +405,6 @@ $('.export .btn--reset').click(() => {
 });
 
 socket.on('export successfull', () => {
-  console.log('success !');
   smartHide('.export', 'out');
   window.open('/download');
 });

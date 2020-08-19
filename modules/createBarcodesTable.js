@@ -11,7 +11,6 @@ module.exports = function createBarcodesTable(client) {
 
         client.query(`SELECT * FROM barcodes`, (err, res) => {
           if (err) {
-            console.log(JSON.stringify(err, null, 2));
             console.error(`Erreur lors de la requête de code-barres dans la table barcodes : ${err}`);
           } else {
             if (res.rowCount === 0 || res.rowCount === null) {
