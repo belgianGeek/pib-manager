@@ -162,12 +162,16 @@
         <input class="addReader__step1__form__email__input input" type="email" placeholder="Adresse email">
         <h3 class="addReader__step1__form__title title">Sexe</h3>
         <span class="addReader__step1__form__male flex">
-          <input class="addReader__step1__form__male__input input radio" name="gender" type="radio" value="masculin">
-          <label class"addReader__step1__form__male__label" for="male">Masculin</label>
+          <label class"addReader__step1__form__male__label">
+            <input class="addReader__step1__form__male__input input radio" name="gender" type="radio" value="masculin">
+            Masculin
+          </label>
         </span>
         <span class="addReader__step1__form__female flex">
-          <input class="addReader__step1__form__female__input input radio" name="gender" type="radio" value="féminin">
-          <label class"addReader__step1__form__female__label" for="female">Féminin</label>
+          <label class"addReader__step1__form__female__label">
+            <input class="addReader__step1__form__female__input input radio" name="gender" type="radio" value="féminin">
+            Féminin
+          </label>
         </span>
         <span class="addReader__step1__form__btnContainer flex">
           <button class="addReader__step1__form__btnContainer__reset btn btn--reset" type="reset">Effacer les champs</button>
@@ -183,11 +187,11 @@
       <section class="export__child__container flex">
         <form class="export__child__container__format flex">
           <h3 class="title">Format</h3>
-          <label class"export__child__container__format__csv">
+          <label class="export__child__container__format__csv">
             <input class="export__child__container__format__csv__input input radio" name="DBformat" type="radio" value="csv">
             CSV (compatible Excel)
           </label>
-          <label class"export__child__container__format__pgsql">
+          <label class="export__child__container__format__pgsql">
             <input class="export__child__container__format__pgsql__input input radio" name="DBformat" type="radio" value="pgsql">
             PostgreSQL (format base de données)
           </label>
@@ -203,4 +207,5 @@
   <%- include('confirmation'); %>
   <%- include('scripts'); %>
 </body>
+
 </html>
