@@ -30,6 +30,9 @@ let config = {
 const initClient = new Client(config);
 let client;
 
+// Define a variable to store the settings queried retrieved from the DB
+var settings = {};
+
 const exportDB = require('./modules/exportDB');
 const emptyDir = require('./modules/emptyDir');
 const notify = require('./modules/notify');
@@ -55,6 +58,13 @@ const createDB = (config, DBname) => {
         createOutRequestsTable(client);
         createReadersTable(client);
         createSettingsTable(client);
+
+        client.query({
+            text: 'SELECT * FROM settings'
+          })
+          .then(res => {
+            settings = res.rows[0];
+          });
       })
       .catch(err => {
         console.log(err);
@@ -185,7 +195,10 @@ initClient.connect()
 app.use("/src", express.static(__dirname + "/src"));
 
 app.get('/', (req, res) => {
-    res.render('index.ejs');
+    res.render('index.ejs', {
+      wallpaper: settings.wallpaper
+    });
+    console.log('settings', settings);
 
     io.once('connection', io => {
       const updateBarcode = () => {
@@ -355,7 +368,7 @@ app.get('/', (req, res) => {
       });
 
       io.on('send mail', receiver => {
-        setTimeout(function () {
+        setTimeout(function() {
           mail(receiver);
           notify(io, 'mail');
         }, 10000);
@@ -412,7 +425,6 @@ app.get('/', (req, res) => {
           })
           .then(res => {
             if (res.rowCount !== 0 || res.rowCount !== null) {
-              console.log('Results : ' + JSON.stringify(res.rows, null, 2));
               io.emit('search results', res.rows);
             }
           });

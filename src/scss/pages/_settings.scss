@@ -1,0 +1,98 @@
+.settings__container {
+  width: 100%;
+  height: 100%;
+  @include align(center, center);
+  position: absolute;
+  top: 0;
+  font-size: 1em;
+  z-index: 3;
+
+  .settings__child {
+    @include align;
+    flex-direction: column;
+    width: 60%;
+    height: 85%;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 15px;
+    @include box-shadow;
+    overflow-y: auto;
+    overflow-x: hidden;
+    @media(max-width: 720px) {
+      overflow-y: auto;
+      width: 90%;
+    }
+
+    &__emailContent {
+      min-width: 90%;
+      max-width: 90%;
+      min-height: 25%;
+      max-height: 25%;
+      padding: 0.5em;
+      border: 2px solid grey;
+      border-radius: 0.5em;
+      background-color: $translucent-black;
+    }
+
+    &__header {
+      flex-direction: row;
+      width: 100%;
+      margin: 1% 0 0 1%;
+
+      h1 {
+        font-size: 1.5em;
+        width: 100%;
+        text-align: center;
+        font-family: 'Lobster Two Bold Italic';
+        margin-bottom: 0;
+      }
+    }
+
+    &__heading {
+      font-family: 'Lobster Two Bold Italic';
+      margin: 2em 0 0 1em;
+    }
+
+    &__heading2 {
+      font-size: 1.3em;
+      padding-bottom: 1.5em;
+    }
+
+    .settings__BtnContainer {
+      width: 100%;
+      display: inline-flex;
+      justify-content: flex-end;
+      margin-top: 1.5em;
+      padding-bottom: 1.5em;
+      @media(max-width: 720px) {
+        position: relative;
+        top: 5%;
+        left: 0;
+        justify-content: space-evenly;
+      }
+    }
+
+    &__cancelBtn,
+    &__saveBtn {
+      padding: 0.7em;
+      margin-right: 1.1em;
+      @media(max-width: 720px) {
+        margin-bottom: 1em;
+        margin-right: 0;
+      }
+    }
+
+    .backgroundImageUploadForm {
+      margin: 2em 0 0 1em;
+      justify-content: space-between;
+      width: 90%;
+      align-items: center;
+      @media(max-width: 720px) {
+        flex-direction: column;
+      }
+
+      & * {
+        font-size: 1.05em;
+      }
+    }
+  }
+}

@@ -377,6 +377,28 @@ const setDate = () => {
 
 setDate();
 
+const settings = () => {
+  // Get settings from the server-side
+  socket.on('settings', settings => {
+    console.log(settings);
+  });
+
+  // Show settings on btn click
+  $('.settingsLink').click(() => {
+    $('.settings__container').toggleClass('hidden flex');
+    $('.wrapper').addClass('blur');
+  });
+}
+
+settings();
+
+$('.menu__item').click(() => {
+  // Hide the sidebar on item click if it is currently shown
+  if ($('.header__menu__switch').prop('checked')) {
+    $('.header__menu__switch').prop('checked', false);
+  }
+});
+
 const exportDB = () => {
   let format = '';
 
@@ -391,7 +413,7 @@ const exportDB = () => {
   format = '';
 }
 
-$('.header__actionsContainer__importExport').click(() => {
+$('.exportsLink').click(() => {
   smartHide('.export', 'in');
   format = '';
 });
@@ -418,7 +440,7 @@ const draftNewRequest = () => {
 
   let draftTimeOut;
 
-  $('.header__actionsContainer__draft').click(() => {
+  $('.draftsLink').click(() => {
     smartHide('.draft', 'in');
   });
 

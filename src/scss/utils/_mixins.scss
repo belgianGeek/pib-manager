@@ -1,3 +1,7 @@
+@mixin align($justify: start, $align: start) {
+  justify-content: $justify;
+  align-items: $align;
+}
 @mixin autocomplete {
   flex-direction: column;
   @include input;
