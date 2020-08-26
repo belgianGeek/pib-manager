@@ -31,7 +31,6 @@ handleHomeBtnClick('outRequests', 'btnContainer');
 handleHomeBtnClick('inRequests', 'btnContainer');
 handleHomeBtnClick('inReturns', 'btnContainer');
 handleHomeBtnClick('outReturns', 'btnContainer');
-handleHomeBtnClick('addReader', 'optionsContainer');
 
 
 // Connexion au websocket
@@ -84,7 +83,9 @@ $('.returnIcon').click(() => {
       .removeClass('translateXbackwards')
       .toggleClass('translateXonwards hidden');
     $('.home').toggleClass('hidden flex');
-    $('.returnIcon, .header__container__msg').toggleClass('hidden');
+    $('.returnIcon, .header__container__msg')
+      .addClass('hidden')
+      .removeClass('flex');
 
     setTimeout(() => {
       $(step).toggleClass('translateXonwards flex');
@@ -273,7 +274,10 @@ const addReader = () => {
   });
 }
 
-addReader();
+$('.addReaderLink').click(() => {
+  $('.home, .returnIcon, .header__container__msg, .addReader__step1').toggleClass('hidden flex');
+  addReader();
+});
 
 
 const autocomplete = (input, dataset) => {

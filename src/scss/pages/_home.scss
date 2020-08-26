@@ -191,23 +191,9 @@
     height: max-content;
   }
 
-  &__btnContainer,
-  &__optionsContainer {
+  &__btnContainer {
     width: 100vw;
     justify-content: space-evenly;
-  }
-
-  &__optionsContainer {
-    padding-top: 1em;
-
-    &__addReader,
-    &__search {
-      border: 2px solid $electric-blue;
-
-      &:hover {
-        background-color: $electric-blue;
-      }
-    }
   }
 
   &__mainTitle {
