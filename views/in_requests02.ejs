@@ -6,8 +6,10 @@
       <input class="inRequests__form__pibInfo__borrowingLibrary input" type="text" placeholder="Bibliothèque d'origine..." required="true">
       <input class="inRequests__form__pibInfo__loanLibrary input" type="text" placeholder="Bibliothèque emprunteuse..." value="Perwez" required="true">
       <input class="inRequests__form__pibInfo__requestDate input" type="date" required="true">
-      <label for="isOutProvince">Hors-Province ?</label>
-      <input class="inRequests__form__pibInfo__outProvince input" type="checkbox" name="isOutProvince">
+      <label>
+        Hors-Province ?
+        <input class="inRequests__form__pibInfo__outProvince input" type="checkbox">
+      </label>
     </span>
     <h2 class="title">Informations du lecteur</h2>
     <span class="inRequests__form__readerInfo flex">
@@ -15,7 +17,6 @@
         <input class="inRequests__form__readerInfo__container__name input" type="text" placeholder="Nom du lecteur..." required="true">
         <span class="inRequests__form__readerInfo__container__autocomplete hidden"></span>
       </span>
-      <input class="inRequests__form__readerInfo__mail input" type="email" placeholder="Adresse email...">
     </span>
     <h2 class="title">Informations du document</h2>
     <span class="inRequests__form__docInfo flex">
@@ -27,6 +28,7 @@
     <span class="inRequests__form__btnContainer flex">
       <button class="inRequests__form__btnContainer__reset btn btn--reset" type="reset">Effacer les champs</button>
       <button class="inRequests__form__btnContainer__submit inRequests__step2__btn btn btn--submit" type="submit">Valider</button>
+      <button class="inRequests__form__btnContainer__hide inRequests__step2__btn btn home-btn hidden" type="button">Annuler</button>
     </span>
   </form>
   <span class="inRequests__barcode flex">

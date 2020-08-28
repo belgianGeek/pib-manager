@@ -128,10 +128,8 @@ $('.returnIcon').click(() => {
   const goBack = (elt1, elt2) => {
     if (elt1.match(/(step1|requestTypeChoice|inRequests__step3)/gi)) {
       if (($(elt1).is(':visible') && !elt1.match(/(inRequests__step1|inRequests__step2|outRequests)/gi)) || elt1 === 'inRequests__step3') {
-        console.log(1);
         backHome(elt1);
-      } else if (elt1.match(/(inRequests|outRequests)/gi) && elt1 !== 'inRequests__step3') {
-        console.log(2);
+      } else if ($(elt1).is(':visible') && elt1.match(/(inRequests|outRequests)/gi) && elt1 !== 'inRequests__step3') {
         $(elt1)
           .removeClass('translateXbackwards translateXonwards flex')
           .addClass('hidden');
@@ -143,7 +141,6 @@ $('.returnIcon').click(() => {
         }
       }
     } else {
-      console.log(3);
       if ($(elt1).is(':visible')) {
         $(elt1)
           .addClass('translateXonwards hidden')
@@ -183,31 +180,41 @@ const invalid = (element) => {
 socket.on('notification', notification => {
   if (notification.type === 'success') {
     $('.notification__icon').attr('src', './src/scss/icons/thumbs-up.svg');
-    $('.notification').addClass('notificationSuccess');
+    $('.notification')
+      .removeClass('notificationInfo notificationMail notificationFailure')
+      .addClass('notificationSuccess');
     $('.notification__msg').text('Changements enregistrés avec succès ! 😉');
   } else if (notification.type === 'error') {
     $('.notification__icon').attr('src', './src/scss/icons/error.svg');
-    $('.notification').addClass('notificationFailure');
+    $('.notification')
+      .removeClass('notificationInfo notificationMail notificationSuccess')
+      .addClass('notificationFailure');
     $('.notification__msg').text('Une erreur s\'est produite... 😱');
   } else if (notification.type === 'info') {
     $('.notification__icon').attr('src', './src/scss/icons/info.svg');
-    $('.notification').addClass('notificationInfo');
+    $('.notification')
+      .removeClass('notificationSuccess notificationMail notificationFailure')
+      .addClass('notificationInfo');
     $('.notification__msg').text('Aucune donnée correspondante n\'a été trouvée... 😶');
   } else if (notification.type === 'mail') {
     $('.notification__icon').attr('src', './src/scss/icons/mail.svg');
-    $('.notification').addClass('notificationMail');
+    $('.notification')
+      .removeClass('notificationInfo notificationSuccess notificationFailure')
+      .addClass('notificationMail');
     $('.notification__msg').text('Mail envoyé au lecteur 😎');
   }
 
-  $('.notification').toggleClass('hidden flex');
+  $('.notification')
+    .removeClass('hidden')
+    .addClass('flex');
 
   setTimeout(() => {
     $('.notification')
       .fadeOut(function() {
         $(this)
           .removeAttr('style')
-          .removeClass('notificationSuccess notificationFailure notificationInfo')
-          .toggleClass('flex hidden');
+          .removeClass('notificationSuccess notificationFailure notificationInfo flex')
+          .addClass('hidden');
       });
   }, 5000);
 });
@@ -379,14 +386,14 @@ const autocomplete = (input, dataset) => {
           .toggleClass('hidden flex')
           .empty();
 
-        if (input === '.inRequests__form__readerInfo__container__name') {
-          socket.emit('mail request', $(this).text());
-
-          socket.on('mail retrieved', receiver => {
-            $('.inRequests__form__readerInfo__mail').val(receiver.mail);
-            gender = receiver.gender[0];
-          });
-        }
+        // if (input === '.inRequests__form__readerInfo__container__name') {
+        //   socket.emit('mail request', $(this).text());
+        //
+        //   socket.on('mail retrieved', receiver => {
+        //     $('.inRequests__form__readerInfo__mail').val(receiver.mail);
+        //     gender = receiver.gender[0];
+        //   });
+        // }
       });
     }
   });
@@ -594,7 +601,6 @@ const inRequests = () => {
 
   let dataset = '.inRequests__form__readerInfo__container__autocomplete';
   let readerName = $('.inRequests__form__readerInfo__container__name');
-  let readerMail = $('.inRequests__form__readerInfo__mail');
   let pibNb = $('.inRequests__form__pibInfo__pibNb');
   let borrowingLibrary = $('.inRequests__form__pibInfo__borrowingLibrary');
   let requestDate = $('.inRequests__form__pibInfo__requestDate');
@@ -610,10 +616,6 @@ const inRequests = () => {
   // Séparer le nom de l'auteur de son prénom
   let author = '';
 
-  // Variables utilisées pour le rappel à l'étape 2
-  let reminderTitle, reminderAuthor;
-  let reminderInv = barcode.val();
-
   const sendData = () => {
     confirmation();
 
@@ -627,12 +629,12 @@ const inRequests = () => {
       data2send.values.push(readerName.val());
 
       // We don't send a confirmation email to the reader if we're updating a record
-      if (!$('.inRequests').hasClass('absolute')) {
-        data2send.email = {
-          send: true,
-          receiver: readerName.val()
-        };
-      }
+      // if (!$('.inRequests').hasClass('absolute')) {
+      //   data2send.email = {
+      //     send: true,
+      //     receiver: readerName.val()
+      //   };
+      // }
       data2send.values.push(title.val());
 
       // Si le nom de l'auteur est n'est pas de forme NOM, Prénom
@@ -659,12 +661,12 @@ const inRequests = () => {
             confirmation();
 
             // Envoi du mail de notification au lecteur
-            socket.emit('send mail', {
-              name: readerName.val(),
-              mail: readerMail.val(),
-              gender: gender,
-              request: $('.inRequests__form__docInfo__title').val()
-            });
+            // socket.emit('send mail', {
+            //   name: readerName.val(),
+            //   mail: readerMail.val(),
+            //   gender: gender,
+            //   request: $('.inRequests__form__docInfo__title').val()
+            // });
 
             // Suppression du code-barres inventaire précédent
             $('.inRequests__step2__barcode .inRequests__barcode__svg').remove();
@@ -725,17 +727,15 @@ const inRequests = () => {
     }
 
     // An email doesn't need to be sent when a record is being updated
-    if (!$('.inRequests').hasClass('absolute')) {
-      // Adresse mail du lecteur
-      if (readerMail.val() === '') {
-        invalid(readerMail);
-      }
-    }
+    // if (!$('.inRequests').hasClass('absolute')) {
+    //   // Adresse mail du lecteur
+    //   if (readerMail.val() === '') {
+    //     invalid(readerMail);
+    //   }
+    // }
 
     // Titre du document
-    if (title.val() !== '') {
-      reminderTitle = title.val();
-    } else {
+    if (title.val() === '') {
       invalid(title);
     }
 
@@ -748,8 +748,6 @@ const inRequests = () => {
         // Sinon, il n'y a que le nom de famille
         author = authorField.val();
       }
-
-      reminderAuthor = author;
     } else {
       invalid(authorField);
     }
@@ -768,24 +766,12 @@ const inRequests = () => {
 
       // Avoid style modification while updating a record through the search module
       if (!$('.inRequests').hasClass('absolute')) {
-        // Cloner le QR code pour le réutiliser à l'étape suivante
-        let clonedSvg = $('.inRequests__barcode__svg').clone();
-        if ($('.inRequests__step2__barcode svg').length === 0) {
-          clonedSvg.appendTo('.inRequests__step2__barcode');
-        } else {
-          $('.inRequests__step2__barcode svg').replaceWith(clonedSvg);
-        }
-
-        $('.inRequests__step2__reminder__content__item__title').text(reminderTitle);
-        $('.inRequests__step2__reminder__content__item__author').text(reminderAuthor);
-        $('.inRequests__step2__reminder__content__item__inv').text(reminderInv);
-
         $(`.inRequests__step2`)
           .removeClass('translateXonwards translateXbackwards hidden fixed')
           .addClass('flex');
-
-        sendData();
       }
+
+      sendData();
     } else {
       if (!$('form .warning').length) {
         let warning = $('<span></span>')
@@ -1309,15 +1295,16 @@ const search = () => {
         });
       } else if ($('.search__container__select').val() === 'in_requests') {
         $('.inRequests')
-          .addClass('absolute')
-          .toggleClass('hidden flex');
-        $('.wrapper').toggleClass('blur backgroundColor');
+          .addClass('absolute flex')
+          .removeClass('hidden');
 
-        // Hide the mail field to prevent duplicate mailings
-        $('.inRequests.absolute .inRequests__form__readerInfo__mail').addClass('hidden');
+        $('.wrapper').addClass('blur backgroundColor');
 
         // Set the initial PIB number
         initialPibNb = $(`.${record2modify[1]} .search__results__container__row__item--pib`).text();
+
+        // Show a button to hide the form
+        $('.inRequests.absolute .inRequests__form__btnContainer__hide').removeClass('hidden');
 
         // Fill in all the fields with the selected record data
         $('.inRequests.absolute .inRequests__form__pibInfo__pibNb').val($(`.${record2modify[1]} .search__results__container__row__item--pib`).text());
@@ -1356,6 +1343,21 @@ const search = () => {
           } else {
             $(`.${record2modify[1]} .search__results__container__row__item--op`).addClass('unchecked');
           }
+
+          // Hide the button to hide the form
+          $('.inRequests.absolute .inRequests__form__btnContainer__hide').toggleClass('hidden');
+        });
+
+        // Hide the form on btn click
+        $('.inRequests.absolute .inRequests__form__btnContainer__hide').click(function() {
+          $('.inRequests')
+            .removeClass('absolute flex')
+            .addClass('hidden');
+
+          $('.wrapper').removeClass('blur backgroundColor');
+
+          // Hide the button to hide the form
+          $(this).addClass('hidden');
         });
       }
     });

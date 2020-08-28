@@ -52,6 +52,13 @@
       width: 100%;
       align-self: center;
       justify-content: space-evenly;
+
+      &__hide {
+        position: relative;
+        top: 0;
+        left: 100%;
+        margin: 0;
+      }
     }
 
     &__readerInfo {
