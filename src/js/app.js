@@ -5,30 +5,60 @@ const confirmation = () => {
 }
 
 const handleHomeBtnClick = (element, parent) => {
+  const showElt = elt => {
+    $('.requestTypeChoice')
+      .addClass('hidden')
+      .removeClass('flex');
+
+    if (elt === 'outRequests' || elt === 'inRequests') {
+      $(`.${elt}__step1`)
+        .removeClass('hidden')
+        .addClass('flex')
+    } else if (elt === 'loan' && $('.requestTypeChoice').hasClass('newRequest')) {
+      $(`.inRequests__step1`)
+        .removeClass('hidden')
+        .addClass('flex')
+    } else if (elt === 'borrowing' && $('.requestTypeChoice').hasClass('newRequest')) {
+      $(`.outRequests__step1`)
+        .removeClass('hidden')
+        .addClass('flex')
+    }
+  }
   $(`.home__${parent}__${element}`).click(() => {
     $('.home')
       .fadeOut(() => {
-        $(`.${element}__step1`)
-          .fadeIn(() => {
-            $(`.${element}__step1`)
-              .toggleClass('hidden flex')
-              .removeAttr('style');
+        if (element === 'newRequest') {
+          $('.requestTypeChoice')
+            // Add a class to the .requestTypeChoice div to show the right step to the user
+            .addClass(`${element} flex`)
+            .removeClass('hidden')
+
+          $('.requestTypeChoice__btnContainer__loan').click(() => {
+            showElt('loan');
           });
 
-        setTimeout(() => {
-          $('.home')
-            .toggleClass('flex hidden')
-            .removeAttr('style');
+          $('.requestTypeChoice__btnContainer__borrowing').click(() => {
+            showElt('borrowing');
+          });
+        } else {
+          $(`.inRequests__step3`)
+            .removeClass('hidden')
+            .addClass('flex')
+        }
 
-          $('.returnIcon, .header__container__msg')
-            .removeClass('hidden');
-        }, 1000);
+        $('.home')
+          .addClass('hidden')
+          .removeClass('flex')
+          .removeAttr('style');
+
+        $('.returnIcon, .header__container__msg')
+          .removeClass('hidden');
       });
   });
 }
 
-handleHomeBtnClick('outRequests', 'btnContainer');
-handleHomeBtnClick('inRequests', 'btnContainer');
+handleHomeBtnClick('newRequest', 'btnContainer');
+handleHomeBtnClick('followRequest', 'btnContainer');
 handleHomeBtnClick('inReturns', 'btnContainer');
 handleHomeBtnClick('outReturns', 'btnContainer');
 
@@ -69,7 +99,7 @@ const handleSimpleStep = (element, step1, step2, btn) => {
   });
 }
 
-handleSimpleStep('.inRequests', 'step2', 'step3', 'btn');
+handleSimpleStep('.inRequests', 'step1', 'step2', 'confirmation');
 handleSimpleStep('.outRequests', 'step1', 'step2', 'btn');
 handleSimpleStep('.outRequests', 'step2', 'step3', 'confirmation');
 handleSimpleStep('.inReturns', 'step1', 'step2', 'btn');
@@ -90,34 +120,53 @@ $('.returnIcon').click(() => {
     setTimeout(() => {
       $(step).toggleClass('translateXonwards flex');
     }, 500);
+
+    // Remove the 'followRequest' and 'newRequest' class to show the right step to the user
+    $('.requestTypeChoice').removeClass('newRequest');
   }
 
   const goBack = (elt1, elt2) => {
-    if (elt1.match('step1')) {
-      if ($(elt1).is(':visible')) {
+    if (elt1.match(/(step1|requestTypeChoice|inRequests__step3)/gi)) {
+      if (($(elt1).is(':visible') && !elt1.match(/(inRequests__step1|inRequests__step2|outRequests)/gi)) || elt1 === 'inRequests__step3') {
+        console.log(1);
         backHome(elt1);
+      } else if (elt1.match(/(inRequests|outRequests)/gi) && elt1 !== 'inRequests__step3') {
+        console.log(2);
+        $(elt1)
+          .removeClass('translateXbackwards translateXonwards flex')
+          .addClass('hidden');
+
+        if ($('.requestTypeChoice').hasClass('newRequest')) {
+          $('.requestTypeChoice')
+            .addClass('flex')
+            .removeClass('hidden')
+        }
       }
     } else {
+      console.log(3);
       if ($(elt1).is(':visible')) {
-        $(elt1).toggleClass('translateXonwards flex hidden');
+        $(elt1)
+          .addClass('translateXonwards hidden')
+          .removeClass('flex');
 
         $(elt2)
-          .removeClass('translateXbackwards')
-          .toggleClass('hidden flex');
+          .removeClass('translateXbackwards hidden')
+          .addClass('flex');
       }
     }
   }
 
-  goBack('.outRequests__step1');
-  goBack('.inRequests__step1');
   goBack('.inReturns__step1');
   goBack('.outReturns__step1');
   goBack('.addReader__step1');
+  goBack('.requestTypeChoice');
+  goBack('.inRequests__step3');
 
+  goBack('.outRequests__step1', '.requestTypeChoice');
+  goBack('.inRequests__step1', '.requestTypeChoice');
   goBack('.outRequests__step2', '.outRequests__step1');
   goBack('.outRequests__step3', '.outRequests__step2');
   goBack('.inRequests__step2', '.inRequests__step1');
-  goBack('.inRequests__step3', '.inRequests__step2');
   goBack('.inReturns__step2', '.inReturns__step1');
   goBack('.inReturns__step3', '.inReturns__step2');
   goBack('.outReturns__step2', '.outReturns__step1');
@@ -605,7 +654,7 @@ const inRequests = () => {
       if (!$('.inRequests').hasClass('absolute')) {
         socket.emit('append data', data2send);
 
-        $('.inRequests__step3')
+        $('.inRequests__step2')
           .fadeOut(() => {
             confirmation();
 
@@ -622,7 +671,7 @@ const inRequests = () => {
 
             $('.inRequests__form .input').not('.inRequests__form__pibInfo__requestDate, .inRequests__form__pibInfo__loanLibrary, .inRequests__form__docInfo__inv').val('');
 
-            $('.inRequests__step3')
+            $('.inRequests__step2')
               .removeAttr('style')
               .toggleClass('hidden flex');
 
@@ -731,19 +780,10 @@ const inRequests = () => {
         $('.inRequests__step2__reminder__content__item__author').text(reminderAuthor);
         $('.inRequests__step2__reminder__content__item__inv').text(reminderInv);
 
-        $('.inRequests__step1')
-          .fadeOut(() => {
-            $('.inRequests__step1')
-              .removeAttr('style')
-              .toggleClass('hidden flex');
-          });
-
         $(`.inRequests__step2`)
-          .fadeIn()
-          .removeAttr('style')
-          .removeClass('translateXonwards translateXbackwards hidden')
-          .toggleClass('fixed flex');
-      } else {
+          .removeClass('translateXonwards translateXbackwards hidden fixed')
+          .addClass('flex');
+
         sendData();
       }
     } else {
@@ -769,10 +809,22 @@ const inRequests = () => {
   });
 
   if (!$('.inRequests').hasClass('absolute')) {
-    $('.inRequests__step3__confirmation').click(() => {
+    $('.inRequests__step2__confirmation').click(() => {
       sendData();
     });
   }
+
+  // $('.inRequests__step3')
+  //   .fadeOut(() => {
+  //     confirmation();
+  //
+  //     $('.inRequests__step3')
+  //       .removeAttr('style')
+  //       .toggleClass('hidden flex');
+  //   });
+  //
+  // $('.home').toggleClass('hidden flex');
+  // $('.header__container__icon, .header__container__msg').toggleClass('hidden');
 
   $('.confirmation__body__cancel').click(() => {
     clearTimeout(inRequestsTimeOut);
