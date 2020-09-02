@@ -25,35 +25,39 @@ const handleHomeBtnClick = (element, parent) => {
     }
   }
   $(`.home__${parent}__${element}`).click(() => {
-    $('.home')
-      .fadeOut(() => {
-        if (element === 'newRequest') {
-          $('.requestTypeChoice')
-            // Add a class to the .requestTypeChoice div to show the right step to the user
-            .addClass(`${element} flex`)
-            .removeClass('hidden')
+    if (element === 'newRequest') {
+      $('.requestTypeChoice')
+        // Add a class to the .requestTypeChoice div to show the right step to the user
+        .addClass(`${element} flex`)
+        .removeClass('hidden')
 
-          $('.requestTypeChoice__btnContainer__loan').click(() => {
-            showElt('loan');
-          });
-
-          $('.requestTypeChoice__btnContainer__borrowing').click(() => {
-            showElt('borrowing');
-          });
-        } else {
-          $(`.inRequests__step3`)
-            .removeClass('hidden')
-            .addClass('flex')
-        }
-
-        $('.home')
-          .addClass('hidden')
-          .removeClass('flex')
-          .removeAttr('style');
-
-        $('.returnIcon, .header__container__msg')
-          .removeClass('hidden');
+      $('.requestTypeChoice__btnContainer__loan').click(() => {
+        showElt('loan');
       });
+
+      $('.requestTypeChoice__btnContainer__borrowing').click(() => {
+        showElt('borrowing');
+      });
+    } else if (element === 'followRequest') {
+      $(`.inRequests__step3`)
+        .removeClass('hidden')
+        .addClass('flex')
+    } else if (element === 'outReturns') {
+      $(`.outReturns__step1`)
+        .removeClass('hidden')
+        .addClass('flex')
+    } else if (element === 'inReturns') {
+      $(`.inReturns__step1`)
+        .removeClass('hidden')
+        .addClass('flex')
+    }
+
+    $('.home')
+      .addClass('hidden')
+      .removeClass('flex');
+
+    $('.returnIcon, .header__container__msg')
+      .removeClass('hidden');
   });
 }
 
@@ -90,8 +94,6 @@ const handleSimpleStep = (element, step1, step2, btn) => {
       $(`${element}__${step1}`).toggleClass('translateXbackwards hidden flex');
       setTimeout(() => {
         $(`${element}__${step2}`)
-          .fadeIn()
-          .removeAttr('style')
           .removeClass('translateXonwards hidden')
           .toggleClass('fixed flex');
       }, 1000);
@@ -222,27 +224,17 @@ socket.on('notification', notification => {
 
 const smartHide = (className, method, timeout) => {
   if (method === 'in') {
-    $(className)
-      .fadeIn(function() {
-        $(this)
-          .toggleClass('hidden flex')
-          .removeAttr('style');
+    $(className).toggleClass('hidden flex');
 
-        $('.wrapper, .header').removeClass('blur');
-      });
+    $('.wrapper, .header').removeClass('blur');
   } else {
-    $(className)
-      .fadeOut(function() {
-        $(this)
-          .toggleClass('hidden flex')
-          .removeAttr('style');
+    $(className).toggleClass('hidden flex')
 
-        $('.wrapper, .header').removeClass('blur');
+    $('.wrapper, .header').removeClass('blur');
 
-        if (timeout !== undefined) {
-          clearTimeout(timeout);
-        }
-      });
+    if (timeout !== undefined) {
+      clearTimeout(timeout);
+    }
   }
 }
 
@@ -292,18 +284,15 @@ const addReader = () => {
         data2send.values = [];
 
         $('.addReader__step1')
-          .fadeOut(function() {
-            confirmation();
+          .removeAttr('style')
+          .toggleClass('hidden flex');
 
-            $(this)
-              .removeAttr('style')
-              .toggleClass('hidden flex');
+        confirmation();
 
-            $('.home').toggleClass('hidden flex');
-            $('.header__container__icon, .header__container__msg').toggleClass('hidden');
+        $('.home').toggleClass('hidden flex');
+        $('.header__container__icon, .header__container__msg').toggleClass('hidden');
 
-            $('.addReader__step1 input').not('.radio').val('');
-          });
+        $('.addReader__step1 input').not('.radio').val('');
       }, 5000);
     } else {
       if (!$('form .warning').length) {
@@ -545,16 +534,10 @@ const draftNewRequest = () => {
         socket.emit('append data', data2send);
         data2send.values = [];
 
-        $('.draft')
-          .fadeOut(() => {
-            confirmation();
+        $('.draft').toggleClass('hidden flex');
+        confirmation();
 
-            $('.draft__child__container .input, .draft__child__container textarea').not('.draft__child__container__reader__date input').val('');
-
-            $('.draft')
-              .removeAttr('style')
-              .toggleClass('hidden flex');
-          });
+        $('.draft__child__container .input, .draft__child__container textarea').not('.draft__child__container__reader__date input').val('');
       }, 5000);
     } else {
       if (!$('.draft__child__container__reader .warning').length) {
@@ -656,30 +639,24 @@ const inRequests = () => {
       if (!$('.inRequests').hasClass('absolute')) {
         socket.emit('append data', data2send);
 
-        $('.inRequests__step2')
-          .fadeOut(() => {
-            confirmation();
+        $('.inRequests__step2').toggleClass('hidden flex');
+        confirmation();
 
-            // Envoi du mail de notification au lecteur
-            // socket.emit('send mail', {
-            //   name: readerName.val(),
-            //   mail: readerMail.val(),
-            //   gender: gender,
-            //   request: $('.inRequests__form__docInfo__title').val()
-            // });
+        // Envoi du mail de notification au lecteur
+        // socket.emit('send mail', {
+        //   name: readerName.val(),
+        //   mail: readerMail.val(),
+        //   gender: gender,
+        //   request: $('.inRequests__form__docInfo__title').val()
+        // });
 
-            // Suppression du code-barres inventaire précédent
-            $('.inRequests__step2__barcode .inRequests__barcode__svg').remove();
+        // Suppression du code-barres inventaire précédent
+        $('.inRequests__step2__barcode .inRequests__barcode__svg').remove();
 
-            $('.inRequests__form .input').not('.inRequests__form__pibInfo__requestDate, .inRequests__form__pibInfo__loanLibrary, .inRequests__form__docInfo__inv').val('');
+        $('.inRequests__form .input').not('.inRequests__form__pibInfo__requestDate, .inRequests__form__pibInfo__loanLibrary, .inRequests__form__docInfo__inv').val('');
 
-            $('.inRequests__step2')
-              .removeAttr('style')
-              .toggleClass('hidden flex');
-
-            $('.home').toggleClass('hidden flex');
-            $('.header__container__icon, .header__container__msg').toggleClass('hidden');
-          });
+        $('.home').toggleClass('hidden flex');
+        $('.header__container__icon, .header__container__msg').toggleClass('hidden');
       } else {
         // Else, update the existing record and hide the update form
 
@@ -908,17 +885,11 @@ const outRequests = () => {
         socket.emit('append data', data2send);
         data2send.values = [];
 
-        $('.outRequests__step3')
-          .fadeOut(function() {
-            confirmation();
+        $('.outRequests__step3').toggleClass('hidden flex');
+        confirmation();
 
-            $(this)
-              .removeAttr('style')
-              .toggleClass('hidden flex');
-
-            $('.home').toggleClass('hidden flex');
-            $('.header__container__icon, .header__container__msg').toggleClass('hidden');
-          });
+        $('.home').toggleClass('hidden flex');
+        $('.header__container__icon, .header__container__msg').toggleClass('hidden');
 
         $('.outRequests__form .input').not('.outRequests__form__pibInfo__requestDate, .outRequests__form__pibInfo__loanLibrary').val('');
       }, 5000);
@@ -957,17 +928,11 @@ const returnDocument = (elt, confirmationElt) => {
     confirmation();
 
     confirmationTimeout = setTimeout(() => {
-      $(elt)
-        .fadeOut(() => {
-          confirmation();
+      $(elt).toggleClass('hidden flex');
+      confirmation();
 
-          $(elt)
-            .removeAttr('style')
-            .toggleClass('hidden flex');
-
-          $('.home').toggleClass('hidden flex');
-          $('.header__container__icon, .header__container__msg').toggleClass('hidden');
-        })
+      $('.home').toggleClass('hidden flex');
+      $('.header__container__icon, .header__container__msg').toggleClass('hidden');
     }, 5000);
   });
 

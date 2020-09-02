@@ -51,7 +51,7 @@ const createDB = (config, DBname) => {
 
     client.connect()
       .then(() => {
-        console.log('Reconnexion effectuée !');
+        console.log('Reconnexion effectuée !', config);
         createBarcodesTable(client);
         createDraftsTable(client);
         createInRequestsTable(client);
@@ -117,9 +117,14 @@ const createRole = (config, DBname, password) => {
   config.user = os.userInfo().username;
   config.password = password;
   config.database = DBname;
-  initClient.query(`CREATE ROLE ${config.user} WITH SUPERUSER LOGIN PASSWORD '${password}'`, (err, res) => {
-    console.log(`Rôle ${config.user} créé avec succès !`);
-    createDB(config, DBname);
+  initClient.query(`CREATE ROLE ${config.user} WITH CREATEDB CREATEROLE LOGIN PASSWORD '${password}'`, (err, res) => {
+    if (err) {
+      console.log(`Une erreur est survenue lors de la création du rôle ${config.user} : ${err}`);
+      console.error('La création de la base de données a échoué ! :-((');
+    } else {
+      console.log(`Rôle ${config.user} créé avec succès !`);
+      createDB(config, DBname);
+    }
   });
 }
 
@@ -198,7 +203,6 @@ app.get('/', (req, res) => {
     res.render('index.ejs', {
       wallpaper: settings.wallpaper
     });
-    console.log('settings', settings);
 
     io.once('connection', io => {
       const updateBarcode = () => {
