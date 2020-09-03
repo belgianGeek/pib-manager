@@ -23,7 +23,7 @@ const createSettingsTable = client => {
           let mailContent;
           client.query({
             text: `INSERT INTO settings(library, mail_address, mail_content, smtp_user, smtp_host, smtp_passwd, pg_passwd, wallpaper) VALUES($1, $2, $3, $4, $5, $6, $7, $8)`,
-            values: [process.env.LIBRARY, process.env.MAIL_SENDER, 'Hello world !', process.env.MAIL_SENDER, process.env.SMTP_HOST, process.env.SMTP_PASSWD, process.env.PG_PASSWD, '../src/scss/wallpaper.jpg']
+            values: [process.env.LIBRARY, process.env.MAIL_SENDER, `Le livre "%TITLE%", que vous aviez demandé est à votre disposition à la bibliothèque pendant 10 jours. Une fois ce délai écoulé, nous nous réservons le droit de le renvoyer dans sa bibliothèque d'origine.\n\nBonne journée,\nBien à vous,\nL'équipe du Grimoire d'Éole`, process.env.MAIL_SENDER, process.env.SMTP_HOST, process.env.SMTP_PASSWD, process.env.PG_PASSWD, '../src/scss/wallpaper.jpg']
           })
           .then(res => {
             console.log('Remplissage de la table \'settings\' effectué avec succès !');

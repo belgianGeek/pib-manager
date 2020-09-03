@@ -31,7 +31,7 @@ const initClient = new Client(config);
 let client;
 
 // Define a variable to store the settings queried retrieved from the DB
-var settings = {};
+let settings = {};
 
 const exportDB = require('./modules/exportDB');
 const emptyDir = require('./modules/emptyDir');
@@ -51,7 +51,7 @@ const createDB = (config, DBname) => {
 
     client.connect()
       .then(() => {
-        console.log('Reconnexion effectuée !', config);
+        console.log('Reconnexion effectuée !');
         createBarcodesTable(client);
         createDraftsTable(client);
         createInRequestsTable(client);
@@ -64,6 +64,7 @@ const createDB = (config, DBname) => {
           })
           .then(res => {
             settings = res.rows[0];
+            console.log(settings);
           });
       })
       .catch(err => {
@@ -219,6 +220,8 @@ app.get('/', (req, res) => {
           });
       }
       updateBarcode();
+
+      io.emit('settings', settings);
 
       io.on('append data', data => {
         if (data.table === 'out_requests') {

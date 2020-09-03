@@ -22,21 +22,25 @@
       width: 90%;
     }
 
-    &__emailContent {
-      min-width: 90%;
-      max-width: 90%;
-      min-height: 25%;
-      max-height: 25%;
-      padding: 0.5em;
-      border: 2px solid grey;
-      border-radius: 0.5em;
-      background-color: $translucent-black;
+    &__textarea {
+      width: 100%;
+      justify-content: center;
+
+      &__content {
+        min-width: 90%;
+        max-width: 90%;
+        min-height: 15em;
+        max-height: 15em;
+        padding: 0.5em;
+        border: 2px solid grey;
+        border-radius: 0.5em;
+        background-color: $translucent-black;
+      }
     }
 
     &__header {
       flex-direction: row;
       width: 100%;
-      margin: 1% 0 0 1%;
 
       h1 {
         font-size: 1.5em;
@@ -49,12 +53,12 @@
 
     &__heading {
       font-family: 'Lobster Two Bold Italic';
-      margin: 2em 0 0 1em;
+      margin: 0;
     }
 
     &__heading2 {
       font-size: 1.3em;
-      padding-bottom: 1.5em;
+      margin: 0.7em 0;
     }
 
     .settings__BtnContainer {

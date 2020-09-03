@@ -269,6 +269,10 @@ const addReader = () => {
       invalid(readerFirstname);
     }
 
+    if (mail.val() === '') {
+      invalid(mail);
+    }
+
     if (!validationErr) {
       $('.input').removeClass('invalid');
       $('form .warning').hide();
@@ -437,7 +441,8 @@ setDate();
 const settings = () => {
   // Get settings from the server-side
   socket.on('settings', settings => {
-    console.log(settings);
+    console.log(settings, 'settings !');
+    $('.settings__child__textarea__content').val(settings.mail_content.toString());
   });
 
   // Show settings on btn click

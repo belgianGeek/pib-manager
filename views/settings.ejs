@@ -4,7 +4,9 @@
       <h1>Paramètres</h1>
     </span>
     <h2 class="settings__child__heading2 settings__child__heading">E-mail de notification</h2>
-    <textarea class="settings__child__emailContent" name="email" rows="8" cols="80"></textarea>
+    <div class="settings__child__textarea flex">
+      <textarea class="settings__child__textarea__content" name="email" rows="8" cols="80"></textarea>
+    </div>
     <h2 class="settings__child__heading2 settings__child__heading">Personnalisation</h2>
     <form class="backgroundImageUploadForm flex" action="/" enctype="multipart/form-data" method="post">
       <label for="backgroundImageUploadForm__label">Cet arrière-plan est moche !</label>
@@ -12,6 +14,13 @@
       <input class="backgroundImageUploadForm__InputFile hidden" type="file" name="backgroundImageUploadInput" accept="image/png, image/jpg">
       <input class="backgroundImageUploadForm__InputUrl input" type="text" name="backgroundImageUrl" value="" placeholder='Insérer un lien'>
     </form>
+    <span class="settings__child__libraryContainer flex">
+      <label class="settings__child__libraryContainer__label">
+        Nom de la bibliothèque
+        <input class="settings__child__libraryContainer__label__input" type="text" placeholder="Nom de la bibliothèque">
+      </label>
+      <span class="protip protip--noMargin">Cette indication est utilisée dans les mails envoyés aux lecteurs ainsi que dans les différents formulaires de PIB Manager</span>
+    </span>
     <span class="settings__BtnContainer">
       <button class="settings__child__cancelBtn btn btn--red" type="button" name="cancelSettings">Cancel</button>
       <button class="settings__child__saveBtn btn btn--green" type="submit" name="saveSettings">Save settings</button>
