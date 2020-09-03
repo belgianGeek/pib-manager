@@ -11,7 +11,7 @@ const mail = receiver => {
   let htmlMsg = '';
 
   // Plain text message
-  let msg = [`Ceci est un message automatique vous informant que votre demande de prêt interbibliothèque pour le livre intitulé "${receiver.request}" est en cours de traitement. Vous recevrez une confirmation de notre part dès que le document sera disponible à la bibliothèque.`, 'Bonne journée,', 'Bien à vous,', `L'équipe du Grimoire d'Éole`];
+  let msg = [`Le livre "${receiver.request}", que vous aviez demandé est à votre disposition à la bibliothèque pendant 10 jours. Une fois ce délai écoulé, nous nous réservons le droit de le renvoyer dans sa bibliothèque d'origine.`, 'Bonne journée,', 'Bien à vous,', `L'équipe du Grimoire d'Éole`];
 
   if (receiver.gender.match('f')) {
     msg.unshift(`Bonjour Madame ${tempReceiverName[0].trim()},`);

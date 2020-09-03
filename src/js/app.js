@@ -102,8 +102,10 @@ const handleSimpleStep = (element, step1, step2, btn) => {
 }
 
 handleSimpleStep('.inRequests', 'step1', 'step2', 'confirmation');
+handleSimpleStep('.inRequests', 'step3', 'step4', 'confirmation');
 handleSimpleStep('.outRequests', 'step1', 'step2', 'btn');
 handleSimpleStep('.outRequests', 'step2', 'step3', 'confirmation');
+handleSimpleStep('.outRequests', 'step3', 'step4', 'btn');
 handleSimpleStep('.inReturns', 'step1', 'step2', 'btn');
 handleSimpleStep('.inReturns', 'step2', 'step3', 'confirmation');
 handleSimpleStep('.outReturns', 'step1', 'step2', 'btn');
@@ -165,7 +167,9 @@ $('.returnIcon').click(() => {
   goBack('.inRequests__step1', '.requestTypeChoice');
   goBack('.outRequests__step2', '.outRequests__step1');
   goBack('.outRequests__step3', '.outRequests__step2');
+  goBack('.outRequests__step4', '.outRequests__step3');
   goBack('.inRequests__step2', '.inRequests__step1');
+  goBack('.inRequests__step4', '.inRequests__step3');
   goBack('.inReturns__step2', '.inReturns__step1');
   goBack('.inReturns__step3', '.inReturns__step2');
   goBack('.outReturns__step2', '.outReturns__step1');
@@ -324,41 +328,45 @@ $('.addReaderLink').click(() => {
   addReader();
 });
 
-
+let inRequestsReaderGender;
 const autocomplete = (input, dataset) => {
   $(input).on('keydown', function() {
-    socket.emit('retrieve readers', $(input).val());
+    let focusInput = $(this);
+    socket.emit('retrieve readers', focusInput.val());
 
-    if ($(this).val() === '') {
+    if (focusInput.val() === '') {
       $(dataset)
         .empty()
         .toggleClass('hidden flex');
 
-      $(input).removeAttr('style');
+      focusInput.removeAttr('style');
     }
   });
 
   socket.on('readers retrieved', readers => {
-    $(input)
-      .css({
-        marginBottom: 0,
-        borderBottom: "2px solid transparent"
+    // Don't update the input style if there are no results
+    if (readers !== []) {
+      $(input)
+        .css({
+          marginBottom: 0,
+          borderBottom: "2px solid transparent"
+        });
+
+      // Positionner les suggestions
+      $(input).ready(() => {
+        let position = $(input).position();
+        $(dataset).css({
+          left: position.left,
+          top: position.top + $(input).outerHeight() + 12,
+          width: $(input).outerWidth()
+        });
       });
 
-    // Positionner les suggestions
-    $(input).ready(() => {
-      let position = $(input).position();
-      $(dataset).css({
-        left: position.left,
-        top: position.top + $(input).outerHeight() + 12,
-        width: $(input).outerWidth()
-      });
-    });
-
-    $(dataset)
-      .empty()
-      .addClass('flex')
-      .removeClass('hidden');
+      $(dataset)
+        .empty()
+        .addClass('flex')
+        .removeClass('hidden');
+    }
 
     for (const reader of readers) {
       let option = $('<p></p>')
@@ -375,30 +383,30 @@ const autocomplete = (input, dataset) => {
           .toggleClass('hidden flex')
           .empty();
 
-        // if (input === '.inRequests__form__readerInfo__container__name') {
-        //   socket.emit('mail request', $(this).text());
-        //
-        //   socket.on('mail retrieved', receiver => {
-        //     $('.inRequests__form__readerInfo__mail').val(receiver.mail);
-        //     gender = receiver.gender[0];
-        //   });
-        // }
+        if (input === '.inRequests__step4__container__reader') {
+          socket.emit('mail request', $(this).text());
+
+          socket.on('mail retrieved', receiver => {
+            $('.inRequests__step4__container__mail').val(receiver.mail);
+            inRequestsReaderGender = receiver.gender[0];
+          });
+        }
       });
     }
   });
 
-  $(input).focusout(() => {
+  $(input).on('focusout', () => {
     $(input).removeAttr('style', () => {
       $(dataset)
         .toggleClass('hidden flex')
-        .empty();
+      // .empty();
     });
   });
 
   $(dataset).focusout(function() {
     $(this)
       .toggleClass('hidden flex')
-      .empty();
+    // .empty();
   });
 }
 
@@ -575,6 +583,8 @@ const inRequests = () => {
   let inRequestsTimeOut;
 
   autocomplete('.inRequests__form__readerInfo__container__name', '.inRequests__form__readerInfo__container__autocomplete');
+  autocomplete('.inRequests__step4__container__reader', '.inRequests__step4__container__autocomplete');
+
 
   socket.on('barcode', code => {
     barcode.val(code);
@@ -593,9 +603,6 @@ const inRequests = () => {
   let cdu = $('.inRequests__form__docInfo__cdu');
   let outProvince = $('.inRequests__form__pibInfo__outProvince').is(':checked');
 
-  // Genre du destinataire du mail de rappel
-  let gender = '';
-
   // Séparer le nom de l'auteur de son prénom
   let author = '';
 
@@ -610,14 +617,6 @@ const inRequests = () => {
       data2send.values.push(new Date(requestDate.val()).toUTCString());
       data2send.values.push(loanLibrary.val());
       data2send.values.push(readerName.val());
-
-      // We don't send a confirmation email to the reader if we're updating a record
-      // if (!$('.inRequests').hasClass('absolute')) {
-      //   data2send.email = {
-      //     send: true,
-      //     receiver: readerName.val()
-      //   };
-      // }
       data2send.values.push(title.val());
 
       // Si le nom de l'auteur est n'est pas de forme NOM, Prénom
@@ -641,14 +640,6 @@ const inRequests = () => {
 
         $('.inRequests__step2').toggleClass('hidden flex');
         confirmation();
-
-        // Envoi du mail de notification au lecteur
-        // socket.emit('send mail', {
-        //   name: readerName.val(),
-        //   mail: readerMail.val(),
-        //   gender: gender,
-        //   request: $('.inRequests__form__docInfo__title').val()
-        // });
 
         // Suppression du code-barres inventaire précédent
         $('.inRequests__step2__barcode .inRequests__barcode__svg').remove();
@@ -702,14 +693,6 @@ const inRequests = () => {
     if (readerName.val() === '') {
       invalid(readerName);
     }
-
-    // An email doesn't need to be sent when a record is being updated
-    // if (!$('.inRequests').hasClass('absolute')) {
-    //   // Adresse mail du lecteur
-    //   if (readerMail.val() === '') {
-    //     invalid(readerMail);
-    //   }
-    // }
 
     // Titre du document
     if (title.val() === '') {
@@ -777,20 +760,30 @@ const inRequests = () => {
     });
   }
 
-  // $('.inRequests__step3')
-  //   .fadeOut(() => {
-  //     confirmation();
-  //
-  //     $('.inRequests__step3')
-  //       .removeAttr('style')
-  //       .toggleClass('hidden flex');
-  //   });
-  //
-  // $('.home').toggleClass('hidden flex');
-  // $('.header__container__icon, .header__container__msg').toggleClass('hidden');
+  $('.inRequests__step4__btn').click(() => {
+    confirmation();
 
-  $('.confirmation__body__cancel').click(() => {
-    clearTimeout(inRequestsTimeOut);
+    setTimeout(() => {
+      confirmation();
+
+      $('.inRequests__step4').toggleClass('hidden flex');
+      $('.home').toggleClass('hidden flex');
+      $('.header__container__icon, .header__container__msg').toggleClass('hidden');
+
+      setTimeout(() => {
+        // Send the notification email to the reader when the user is back to the homescreen
+        socket.emit('send mail', {
+          name: $('.inRequests__step4__container__reader').val(),
+          mail: $('.inRequests__step4__container__mail').val(),
+          gender: inRequestsReaderGender,
+          request: $('.inRequests__step4__container__title').val()
+        });
+      }, 1000);
+    }, 5000);
+
+    $('.confirmation__body__cancel').click(() => {
+      clearTimeout(inRequestsTimeOut);
+    });
   });
 }
 
@@ -853,8 +846,6 @@ const outRequests = () => {
       $('.input').removeClass('invalid');
       $('form .warning').hide();
 
-      confirmation();
-
       outRequestsTimeOut = setTimeout(() => {
         data2send.values.push(pibNb.val());
         data2send.values.push(borrowingLibrary.val());
@@ -885,7 +876,7 @@ const outRequests = () => {
         socket.emit('append data', data2send);
         data2send.values = [];
 
-        $('.outRequests__step3').toggleClass('hidden flex');
+        $('.outRequests__step4').toggleClass('hidden flex');
         confirmation();
 
         $('.home').toggleClass('hidden flex');
@@ -904,6 +895,10 @@ const outRequests = () => {
       validationErr = false;
       data2send.values = [];
     }
+  });
+
+  $('.outRequests__step4__btn').click(() => {
+    confirmation();
   });
 
   $('.outRequests__form__btnContainer__reset').click(() => {

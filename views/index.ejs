@@ -83,17 +83,22 @@
       </span>
     </section>
     <section class="outRequests__step1 hidden">
-      <h2 class="outRequests__step1__title title">Vérifier si le document est disponible dans le réseau via Adlib</h2>
+      <h2 class="outRequests__step1__title title">Vérifier si le document est disponible en rayon</h2>
       <button class="outRequests__step1__btn btn home-btn" type="button">C'est fait !</button>
     </section>
     <section class="outRequests__step2 hidden">
-      <h2 class="outRequests__step2__title title">Faire la demande via Samarcande</h2>
+      <h2 class="outRequests__step2__title title">Compléter la demande via Samarcande</h2>
       <button class="outRequests__step2__btn btn home-btn" type="button">
         <%- include('samarcande'); %>
       </button>
       <button class="outRequests__step2__confirmation btn btn--green" type="button">C'est fait !</button>
     </section>
-    <section class="outRequests outRequests__step3 hidden">
+    <section class="outRequests__step3 hidden">
+      <h2 class="outRequests__step3__title title">Prêter le livre dans Adlib</h2>
+      <button class="outRequests__step3__btn btn home-btn" type="button">C'est fait !</button>
+    </section>
+    <section class="outRequests outRequests__step4 hidden">
+      <h2 class="outRequests__step4__title title">Enregistrer le document dans PIB Manager</h2>
       <form class="outRequests__form flex" action="/" method="post">
         <h2 class="title">Informations PIB</h2>
         <span class="outRequests__form__pibInfo flex">
@@ -129,7 +134,17 @@
       <button class="inRequests__step3__btn btn btn--green" type="button" name="button">
         <a href="/search" target="_blank">Effectuer une recherche !</a>
       </button>
-      <button class="inRequests__step3__btn btn home-btn" type="button">C'est fait !</button>
+      <button class="inRequests__step3__confirmation btn home-btn" type="button">C'est fait !</button>
+    </section>
+    <section class="inRequests__step4 hidden">
+      <h2 class="inRequests__step4__title title">Envoyer un mail au lecteur 📧</h2>
+      <span class="inRequests__step4__container flex">
+        <input class="inRequests__step4__container__reader input" type="text" placeholder="Destinataire...">
+        <input class="inRequests__step4__container__title input" type="text" placeholder="Titre...">
+        <input class="inRequests__step4__container__mail input" type="mail" placeholder="Adresse mail...">
+        <span class="inRequests__step4__container__autocomplete hidden"></span>
+      </span>
+      <button class="inRequests__step4__btn btn btn--green" type="button">Ok !</button>
     </section>
     <section class="inReturns__step1 hidden">
       <h2 class="inReturns__step1__title title">Effectuer le retour dans Adlib</h2>

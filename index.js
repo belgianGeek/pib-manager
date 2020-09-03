@@ -118,8 +118,8 @@ const createRole = (config, DBname, password) => {
   config.password = password;
   config.database = DBname;
   initClient.query(`CREATE ROLE ${config.user} WITH CREATEDB CREATEROLE LOGIN PASSWORD '${password}'`, (err, res) => {
-    if (err) {
-      console.log(`Une erreur est survenue lors de la création du rôle ${config.user} : ${err}`);
+    if (err && err.code !== '42710') {
+      console.log(`Une erreur est survenue lors de la création du rôle ${config.user} : ${JSON.stringify(err, null, 2)}`);
       console.error('La création de la base de données a échoué ! :-((');
     } else {
       console.log(`Rôle ${config.user} créé avec succès !`);

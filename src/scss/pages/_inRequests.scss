@@ -14,8 +14,19 @@
   }
 
   &__step1,
-  &__step3 {
+  &__step3,
+  &__step4 {
     @include simple-step();
+  }
+
+  &__step4__container {
+    width: 90%;
+    flex-direction: row;
+    justify-content: space-evenly;
+
+    &__autocomplete {
+      @include autocomplete;
+    }
   }
 
   &__title {

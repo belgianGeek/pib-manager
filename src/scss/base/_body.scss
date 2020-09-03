@@ -63,6 +63,10 @@ body {
 
   .flex {
     display: flex;
+    
+    @media(max-width: 1000px) {
+      flex-wrap: wrap;
+    }
   }
 
   .wrapper {
