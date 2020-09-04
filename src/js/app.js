@@ -1157,9 +1157,13 @@ const search = () => {
           .appendTo(row);
 
         if (data.out_province) {
-          out_province.addClass('checked');
+          out_province
+            .removeClass('unchecked')
+            .addClass('checked');
         } else {
-          out_province.addClass('unchecked');
+          out_province
+            .removeClass('checked')
+            .addClass('unchecked');
         }
       }
 
@@ -1303,10 +1307,16 @@ const search = () => {
           $(`.${record2modify[1]} .search__results__container__row__item--cdu`).text($('.inRequests__form__docInfo__cdu').val());
           $(`.${record2modify[1]} .search__results__container__row__item--code`).text($('.inRequests__form__docInfo__inv').val());
 
+          console.log($(`.${record2modify[1]} .search__results__container__row__item--op`));
+
           if ($('.inRequests__form__pibInfo__outProvince').is(':checked')) {
-            $(`.${record2modify[1]} .search__results__container__row__item--op`).addClass('checked');
+            $(`.${record2modify[1]} .search__results__container__row__item--op`)
+              .removeClass('unchecked')
+              .addClass('checked');
           } else {
-            $(`.${record2modify[1]} .search__results__container__row__item--op`).addClass('unchecked');
+            $(`.${record2modify[1]} .search__results__container__row__item--op`)
+              .removeClass('checked')
+              .addClass('unchecked');
           }
 
           // Hide the button to hide the form

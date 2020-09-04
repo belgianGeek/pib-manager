@@ -166,6 +166,33 @@ const DBquery = (io, action, table, query) => {
   });
 }
 
+const escapeApostrophes = data => {
+    // Escape apostrophes before inserting data
+    if(data.values !== undefined && Array.isArray(data.values)) {
+        let newDataArr = [];
+        
+        data.values.forEach((item, i) => {
+          if (typeof item === 'string') {
+              item = item.replace(/'/g, "''");
+        }
+          
+          newDataArr.push(item);
+        });
+        
+        return newDataArr;
+    } else {
+        // Iterate over an object
+        let newDataObject = {};
+        for(let item in data) {
+            if (typeof item === 'string') {
+                newDataObject.item = data.item.replace(/'/g, "''");
+            }
+            
+            return newDataObject;
+        }
+    }
+}
+
 existPath('./backups/');
 existPath('./exports/');
 
@@ -229,13 +256,13 @@ app.get('/', (req, res) => {
           if (!data.authorFirstName) {
             DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, book_title, book_author_name, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8)`,
-              values: data.values
+              values: escapeApostrophes(data)
             });
           } else {
             // Si le nom de l'auteur contient un prénom
             DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, book_title, book_author_name, book_author_firstname, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-              values: data.values
+              values: escapeApostrophes(data)
             });
           }
         } else if (data.table === 'in_requests') {
@@ -243,13 +270,13 @@ app.get('/', (req, res) => {
           if (!data.authorFirstName) {
             DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-              values: data.values
+              values: escapeApostrophes(data)
             });
           } else {
             // Si le nom de l'auteur contient un prénom
             DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, book_author_firstname, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-              values: data.values
+              values: escapeApostrophes(data)
             });
           }
 
@@ -268,21 +295,20 @@ app.get('/', (req, res) => {
           if (data.values.length === 2) {
             DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(name, gender) VALUES($1, $2)`,
-              values: data.values
+              values: escapeApostrophes(data)
             });
           } else if (data.values.length === 3) {
             DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(name, email, gender) VALUES($1, $2, $3)`,
-              values: data.values
+              values: escapeApostrophes(data)
             });
           }
         } else if (data.table === 'drafts') {
           DBquery(io, 'INSERT INTO', data.table, {
             text: `INSERT INTO ${data.table}(reader_name, request_date, book_title, comment) VALUES($1, $2, $3, $4)`,
-            values: data.values
+            values: escapeApostrophes(data)
           });
         }
-
       });
 
       io.on('delete data', data => {
@@ -438,6 +464,8 @@ app.get('/', (req, res) => {
       });
 
       io.on('update', record => {
+          
+        
         if (record.table === 'drafts') {
           query = `UPDATE ${record.table} SET request_date = '${record.date}', reader_name = '${record.reader}', book_title = '${record.title}', comment = '${record.comment}' WHERE id = ${record.id}`;
         } else if (record.table === 'in_requests') {
