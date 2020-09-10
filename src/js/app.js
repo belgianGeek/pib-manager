@@ -180,7 +180,6 @@ $('.returnIcon').click(() => {
 const invalid = (element) => {
   element.addClass('invalid');
   validationErr = true;
-  console.log(`${element} is invalid !`, validationErr);
 }
 
 socket.on('notification', notification => {
@@ -441,7 +440,6 @@ setDate();
 const settings = () => {
   // Get settings from the server-side
   socket.on('settings', settings => {
-    console.log(settings, 'settings !');
     $('.settings__child__textarea__content').val(settings.mail_content.toString());
   });
 
@@ -529,8 +527,13 @@ const draftNewRequest = () => {
       $('.draft__child__container__reader .warning').hide();
 
       confirmation();
+      
+        // Escape apostrophes
+        $(reader).val($(reader).val().replace(/'/g, "''"));
+        $(title).val($(title).val().replace(/'/g, "''"));
+        comment.val(comment.val().replace(/'/g, "''"));
 
-      draftTimeOut = setTimeout(() => {
+      draftTimeOut = setTimeout(() => {     
         data2send.values.push($(reader).val());
 
         // Stocker la date en timestamp
@@ -613,8 +616,14 @@ const inRequests = () => {
 
   const sendData = () => {
     confirmation();
+    
+    // Escape apostrophes
+    borrowingLibrary.val(borrowingLibrary.val().replace(/'/g, "''"));
+    loanLibrary.val(loanLibrary.val().replace(/'/g, "''"));
+    readerName.val(readerName.val().replace(/'/g, "''"));
+    title.val(title.val().replace(/'/g, "''"));
 
-    inRequestsTimeOut = setTimeout(() => {
+    inRequestsTimeOut = setTimeout(() => {        
       data2send.values.push(pibNb.val());
       data2send.values.push(borrowingLibrary.val());
 
@@ -631,6 +640,9 @@ const inRequests = () => {
         data2send.values.push(author);
       } else {
         author = author.split(',');
+        // Escape apostrophes in the author's name
+        author[0] = author[0].replace(/'/g, "''");
+        
         data2send.values.push(author[0].trim(), author[1].trim());
       }
 
@@ -850,8 +862,12 @@ const outRequests = () => {
     if (!validationErr) {
       $('.input').removeClass('invalid');
       $('form .warning').hide();
+      
+      borrowingLibrary.val(borrowingLibrary.val().replace(/'/g, "''"));
+      loanLibrary.val(loanLibrary.val().replace(/'/g, "''"));
+      title.val(title.val().replace(/'/g, "''"));
 
-      outRequestsTimeOut = setTimeout(() => {
+      outRequestsTimeOut = setTimeout(() => {          
         data2send.values.push(pibNb.val());
         data2send.values.push(borrowingLibrary.val());
 
@@ -863,6 +879,9 @@ const outRequests = () => {
         // Si le nom de l'auteur est de forme NOM, Prénom
         if (authorField.val().indexOf(',') !== -1) {
           author = authorField.val().split(',');
+          
+          // Escape apostrophes in the author's name
+          author[0] = author[0].replace(/'/g, "''");
           data2send.values.push(author[0].toUpperCase().trim(), author[1].trim());
 
           // On ne change pas la valeur de data2send.authorFirstName car la condition est vérifiée
@@ -1002,12 +1021,12 @@ const search = () => {
 
       if ($('.search__container__readerInput').val() !== '') {
         searchData.getReader = true;
-        searchData.reader = $('.search__container__readerInput').val();
+        searchData.reader = $('.search__container__readerInput').val().replace(/\'/g, "''");
       }
 
       if ($('.search__container__titleInput').val() !== '') {
         searchData.getTitle = true;
-        searchData.title = $('.search__container__titleInput').val();
+        searchData.title = $('.search__container__titleInput').val().replace(/\'/g, "''");
       }
 
       socket.emit('search', searchData);
@@ -1018,7 +1037,8 @@ const search = () => {
   });
 
   socket.on('search results', results => {
-    $('.search__results__container').empty(function() {
+    if (results[0] !== undefined) {
+            $('.search__results__container').empty(function() {
       $(this).fadeOut();
     });
 
@@ -1101,7 +1121,7 @@ const search = () => {
       if (data.borrowing_library !== undefined) {
         let library = $('<span></span>')
           .addClass('search__results__container__row__item search__results__container__row__item--borrowing_library')
-          .append(data.borrowing_library)
+          .append(data.borrowing_library.replace(/\'\'/g, "'"))
           .appendTo(row);
       }
 
@@ -1118,22 +1138,22 @@ const search = () => {
       if (data.reader_name !== undefined) {
         let reader = $('<span></span>')
           .addClass('search__results__container__row__item search__results__container__row__item--reader')
-          .append(data.reader_name)
+          .append(data.reader_name.replace(/\'\'/g, "'"))
           .appendTo(row);
       }
 
       let title = $('<span></span>')
         .addClass('search__results__container__row__item search__results__container__row__item--title')
-        .append(data.book_title)
+        .append(data.book_title.replace(/\'\'/g, "'"))
         .appendTo(row);
 
       let author = $('<span></span>').addClass('search__results__container__row__item search__results__container__row__item--author');
 
       if (data.book_author_name !== undefined || data.book_author_firstname !== undefined) {
         if (data.book_author_firstname !== undefined && data.book_author_firstname !== null) {
-          author.append(`${data.book_author_name}, ${data.book_author_firstname}`);
+          author.append(`${data.book_author_name.replace(/\'\'/g, "'")}, ${data.book_author_firstname}`);
         } else {
-          author.append(data.book_author_name);
+          author.append(data.book_author_name.replace(/\'\'/g, "'"));
         }
 
         author.appendTo(row);
@@ -1233,9 +1253,9 @@ const search = () => {
               table: $('.search__container__select').val(),
               id: $(`.${record2modify[1]} .search__results__container__row__item--id`).text(),
               date: new Date($('.draft__child__container__reader__date input').val()).toUTCString(),
-              reader: $('.draft__child__container__reader__name input').val(),
-              comment: $('.draft__child__container__comment__textarea').val(),
-              title: $('.draft__child__container__reader__bookTitle input').val()
+              reader: $('.draft__child__container__reader__name input').val().replace(/\'/g, "''"),
+              comment: $('.draft__child__container__comment__textarea').val().replace(/\'/g, "''"),
+              title: $('.draft__child__container__reader__bookTitle input').val().replace(/\'/g, "''")
             };
 
             let updatedComment = updatedRecord.comment.trim().split('\n');
@@ -1248,9 +1268,9 @@ const search = () => {
 
             // Update the web interface with the changes
             $(`.${record2modify[1]} .search__results__container__row__item--date`).text(new Date(updatedRecord.date).toLocaleDateString());
-            $(`.${record2modify[1]} .search__results__container__row__item--reader`).text(updatedRecord.reader);
-            $(`.${record2modify[1]} .search__results__container__row__item--comment`).empty().append(updatedComment);
-            $(`.${record2modify[1]} .search__results__container__row__item--title`).text(updatedRecord.title);
+            $(`.${record2modify[1]} .search__results__container__row__item--reader`).text(updatedRecord.reader.replace(/\'\'/g, "'"));
+            $(`.${record2modify[1]} .search__results__container__row__item--comment`).empty().append(updatedComment.replace(/\'\'/g, "'"));
+            $(`.${record2modify[1]} .search__results__container__row__item--title`).text(updatedRecord.title.replace(/\'\'/g, "'"));
 
             // Send the update to the DB
             socket.emit('update', updatedRecord);
@@ -1306,8 +1326,6 @@ const search = () => {
           $(`.${record2modify[1]} .search__results__container__row__item--author`).text($('.inRequests__form__docInfo__author').val());
           $(`.${record2modify[1]} .search__results__container__row__item--cdu`).text($('.inRequests__form__docInfo__cdu').val());
           $(`.${record2modify[1]} .search__results__container__row__item--code`).text($('.inRequests__form__docInfo__inv').val());
-
-          console.log($(`.${record2modify[1]} .search__results__container__row__item--op`));
 
           if ($('.inRequests__form__pibInfo__outProvince').is(':checked')) {
             $(`.${record2modify[1]} .search__results__container__row__item--op`)
@@ -1375,6 +1393,7 @@ const search = () => {
         recordDelTimeOut = undefined;
       });
     });
+    }
   });
 }
 

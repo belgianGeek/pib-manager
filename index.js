@@ -22,7 +22,7 @@ const {
 
 let config = {
   user: 'postgres',
-  password: 'psql',
+  password: process.env.PG_USER_PASSWD,
   database: 'postgres',
   port: 5432,
   host: 'localhost'
@@ -45,8 +45,9 @@ const createOutRequestsTable = require('./modules/createOutRequestsTable');
 const createReadersTable = require('./modules/createReadersTable');
 const createSettingsTable = require('./modules/createSettingsTable');
 
-const createDB = (config, DBname) => {
+const createDB = (config, DBname = 'pib') => {
   const createTables = () => {
+    console.log(`Base de données ${DBname} créée avec succès, création des tables en cours...`);
     client = new Client(config);
 
     client.connect()
@@ -72,35 +73,21 @@ const createDB = (config, DBname) => {
       });
   }
 
-  const setPrivileges = () => {
-    // Grant all privileges to the current user connected to the OS
-    initClient.query(`GRANT ALL PRIVILEGES ON DATABASE ${DBname} TO ${config.user}`)
-      .then(res => {
-        console.log(`Privilèges accordés à l'utilisateur ${config.user} !`);
-      })
-      .catch(err => {
-        console.log(err);
-      });
-
-    // Set database owner
-    initClient.query(`ALTER DATABASE ${DBname} OWNER TO ${config.user}`)
-      .then(res => {
-        console.log(`L'utilisateur ${config.user} est désormais le propriétaire de la base de données ${DBname} !`);
-        initClient
+  const reconnect = () => {
+    // Disconnect from the 'postgres' DB and connect to the newly created 'pib' DB
+    config.database = 'pib';
+      
+    initClient
           .end()
           .then(() => console.log('Reconnexion en cours...'))
           .catch(err => console.error('Une erreur est survenue lors de la tentative de reconnexion à la base de données', err));
-      })
-      .catch(err => {
-        console.log(err);
-      });
   }
 
   console.log(`Création de la base de données ${DBname}...`);
   initClient.query(`CREATE DATABASE ${DBname} WITH ENCODING = 'UTF-8'`)
     .then(res => {
-      setPrivileges();
-      console.log(`Base de données ${DBname} créée avec succès, création des tables en cours...`);
+      reconnect();
+      
       createTables();
     })
     .catch(err => {
@@ -108,25 +95,10 @@ const createDB = (config, DBname) => {
         console.error(`Erreur lors de la création de la base de données ${DBname} : ${err}`);
       } else {
         console.log(`La base de données ${DBname} existe déjà !`);
-        setPrivileges();
+        reconnect();
         createTables();
       }
     });
-}
-
-const createRole = (config, DBname, password) => {
-  config.user = os.userInfo().username;
-  config.password = password;
-  config.database = DBname;
-  initClient.query(`CREATE ROLE ${config.user} WITH CREATEDB CREATEROLE LOGIN PASSWORD '${password}'`, (err, res) => {
-    if (err && err.code !== '42710') {
-      console.log(`Une erreur est survenue lors de la création du rôle ${config.user} : ${JSON.stringify(err, null, 2)}`);
-      console.error('La création de la base de données a échoué ! :-((');
-    } else {
-      console.log(`Rôle ${config.user} créé avec succès !`);
-      createDB(config, DBname);
-    }
-  });
 }
 
 const DBquery = (io, action, table, query) => {
@@ -159,38 +131,11 @@ const DBquery = (io, action, table, query) => {
         if (action !== 'SELECT' && table !== 'barcodes') {
           notify(io, 'error');
         }
-        console.log(err);
+        console.error(JSON.stringify(err, null, 2));
         reject(err);
         return;
       });
   });
-}
-
-const escapeApostrophes = data => {
-    // Escape apostrophes before inserting data
-    if(data.values !== undefined && Array.isArray(data.values)) {
-        let newDataArr = [];
-        
-        data.values.forEach((item, i) => {
-          if (typeof item === 'string') {
-              item = item.replace(/'/g, "''");
-        }
-          
-          newDataArr.push(item);
-        });
-        
-        return newDataArr;
-    } else {
-        // Iterate over an object
-        let newDataObject = {};
-        for(let item in data) {
-            if (typeof item === 'string') {
-                newDataObject.item = data.item.replace(/'/g, "''");
-            }
-            
-            return newDataObject;
-        }
-    }
 }
 
 existPath('./backups/');
@@ -210,11 +155,10 @@ initClient.connect()
   .then(() => {
     if (!ip.address().match(/169.254/) || !ip.address().match(/127.0/)) {
       console.log(`Tu peux te connecter à PIB Manager ici : http://${ip.address()}:8000.`);
-      createRole(config, 'pib', process.env.PG_PASSWD);
+      createDB(config, 'pib');
     } else {
       console.log(`Désolé, il semble que tu n'aies pas accès à Internet... Rétablis ta connexion et réessaie :-)`);
     }
-    return;
   })
   .catch(err => {
     console.log(`Connection error : ${err}`);
@@ -256,13 +200,13 @@ app.get('/', (req, res) => {
           if (!data.authorFirstName) {
             DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, book_title, book_author_name, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8)`,
-              values: escapeApostrophes(data)
+              values: data.values
             });
           } else {
             // Si le nom de l'auteur contient un prénom
             DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, book_title, book_author_name, book_author_firstname, cdu, out_province) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-              values: escapeApostrophes(data)
+              values: data.values
             });
           }
         } else if (data.table === 'in_requests') {
@@ -270,13 +214,13 @@ app.get('/', (req, res) => {
           if (!data.authorFirstName) {
             DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-              values: escapeApostrophes(data)
+              values: data.values
             });
           } else {
             // Si le nom de l'auteur contient un prénom
             DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, book_author_firstname, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-              values: escapeApostrophes(data)
+              values: data.values
             });
           }
 
@@ -295,18 +239,19 @@ app.get('/', (req, res) => {
           if (data.values.length === 2) {
             DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(name, gender) VALUES($1, $2)`,
-              values: escapeApostrophes(data)
+              values: data.values
             });
           } else if (data.values.length === 3) {
             DBquery(io, 'INSERT INTO', data.table, {
               text: `INSERT INTO ${data.table}(name, email, gender) VALUES($1, $2, $3)`,
-              values: escapeApostrophes(data)
+              values: data.values
             });
           }
         } else if (data.table === 'drafts') {
+          console.log(data);
           DBquery(io, 'INSERT INTO', data.table, {
             text: `INSERT INTO ${data.table}(reader_name, request_date, book_title, comment) VALUES($1, $2, $3, $4)`,
-            values: escapeApostrophes(data)
+            values: data.values
           });
         }
       });
@@ -427,6 +372,7 @@ app.get('/', (req, res) => {
 
     io.once('connection', io => {
       io.on('search', data => {
+        console.log(data);
         if (data.table === 'in_requests') {
           if (data.getTitle && !data.getReader) {
             query = `SELECT * FROM ${data.table} WHERE book_title ILIKE '%${data.title}%'`;
