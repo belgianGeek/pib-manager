@@ -347,7 +347,7 @@ app.get('/', (req, res) => {
 
       io.on('send mail', receiver => {
         setTimeout(function() {
-          mail(receiver);
+          mail(receiver, client);
           notify(io, 'mail');
         }, 10000);
       });
@@ -363,6 +363,17 @@ app.get('/', (req, res) => {
             });
         }
       });
+      
+      io.on('settings', settings => {
+        if (settings.mail_content !== undefined) {
+          query = `UPDATE settings SET mail_content = '${settings.mail_content}'`;
+          console.log(query);
+        }
+        
+        DBquery(io, 'UPDATE', 'settings', {
+            text: query
+        });
+      });
     });
   })
 
@@ -372,7 +383,6 @@ app.get('/', (req, res) => {
 
     io.once('connection', io => {
       io.on('search', data => {
-        console.log(data);
         if (data.table === 'in_requests') {
           if (data.getTitle && !data.getReader) {
             query = `SELECT * FROM ${data.table} WHERE book_title ILIKE '%${data.title}%'`;
@@ -397,6 +407,8 @@ app.get('/', (req, res) => {
           } else {
             query = `SELECT * FROM ${data.table}`;
           }
+          
+          console.log(query);
         }
 
         DBquery(io, 'SELECT', data.table, {

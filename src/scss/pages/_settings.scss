@@ -61,30 +61,6 @@
       margin: 0.7em 0;
     }
 
-    .settings__BtnContainer {
-      width: 100%;
-      display: inline-flex;
-      justify-content: flex-end;
-      margin-top: 1.5em;
-      padding-bottom: 1.5em;
-      @media(max-width: 720px) {
-        position: relative;
-        top: 5%;
-        left: 0;
-        justify-content: space-evenly;
-      }
-    }
-
-    &__cancelBtn,
-    &__saveBtn {
-      padding: 0.7em;
-      margin-right: 1.1em;
-      @media(max-width: 720px) {
-        margin-bottom: 1em;
-        margin-right: 0;
-      }
-    }
-
     .backgroundImageUploadForm {
       margin: 2em 0 0 1em;
       justify-content: space-between;
