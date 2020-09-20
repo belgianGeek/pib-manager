@@ -7,6 +7,8 @@ const draftNewRequest = () => {
   let draftTimeOut;
 
   $('.draftsLink').click(() => {
+    // Empty all the text fields
+    $('.draft__child__container input[type=text], .draft__child__container textarea').val('');
     smartHide('.draft', 'in');
   });
 
@@ -78,6 +80,7 @@ const draftNewRequest = () => {
 
   $('.draft__child__container__reader__btnContainer__reset').click(() => {
     smartHide('.draft', 'out');
+    $('.wrapper, .header').removeClass('blur');
     $('.input').removeClass('invalid');
     $('form .warning').hide();
     validationErr = false;

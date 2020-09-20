@@ -7,7 +7,6 @@ const outRequests = () => {
   let title = $('.outRequests__form__docInfo__title');
   let authorField = $('.outRequests__form__docInfo__author');
   let cdu = $('.outRequests__form__docInfo__cdu');
-  let outProvince = $('.outRequests__form__pibInfo__outProvince').is(':checked');
 
   // Séparer le nom de l'auteur de son prénom
   let author = '';
@@ -58,6 +57,10 @@ const outRequests = () => {
       loanLibrary.val(loanLibrary.val().replace(/'/g, "''"));
       title.val(title.val().replace(/'/g, "''"));
 
+      let outProvince = $('.outRequests__form__pibInfo__outProvince').is(':checked');
+
+      confirmation();
+      
       outRequestsTimeOut = setTimeout(() => {
         data2send.values.push(pibNb.val());
         data2send.values.push(borrowingLibrary.val());
@@ -110,10 +113,6 @@ const outRequests = () => {
       validationErr = false;
       data2send.values = [];
     }
-  });
-
-  $('.outRequests__step4__btn').click(() => {
-    confirmation();
   });
 
   $('.outRequests__form__btnContainer__reset').click(() => {

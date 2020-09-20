@@ -1,5 +1,5 @@
 .search {
-  margin-left: 3em;
+  margin: 0 3em;
   width: 100%;
   height: 100%;
 
@@ -30,7 +30,7 @@
   }
 
   &__results {
-    width: 90%;
+    width: 100%;
     height: 100%;
     justify-content: flex-start;
     overflow: auto;
