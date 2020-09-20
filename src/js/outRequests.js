@@ -1,5 +1,5 @@
 const outRequests = () => {
-  let outRequestsTimeOut = '';
+  let outRequestsTimeOut;
   let pibNb = $('.outRequests__form__pibInfo__pibNb');
   let borrowingLibrary = $('.outRequests__form__pibInfo__borrowingLibrary');
   let requestDate = $('.outRequests__form__pibInfo__requestDate');
@@ -54,7 +54,9 @@ const outRequests = () => {
       $('.input').removeClass('invalid');
       $('form .warning').hide();
 
-      confirmation();
+      borrowingLibrary.val(borrowingLibrary.val().replace(/'/g, "''"));
+      loanLibrary.val(loanLibrary.val().replace(/'/g, "''"));
+      title.val(title.val().replace(/'/g, "''"));
 
       outRequestsTimeOut = setTimeout(() => {
         data2send.values.push(pibNb.val());
@@ -68,6 +70,9 @@ const outRequests = () => {
         // Si le nom de l'auteur est de forme NOM, Prénom
         if (authorField.val().indexOf(',') !== -1) {
           author = authorField.val().split(',');
+
+          // Escape apostrophes in the author's name
+          author[0] = author[0].replace(/'/g, "''");
           data2send.values.push(author[0].toUpperCase().trim(), author[1].trim());
 
           // On ne change pas la valeur de data2send.authorFirstName car la condition est vérifiée
@@ -86,17 +91,11 @@ const outRequests = () => {
         socket.emit('append data', data2send);
         data2send.values = [];
 
-        $('.outRequests__step3')
-          .fadeOut(function() {
-            confirmation();
+        $('.outRequests__step4').toggleClass('hidden flex');
+        confirmation();
 
-            $(this)
-              .removeAttr('style')
-              .toggleClass('hidden flex');
-
-            $('.home').toggleClass('hidden flex');
-            $('.header__container__icon, .header__container__msg').toggleClass('hidden');
-          });
+        $('.home').toggleClass('hidden flex');
+        $('.header__container__icon, .header__container__msg').toggleClass('hidden');
 
         $('.outRequests__form .input').not('.outRequests__form__pibInfo__requestDate, .outRequests__form__pibInfo__loanLibrary').val('');
       }, 5000);
@@ -113,6 +112,10 @@ const outRequests = () => {
     }
   });
 
+  $('.outRequests__step4__btn').click(() => {
+    confirmation();
+  });
+
   $('.outRequests__form__btnContainer__reset').click(() => {
     $('.input').removeClass('invalid');
     $('form .warning').hide();
@@ -121,7 +124,7 @@ const outRequests = () => {
   });
 
   $('.confirmation__body__cancel').click(() => {
-    smartHide('.confirmation', 'out', outRequestsTimeOut);
+    clearTimeout(outRequestsTimeOut);
   });
 }
 

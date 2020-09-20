@@ -4,9 +4,9 @@ const draftNewRequest = () => {
   let title = '.draft__child__container__reader__bookTitle input';
   let comment = $('.draft__child__container__comment__textarea');
 
-  let draftTimeOut = '';
+  let draftTimeOut;
 
-  $('.header__actionsContainer__draft').click(() => {
+  $('.draftsLink').click(() => {
     smartHide('.draft', 'in');
   });
 
@@ -30,9 +30,14 @@ const draftNewRequest = () => {
 
     if (!validationErr) {
       $('.input').removeClass('invalid');
-      $('drafts__child__container__reader .warning').hide();
+      $('.draft__child__container__reader .warning').hide();
 
       confirmation();
+
+        // Escape apostrophes
+        $(reader).val($(reader).val().replace(/'/g, "''"));
+        $(title).val($(title).val().replace(/'/g, "''"));
+        comment.val(comment.val().replace(/'/g, "''"));
 
       draftTimeOut = setTimeout(() => {
         data2send.values.push($(reader).val());
@@ -51,23 +56,17 @@ const draftNewRequest = () => {
         socket.emit('append data', data2send);
         data2send.values = [];
 
-        $('.draft')
-          .fadeOut(() => {
-            confirmation();
+        $('.draft').toggleClass('hidden flex');
+        confirmation();
 
-            $('.draft__child__container .input, .draft__child__container textarea').not('.draft__child__container__reader__date input').val('');
-
-            $('.draft')
-              .removeAttr('style')
-              .toggleClass('hidden flex');
-          });
+        $('.draft__child__container .input, .draft__child__container textarea').not('.draft__child__container__reader__date input').val('');
       }, 5000);
     } else {
-      if (!$('drafts__child__container__reader .warning').length) {
+      if (!$('.draft__child__container__reader .warning').length) {
         let warning = $('<span></span>')
           .addClass('warning')
           .text('Certains champs sont incorrects...')
-          .appendTo('.drafts__child__container__reader');
+          .appendTo('.draft__child__container__reader');
       };
 
       validationErr = false;
@@ -86,8 +85,7 @@ const draftNewRequest = () => {
   });
 
   $('.confirmation__body__cancel').click(() => {
-    confirmation();
-    smartHide('.confirmation', 'out', draftTimeOut);
+    clearTimeout(draftTimeOut);
   });
 }
 

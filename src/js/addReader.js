@@ -1,5 +1,5 @@
 const addReader = () => {
-  let addReaderTimeout = '';
+  let addReaderTimeout;
   let readerName = $('.addReader__step1__form__nameContainer__readerName');
   let readerFirstname = $('.addReader__step1__form__nameContainer__readerFirstName');
   let mail = $('.addReader__step1__form__email__input');
@@ -24,13 +24,17 @@ const addReader = () => {
       invalid(readerFirstname);
     }
 
+    if (mail.is(':invalid')) {
+      invalid(mail);
+    }
+
     if (!validationErr) {
       $('.input').removeClass('invalid');
       $('form .warning').hide();
 
       confirmation();
 
-      addReaderTimeout = setTimeout(function () {
+      addReaderTimeout = setTimeout(function() {
         data2send.values.push(`${capitalizeFirstLetter(readerName.val())}, ${capitalizeFirstLetter(readerFirstname.val())}`);
 
         if (mail.val() !== '') {
@@ -43,18 +47,15 @@ const addReader = () => {
         data2send.values = [];
 
         $('.addReader__step1')
-          .fadeOut(function() {
-            confirmation();
+          .removeAttr('style')
+          .toggleClass('hidden flex');
 
-            $(this)
-              .removeAttr('style')
-              .toggleClass('hidden flex');
+        confirmation();
 
-           $('.home').toggleClass('hidden flex');
-           $('.header__container__icon, .header__container__msg').toggleClass('hidden');
+        $('.home').toggleClass('hidden flex');
+        $('.header__container__icon, .header__container__msg').toggleClass('hidden');
 
-           $('.addReader__step1 input').not('.radio').val('');
-          });
+        $('.addReader__step1 input').not('.radio').val('');
       }, 5000);
     } else {
       if (!$('form .warning').length) {
@@ -77,18 +78,11 @@ const addReader = () => {
   });
 
   $('.confirmation__body__cancel').click(() => {
-    $('.confirmation')
-      .fadeOut(function() {
-        $(this)
-          .addClass('hidden')
-          .removeClass('flex')
-          .removeAttr('style');
-
-        $('.wrapper, .header').removeClass('blur');
-
-        clearTimeout(addReaderTimeout);
-      });
+    clearTimeout(addReaderTimeout);
   });
 }
 
-addReader();
+$('.addReaderLink').click(() => {
+  $('.home, .returnIcon, .header__container__msg, .addReader__step1').toggleClass('hidden flex');
+  addReader();
+});

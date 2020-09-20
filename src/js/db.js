@@ -12,23 +12,20 @@ const exportDB = () => {
   format = '';
 }
 
-$('.header__actionsContainer__importExport').click(() => {
+$('.exportsLink').click(() => {
   smartHide('.export', 'in');
-
-  $('.export .btn--submit').click(() => {
-    exportDB();
-  });
-
-  $('.export .btn--reset').click(() => {
-    smartHide('.export', 'out');
-  });
-
   format = '';
 });
 
+$('.export .btn--submit').click(() => {
+  exportDB();
+});
+
+$('.export .btn--reset').click(() => {
+  smartHide('.export', 'out');
+});
+
 socket.on('export successfull', () => {
-  $.ajax({
-    method: 'GET',
-    url: '/zip'
-  });
+  smartHide('.export', 'out');
+  window.open('/download');
 });

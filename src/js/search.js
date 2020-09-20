@@ -1,5 +1,6 @@
 const search = () => {
-  let recordDelTimeOut;
+  let recordDelTimeOut, recordUpdateTimeOut, inRequestsTimeOut, record2modify;
+  let updatedRecord = {};
   let searchData = {
     table: '',
     reader: '',
@@ -9,8 +10,8 @@ const search = () => {
   };
 
   // Actions du menu contextuel
-  const hideParent = () => {
-    $('.search__results__container__row .actionsMenu').toggleClass('hidden flex');
+  const hideParent = className => {
+    $(`.${className} .actionsMenu`).toggleClass('hidden flex');
   }
 
   $('.search__container__select').on('change', function() {
@@ -30,26 +31,27 @@ const search = () => {
 
     if ($('.search__container__select').val() !== 'default') {
       searchData.table = $('.search__container__select').val();
+
+      if ($('.search__container__readerInput').val() !== '') {
+        searchData.getReader = true;
+        searchData.reader = $('.search__container__readerInput').val().replace(/\'/g, "''");
+      }
+
+      if ($('.search__container__titleInput').val() !== '') {
+        searchData.getTitle = true;
+        searchData.title = $('.search__container__titleInput').val().replace(/\'/g, "''");
+      }
+
+      socket.emit('search', searchData);
+
+      searchData.table = searchData.reader = searchData.title = '';
+      searchData.getReader = searchData.getTitle = false;
     }
-
-    if ($('.search__container__readerInput').val() !== '') {
-      searchData.getReader = true;
-      searchData.reader = $('.search__container__readerInput').val();
-    }
-
-    if ($('.search__container__titleInput').val() !== '') {
-      searchData.getTitle = true;
-      searchData.title = $('.search__container__titleInput').val();
-    }
-
-    socket.emit('search', searchData);
-
-    searchData.table = searchData.reader = searchData.title = '';
-    searchData.getReader = searchData.getTitle = false;
   });
 
   socket.on('search results', results => {
-    $('.search__results__container').empty(function() {
+    if (results[0] !== undefined) {
+            $('.search__results__container').empty(function() {
       $(this).fadeOut();
     });
 
@@ -132,7 +134,7 @@ const search = () => {
       if (data.borrowing_library !== undefined) {
         let library = $('<span></span>')
           .addClass('search__results__container__row__item search__results__container__row__item--borrowing_library')
-          .append(data.borrowing_library)
+          .append(data.borrowing_library.replace(/\'\'/g, "'"))
           .appendTo(row);
       }
 
@@ -149,22 +151,22 @@ const search = () => {
       if (data.reader_name !== undefined) {
         let reader = $('<span></span>')
           .addClass('search__results__container__row__item search__results__container__row__item--reader')
-          .append(data.reader_name)
+          .append(data.reader_name.replace(/\'\'/g, "'"))
           .appendTo(row);
       }
 
       let title = $('<span></span>')
         .addClass('search__results__container__row__item search__results__container__row__item--title')
-        .append(data.book_title)
+        .append(data.book_title.replace(/\'\'/g, "'"))
         .appendTo(row);
 
       let author = $('<span></span>').addClass('search__results__container__row__item search__results__container__row__item--author');
 
       if (data.book_author_name !== undefined || data.book_author_firstname !== undefined) {
         if (data.book_author_firstname !== undefined && data.book_author_firstname !== null) {
-          author.append(`${data.book_author_name}, ${data.book_author_firstname}`);
+          author.append(`${data.book_author_name.replace(/\'\'/g, "'")}, ${data.book_author_firstname}`);
         } else {
-          author.append(data.book_author_name);
+          author.append(data.book_author_name.replace(/\'\'/g, "'"));
         }
 
         author.appendTo(row);
@@ -177,17 +179,24 @@ const search = () => {
           .appendTo(row);
       }
 
-      let out_province = $('<input>').addClass('search__results__container__row__item search__results__container__row__item--op');
+      let out_province = $('\
+      <svg xmlns="http://www.w3.org/2000/svg">\
+        <circle cx="50%" cy="50%" r="5"/>\
+      </svg>\
+      ').addClass('search__results__container__row__item search__results__container__row__item--op flex');
       if (data.out_province !== undefined) {
         out_province
-          .attr('type', 'checkbox')
-          .attr('disabled', true)
+          .attr('viewBox', '0 0 75 10')
           .appendTo(row);
 
         if (data.out_province) {
-          out_province.attr('checked', true);
+          out_province
+            .removeClass('unchecked')
+            .addClass('checked');
         } else {
-          out_province.attr('checked', false);
+          out_province
+            .removeClass('checked')
+            .addClass('unchecked');
         }
       }
 
@@ -206,8 +215,13 @@ const search = () => {
       }
 
       // Affiche le emnu d'actions au survol
-      if ($('.search__container__select').val() === 'drafts') {
-        let actionsBtnOffset = $('.search__results__container__row .actionsBtn').offset();
+      if ($('.search__container__select').val() === 'drafts' || $('.search__container__select').val() === 'in_requests') {
+        if (!$('.search__results__container__row--' + i + ' .actionsMenu').length) {
+          $('.actionsMenu')
+            .clone()
+            .appendTo('.search__results__container__row--' + i);
+        }
+
         let actionsButton = $('<button></button>')
           .addClass('actionsBtn hidden')
           .attr('type', 'button')
@@ -218,98 +232,181 @@ const search = () => {
                 <circle cx="12" cy="19" r="1"></circle>
               </svg>
               `)
-          .appendTo('.search__results__container__row')
+          .appendTo(`.search__results__container__row--${i}`)
           .click(function() {
-            $(this).toggleClass('hidden flex');
-
-            if (!$('.search__results__container__row .actionsMenu').length) {
-              $('.actionsMenu')
-                .clone()
-                .appendTo($(this).parent());
-            }
-
-            const confirmation = () => {
-              $('.confirmation').toggleClass('hidden flex');
-              $('.wrapper, .header, .draft').toggleClass('blur');
-              $('.wrapper *').removeClass('translateXbackwards');
-            }
-
-            $('.search__results__container__row .actionsMenu').toggleClass('hidden flex');
-
-            console.log('handling action');
-            $('.search__results__container__row .actionsMenu__item--modify svg, \
-            .search__results__container__row .actionsMenu__item--modify p').click(function() {
-              hideParent();
-
-              let record = $(this).parents('.search__results__container__row').attr('class').split(' ');
-
-              // Formatage de la date
-              let date = $(`.${record[1]} .search__results__container__row__item--date`).text().split('/');
-
-              // Format the date to be year, Month (0-indexed) and the day
-              $('.draft__child__container__reader__date input').val(`${date[2]}-${date[1]}-${date[0]}`);
-              $('.draft__child__container__reader__name input').val($(`.${record[1]} .search__results__container__row__item--reader`).text());
-              $('.draft__child__container__comment__textarea').val($(`.${record[1]} .search__results__container__row__item--comment`).text());
-              $('.draft__child__container__reader__bookTitle input').val($(`.${record[1]} .search__results__container__row__item--title`).text());
-
-              $('.draft').toggleClass('hidden flex');
-
-              $('.draft__child__container__reader__btnContainer__submit').click(function() {
-                let updatedRecord = {
-                  table: $('.search__container__select').val(),
-                  id: $(`.${record[1]} .search__results__container__row__item--id`).text(),
-                  date: new Date($('.draft__child__container__reader__date input').val()).toUTCString(),
-                  reader: $('.draft__child__container__reader__name input').val(),
-                  comment: $('.draft__child__container__comment__textarea').val(),
-                  title: $('.draft__child__container__reader__bookTitle input').val()
-                };
-
-                // Update the web interface with the changes
-                $(`.${record[1]} .search__results__container__row__item--date`).text(new Date(updatedRecord.date).toLocaleDateString());
-                $(`.${record[1]} .search__results__container__row__item--reader`).text(updatedRecord.reader);
-                $(`.${record[1]} .search__results__container__row__item--comment`).text(updatedRecord.comment);
-                $(`.${record[1]} .search__results__container__row__item--title`).text(updatedRecord.title);
-
-                // Send the update to the DB
-                socket.emit('update', updatedRecord);
-              });
-            });
-
-            //  svg, \
-            // .search__results__container__row .actionsMenu__item--del p
-            $('.search__results__container__row .actionsMenu__item--del').click(() => {
-              console.log('Waiting for confirmation...');
-              hideParent();
-              confirmation();
-
-              // Hide the record from the interface
-              $(`.${record[1]}`).toggleClass('hidden flex');
-
-              let record = $(this).parents('.search__results__container__row').attr('class').split(' ');
-
-              recordDelTimeOut = setTimeout(() => {
-                // Delete the record from the interface
-                $(`.${record[1]}`).remove(() => {
-                  console.log('remove record');
-                  confirmation();
-
-                  // Send the record ID to delete to the server
-                  socket.emit('delete data', $(`.${record[1]} .search__results__container__row__item--id`).text());
-
-                  // TODO: Server-side changes !
-                });
-              }, 5000);
-            });
-
-            $('.confirmation__body__cancel').click(() => {
-              console.log('Cancelling request...');
-              smartHide('.confirmation', 'out', recordDelTimeOut);
-            });
+            let parentClassNames = $(this).parents('.search__results__container__row').attr('class').split(' ');
+            $(`.${parentClassNames[1]} .actionsMenu`).toggleClass('hidden flex');
           });
       }
     }
 
     $('.search__results__container').fadeIn();
+
+    $('.search__results__container__row .actionsMenu__item--modify').click(function() {
+      record2modify = $(this).parents('.search__results__container__row').attr('class').split(' ');
+
+      hideParent(record2modify[1]);
+
+      // Format the date to be year, Month (0-indexed) and the day
+      let date = $(`.${record2modify[1]} .search__results__container__row__item--date`).text().split('/');
+
+      if ($('.search__container__select').val() === 'drafts') {
+        $('.draft__child__container__reader__date input').val(`${date[2]}-${date[1]}-${date[0]}`);
+        $('.draft__child__container__reader__name input').val($(`.${record2modify[1]} .search__results__container__row__item--reader`).text());
+
+        // Use .html() to retrieve both the node value and its children
+        $('.draft__child__container__comment__textarea').val($(`.${record2modify[1]} .search__results__container__row__item--comment`).html().replace(/(<|&lt;)br(>|&gt;)/gi, '\n'));
+        $('.draft__child__container__reader__bookTitle input').val($(`.${record2modify[1]} .search__results__container__row__item--title`).text());
+
+        $('.draft').toggleClass('hidden flex');
+
+        $('.draft__child__container__reader__btnContainer__submit').click(function() {
+          recordUpdateTimeOut = setTimeout(function() {
+            updatedRecord = {
+              table: $('.search__container__select').val(),
+              id: $(`.${record2modify[1]} .search__results__container__row__item--id`).text(),
+              date: new Date($('.draft__child__container__reader__date input').val()).toUTCString(),
+              reader: $('.draft__child__container__reader__name input').val().replace(/\'/g, "''"),
+              comment: $('.draft__child__container__comment__textarea').val().replace(/\'/g, "''"),
+              title: $('.draft__child__container__reader__bookTitle input').val().replace(/\'/g, "''")
+            };
+
+            let updatedComment = updatedRecord.comment.trim().split('\n');
+
+            $(updatedComment).each((i, item) => {
+              if (item === '') {
+                updatedComment.splice(i, 1, $('<br>')[0]);
+              }
+            });
+
+            // Update the web interface with the changes
+            $(`.${record2modify[1]} .search__results__container__row__item--date`).text(new Date(updatedRecord.date).toLocaleDateString());
+            $(`.${record2modify[1]} .search__results__container__row__item--reader`).text(updatedRecord.reader.replace(/\'\'/g, "'"));
+            $(`.${record2modify[1]} .search__results__container__row__item--comment`).empty().append(updatedComment.replace(/\'\'/g, "'"));
+            $(`.${record2modify[1]} .search__results__container__row__item--title`).text(updatedRecord.title.replace(/\'\'/g, "'"));
+
+            // Send the update to the DB
+            socket.emit('update', updatedRecord);
+          }, 5000);
+
+          $('.confirmation__body__cancel').click(() => {
+            $('.draft').removeClass('blur');
+            clearTimeout(recordUpdateTimeOut);
+            recordUpdateTimeOut = undefined;
+          });
+        });
+      } else if ($('.search__container__select').val() === 'in_requests') {
+        $('.inRequests')
+          .addClass('absolute flex')
+          .removeClass('hidden');
+
+        $('.wrapper').addClass('blur backgroundColor');
+
+        // Set the initial PIB number
+        initialPibNb = $(`.${record2modify[1]} .search__results__container__row__item--pib`).text();
+
+        // Show a button to hide the form
+        $('.inRequests.absolute .inRequests__form__btnContainer__hide').removeClass('hidden');
+
+        // Fill in all the fields with the selected record data
+        $('.inRequests.absolute .inRequests__form__pibInfo__pibNb').val($(`.${record2modify[1]} .search__results__container__row__item--pib`).text());
+        $('.inRequests.absolute .inRequests__form__pibInfo__borrowingLibrary').val($(`.${record2modify[1]} .search__results__container__row__item--borrowing_library`).text());
+        $('.inRequests.absolute .inRequests__form__pibInfo__requestDate').val(`${date[2]}-${date[1]}-${date[0]}`);
+        $('.inRequests.absolute .inRequests__form__readerInfo__container__name').val($(`.${record2modify[1]} .search__results__container__row__item--reader`).text());
+        $('.inRequests.absolute .inRequests__form__docInfo__title').val($(`.${record2modify[1]} .search__results__container__row__item--title`).text());
+        $('.inRequests.absolute .inRequests__form__docInfo__author').val($(`.${record2modify[1]} .search__results__container__row__item--author`).text());
+        $('.inRequests.absolute .inRequests__form__docInfo__cdu').val($(`.${record2modify[1]} .search__results__container__row__item--cdu`).text());
+        $('.inRequests.absolute .inRequests__form__docInfo__inv').val($(`.${record2modify[1]} .search__results__container__row__item--code`).text());
+
+        // out_province checkbox
+        if ($(`.${record2modify[1]} .search__results__container__row__item--op`).hasClass('checked')) {
+          $('.inRequests.absolute .inRequests__form__pibInfo__outProvince').prop('checked', true);
+        } else {
+          $('.inRequests.absolute .inRequests__form__pibInfo__outProvince').prop('checked', false);
+        }
+
+        // Generate the barcode
+        JsBarcode('.inRequests.absolute .inRequests__barcode__svg', $('.inRequests.absolute .inRequests__form__docInfo__inv').val(), barcodeOptions);
+
+        // The form submit is handled in the inRequests function
+        $('.inRequests.absolute .inRequests__form__btnContainer__submit').click(() => {
+          // Update the web interface with the changes
+          $(`.${record2modify[1]} .search__results__container__row__item--pib`).text($('.inRequests__form__pibInfo__pibNb').val());
+          $(`.${record2modify[1]} .search__results__container__row__item--borrowing_library`).text($('.inRequests__form__pibInfo__borrowingLibrary').val());
+          $(`.${record2modify[1]} .search__results__container__row__item--date`).text(new Date($('.inRequests__form__pibInfo__requestDate').val()).toLocaleDateString());
+          $(`.${record2modify[1]} .search__results__container__row__item--reader`).text($('.inRequests__form__readerInfo__container__name').val());
+          $(`.${record2modify[1]} .search__results__container__row__item--title`).text($('.inRequests__form__docInfo__title').val());
+          $(`.${record2modify[1]} .search__results__container__row__item--author`).text($('.inRequests__form__docInfo__author').val());
+          $(`.${record2modify[1]} .search__results__container__row__item--cdu`).text($('.inRequests__form__docInfo__cdu').val());
+          $(`.${record2modify[1]} .search__results__container__row__item--code`).text($('.inRequests__form__docInfo__inv').val());
+
+          if ($('.inRequests__form__pibInfo__outProvince').is(':checked')) {
+            $(`.${record2modify[1]} .search__results__container__row__item--op`)
+              .removeClass('unchecked')
+              .addClass('checked');
+          } else {
+            $(`.${record2modify[1]} .search__results__container__row__item--op`)
+              .removeClass('checked')
+              .addClass('unchecked');
+          }
+
+          // Hide the button to hide the form
+          $('.inRequests.absolute .inRequests__form__btnContainer__hide').toggleClass('hidden');
+        });
+
+        // Hide the form on btn click
+        $('.inRequests.absolute .inRequests__form__btnContainer__hide').click(function() {
+          $('.inRequests')
+            .removeClass('absolute flex')
+            .addClass('hidden');
+
+          $('.wrapper').removeClass('blur backgroundColor');
+
+          // Hide the button to hide the form
+          $(this).addClass('hidden');
+        });
+      }
+    });
+
+    $('.search__results__container__row .actionsMenu__item--del').click(function() {
+      let record = $(this).parents('.search__results__container__row').attr('class').split(' ');
+      let deletionKey = {};
+      hideParent(record[1]);
+      confirmation();
+
+      if ($('.search__container__select').val() === 'drafts') {
+        deletionKey = {
+          table: 'drafts',
+          key: $(`.${record[1]} .search__results__container__row__item--id`).text()
+        };
+      } else if ($('.search__container__select').val() === 'in_requests') {
+        deletionKey = {
+          table: 'in_requests',
+          key: $(`.${record[1]} .search__results__container__row__item--pib`).text()
+        };
+      }
+
+      // Hide the record from the interface
+      $(`.${record[1]}`).toggleClass('hidden flex');
+
+      recordDelTimeOut = setTimeout(() => {
+        // Delete the record from the interface
+        $(`.${record[1]}`).remove();
+        confirmation();
+
+        // Send the record ID to delete to the server
+        socket.emit('delete data', deletionKey);
+      }, 5000);
+
+      $('.confirmation__body__cancel').click(() => {
+        clearTimeout(recordDelTimeOut);
+        $(`.${record[1]}`)
+          .removeClass('hidden')
+          .addClass('flex');
+        recordDelTimeOut = undefined;
+      });
+    });
+    }
   });
 }
 

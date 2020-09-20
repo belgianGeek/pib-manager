@@ -1,28 +1,64 @@
 const handleHomeBtnClick = (element, parent) => {
+  const showElt = elt => {
+    $('.requestTypeChoice')
+      .addClass('hidden')
+      .removeClass('flex');
+
+    if (elt === 'outRequests' || elt === 'inRequests') {
+      $(`.${elt}__step1`)
+        .removeClass('hidden')
+        .addClass('flex');
+    } else if (elt === 'loan' && $('.requestTypeChoice').hasClass('newRequest')) {
+      $(`.inRequests__step1`)
+        .removeClass('hidden')
+        .addClass('flex');
+    } else if (elt === 'borrowing' && $('.requestTypeChoice').hasClass('newRequest')) {
+      $(`.outRequests__step1`)
+        .removeClass('hidden')
+        .addClass('flex');
+    }
+  }
   $(`.home__${parent}__${element}`).click(() => {
-    $('.home')
-      .fadeOut(() => {
-        $(`.${element}__step1`)
-          .fadeIn(() => {
-            $(`.${element}__step1`)
-              .toggleClass('hidden flex')
-              .removeAttr('style');
-          });
+    if (element === 'newRequest') {
+      $('.requestTypeChoice')
+        // Add a class to the .requestTypeChoice div to show the right step to the user
+        .addClass(`${element} flex`)
+        .removeClass('hidden')
 
-        setTimeout(() => {
-          $('.home')
-            .toggleClass('flex hidden')
-            .removeAttr('style');
+      $('.requestTypeChoice__btnContainer__loan').click(() => {
+        // Reset the checkbox state
+        $('.inRequests__form__pibInfo__outProvince').prop('checked', false);
 
-          $('.returnIcon, .header__container__msg')
-            .removeClass('hidden');
-        }, 1000);
+        showElt('loan');
       });
+
+      $('.requestTypeChoice__btnContainer__borrowing').click(() => {
+        showElt('borrowing');
+      });
+    } else if (element === 'followRequest') {
+      $(`.inRequests__step3`)
+        .removeClass('hidden')
+        .addClass('flex')
+    } else if (element === 'outReturns') {
+      $(`.outReturns__step1`)
+        .removeClass('hidden')
+        .addClass('flex')
+    } else if (element === 'inReturns') {
+      $(`.inReturns__step1`)
+        .removeClass('hidden')
+        .addClass('flex')
+    }
+
+    $('.home')
+      .addClass('hidden')
+      .removeClass('flex');
+
+    $('.returnIcon, .header__container__msg')
+      .removeClass('hidden');
   });
 }
 
-handleHomeBtnClick('outRequests', 'btnContainer');
-handleHomeBtnClick('inRequests', 'btnContainer');
+handleHomeBtnClick('newRequest', 'btnContainer');
+handleHomeBtnClick('followRequest', 'btnContainer');
 handleHomeBtnClick('inReturns', 'btnContainer');
 handleHomeBtnClick('outReturns', 'btnContainer');
-handleHomeBtnClick('addReader', 'optionsContainer');

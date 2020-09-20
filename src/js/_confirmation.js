@@ -3,3 +3,7 @@ const confirmation = () => {
   $('.wrapper, .header, .draft').toggleClass('blur');
   $('.wrapper *').removeClass('translateXbackwards');
 }
+
+$('.confirmation__body__cancel').click(() => {
+  smartHide('.confirmation', 'out');
+});

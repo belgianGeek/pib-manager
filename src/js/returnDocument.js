@@ -5,17 +5,11 @@ const returnDocument = (elt, confirmationElt) => {
     confirmation();
 
     confirmationTimeout = setTimeout(() => {
-      $(elt)
-        .fadeOut(() => {
-          confirmation();
+      $(elt).toggleClass('hidden flex');
+      confirmation();
 
-          $(elt)
-            .removeAttr('style')
-            .toggleClass('hidden flex');
-
-          $('.home').toggleClass('hidden flex');
-          $('.header__container__icon, .header__container__msg').toggleClass('hidden');
-        })
+      $('.home').toggleClass('hidden flex');
+      $('.header__container__icon, .header__container__msg').toggleClass('hidden');
     }, 5000);
   });
 
@@ -34,11 +28,6 @@ const sendDeletion = elt => {
     } else {
       table = 'in_requests';
     }
-
-    console.log({
-      table: table,
-      data: $(`${elt}__input`).val()
-    });
 
     socket.emit('delete data', {
       table: table,

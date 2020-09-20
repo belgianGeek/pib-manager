@@ -1,26 +1,15 @@
-const fs = require('fs');
-const minify = require('minify');
+const fs = require('fs-extra');
+const exec = require('child_process').exec;
+const path = require('path');
 
-let totalCode = '';
+let files = fs.readdirSync('./src/js');
 
-// Remove the old minified file
-fs.unlink('./src/js/app.min.js', (err) => {
-  if (err && err.code !== 'ENOENT') {
-    console.log(`Error deleting outdated minified file : ${err}`);
-  }
-});
+// Filter the files array not to contain the old minified file
 
-let files = fs.readdirSync('./src/js/');
-
-files.forEach((file, i) => {
-  minify(`./src/js/${file}`).then(code => {
-      fs.appendFile('./src/js/app.min.js', code, (err) => {
-        if (err) {
-          console.log(`Error writing file : ${err}`);
-        } else {
-          console.log(`Successfully minified file : ${file}`);
-        }
-      });
-    })
-    .catch(console.error);
+let homeMinification = exec(`terser --mangle --compress -o app.min.js ${files.filter(item => item !== 'app.min.js').join(' ')}`, {
+  cwd: path.join(__dirname, '/src/js')
+}, (err, stdout, stderr) => {
+  if (err) console.error(err); else console.log('Minification succeeded !');
+  if (stderr) console.error(stderr);
+  return;
 });

@@ -1,5 +1,4 @@
 const setDate = () => {
-  // Récupérer la date du jour et l'utiliser comme valeur pour les champs date
   let day, month;
   if (new Date().getDate() < '10') {
     day = `0${new Date().getDate()}`;
@@ -17,7 +16,7 @@ const setDate = () => {
     '.inRequests__form__pibInfo__requestDate,' +
     '.draft__child__container__reader__date input,' +
     '.outRequests__form__pibInfo__requestDate'
-    ).val(`${new Date().getFullYear()}-${month}-${day}`);
+  ).val(`${new Date().getFullYear()}-${month}-${day}`);
 }
 
 setDate();

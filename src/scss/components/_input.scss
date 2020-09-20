@@ -6,6 +6,7 @@
   }
 }
 
+.input:not(:focus):invalid,
 .invalid {
   border: 2px solid red;
   box-shadow: 0 0 8px 3px red;

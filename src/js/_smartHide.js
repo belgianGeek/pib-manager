@@ -1,26 +1,15 @@
 const smartHide = (className, method, timeout) => {
-  console.log('smartHide');
   if (method === 'in') {
-    $(className)
-      .fadeIn(function() {
-        $(this)
-          .toggleClass('hidden flex')
-          .removeAttr('style');
+    $(className).toggleClass('hidden flex');
 
-        $('.wrapper, .header').removeClass('blur');
-      });
+    $('.wrapper, .header').removeClass('blur');
   } else {
-    $(className)
-      .fadeOut(function() {
-        $(this)
-          .toggleClass('hidden flex')
-          .removeAttr('style');
+    $(className).toggleClass('hidden flex')
 
-        $('.wrapper, .header').removeClass('blur');
+    $('.wrapper, .header').removeClass('blur');
 
-        if (timeout !== undefined) {
-          clearTimeout(timeout);
-        }
-      });
+    if (timeout !== undefined) {
+      clearTimeout(timeout);
+    }
   }
 }
