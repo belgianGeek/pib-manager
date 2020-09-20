@@ -26,11 +26,17 @@ const handleSimpleStep = (element, step1, step2, btn) => {
   $(`${element}__${step1}__${btn}`).click(() => {
     if (!validationErr) {
       $(`${element}__${step1}`).toggleClass('translateXbackwards hidden flex');
-      setTimeout(() => {
-        $(`${element}__${step2}`)
-          .removeClass('translateXonwards hidden')
-          .toggleClass('fixed flex');
-      }, 1000);
+
+      // Empty all inpout fields to prevent errors while sending the notification email
+      // if no change is made to the list (if so, the reader's gender is undefined)
+      if (`${element}__${step1}` === '.inRequests__step3') {
+        $('.inRequests__step4 input').val('');
+      }
+
+      $(`${element}__${step2}`)
+        .removeClass('translateXonwards hidden')
+        .toggleClass('fixed flex');
+
     }
   });
 }

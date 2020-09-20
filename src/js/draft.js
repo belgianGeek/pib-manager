@@ -34,10 +34,10 @@ const draftNewRequest = () => {
 
       confirmation();
 
-        // Escape apostrophes
-        $(reader).val($(reader).val().replace(/'/g, "''"));
-        $(title).val($(title).val().replace(/'/g, "''"));
-        comment.val(comment.val().replace(/'/g, "''"));
+      // Escape apostrophes
+      $(reader).val($(reader).val().replace(/'/g, "''"));
+      $(title).val($(title).val().replace(/'/g, "''"));
+      comment.val(comment.val().replace(/'/g, "''"));
 
       draftTimeOut = setTimeout(() => {
         data2send.values.push($(reader).val());
@@ -86,6 +86,7 @@ const draftNewRequest = () => {
 
   $('.confirmation__body__cancel').click(() => {
     clearTimeout(draftTimeOut);
+    $('.draft').removeClass('blur');
   });
 }
 
