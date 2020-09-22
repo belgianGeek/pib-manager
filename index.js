@@ -30,7 +30,7 @@ let config = {
 const initClient = new Client(config);
 let client;
 
-// Define a variable to store the settings queried retrieved from the DB
+// Define a variable to store the settings retrieved from the DB
 let settings = {};
 
 const exportDB = require('./modules/exportDB');
@@ -58,15 +58,16 @@ const createDB = (config, DBname = 'pib') => {
         createInRequestsTable(client);
         createOutRequestsTable(client);
         createReadersTable(client);
-        createSettingsTable(client);
-
-        client.query({
-            text: 'SELECT * FROM settings'
+        createSettingsTable(client)
+          .then(() => {
+            client.query({
+                text: 'SELECT * FROM settings'
+              })
+              .then(res => {
+                settings = res.rows[0];
+              });
           })
-          .then(res => {
-            settings = res.rows[0];
-            console.log(settings);
-          });
+          .catch(err => console.error(err));
       })
       .catch(err => {
         console.log(err);
@@ -76,18 +77,18 @@ const createDB = (config, DBname = 'pib') => {
   const reconnect = () => {
     // Disconnect from the 'postgres' DB and connect to the newly created 'pib' DB
     config.database = 'pib';
-      
+
     initClient
-          .end()
-          .then(() => console.log('Reconnexion en cours...'))
-          .catch(err => console.error('Une erreur est survenue lors de la tentative de reconnexion à la base de données', err));
+      .end()
+      .then(() => console.log('Reconnexion en cours...'))
+      .catch(err => console.error('Une erreur est survenue lors de la tentative de reconnexion à la base de données', err));
   }
 
   console.log(`Création de la base de données ${DBname}...`);
   initClient.query(`CREATE DATABASE ${DBname} WITH ENCODING = 'UTF-8'`)
     .then(res => {
       reconnect();
-      
+
       createTables();
     })
     .catch(err => {
@@ -363,15 +364,15 @@ app.get('/', (req, res) => {
             });
         }
       });
-      
+
       io.on('settings', settings => {
         if (settings.mail_content !== undefined) {
           query = `UPDATE settings SET mail_content = '${settings.mail_content}'`;
           console.log(query);
         }
-        
+
         DBquery(io, 'UPDATE', 'settings', {
-            text: query
+          text: query
         });
       });
     });
@@ -407,7 +408,7 @@ app.get('/', (req, res) => {
           } else {
             query = `SELECT * FROM ${data.table}`;
           }
-          
+
           console.log(query);
         }
 
@@ -422,8 +423,8 @@ app.get('/', (req, res) => {
       });
 
       io.on('update', record => {
-          
-        
+
+
         if (record.table === 'drafts') {
           query = `UPDATE ${record.table} SET request_date = '${record.date}', reader_name = '${record.reader}', book_title = '${record.title}', comment = '${record.comment}' WHERE id = ${record.id}`;
         } else if (record.table === 'in_requests') {

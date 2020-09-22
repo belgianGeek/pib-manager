@@ -66,24 +66,11 @@
         justify-content: flex-start;
         align-items: center;
 
-        .actionsBtn {
-          position: absolute;
-          left: 88%;
-          background: none;
-          border: none;
-          cursor: pointer;
-        }
-
-        &:hover {
-          .actionsBtn {
-            display: block;
-          }
-        }
-
         &__item {
           text-align: center;
           flex: 1;
           padding: 1em;
+          min-width: 0;
 
           &--op {
             justify-content: center;
@@ -107,40 +94,6 @@
 
     &__h2 {
       font-size: 1.6em;
-    }
-  }
-}
-
-.actionsMenu {
-  flex-direction: column;
-  position: absolute;
-  left: 90%;
-  font-size: 1.05em;
-  width: 120px;
-  background-color: $electric-blue;
-
-  &__item {
-    flex-direction: row;
-    flex: 1;
-    align-items: center;
-    justify-content: space-evenly;
-    cursor: pointer;
-
-    p {
-      width: 70px;
-      color: black;
-    }
-
-    &:hover {
-      background-color: black;
-
-      p {
-        color: $electric-blue;
-      }
-
-      svg {
-        stroke: $electric-blue;
-      }
     }
   }
 }

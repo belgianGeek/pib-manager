@@ -1,5 +1,5 @@
 const search = () => {
-  let recordDelTimeOut, recordUpdateTimeOut, inRequestsTimeOut, record2modify;
+  let recordDelTimeOut, recordUpdateTimeOut, inRequestsTimeOut;
   let updatedRecord = {};
   let searchData = {
     table: '',
@@ -9,9 +9,19 @@ const search = () => {
     getTitle: true
   };
 
-  // Actions du menu contextuel
-  const hideParent = className => {
-    $(`.${className} .actionsMenu`).toggleClass('hidden flex');
+  const copyText = (elt, parent, text2copy, temporaryReplacementText) => {
+    let text = document.querySelector(`.${parent} ${text2copy}`);
+    text.select();
+    text.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+
+    let contextItemClass = elt.attr('class').split(' ');
+
+    $(`.${contextItemClass[1]} p`).text('Copié !');
+
+    setTimeout(() => {
+      $(`.${contextItemClass[1]} p`).text(temporaryReplacementText);
+    }, 1500);
   }
 
   $('.search__container__select').on('change', function() {
@@ -50,6 +60,8 @@ const search = () => {
   });
 
   socket.on('search results', results => {
+    let parent;
+
     $('.search__results__container').empty(function() {
       $(this).fadeOut();
     });
@@ -125,9 +137,9 @@ const search = () => {
         }
 
         if (data.pib_number !== undefined) {
-          let pibNb = $('<span></span>')
-            .addClass('search__results__container__row__item search__results__container__row__item--pib')
-            .append(data.pib_number)
+          let pibNb = $('<input>')
+            .addClass('search__results__container__row__item search__results__container__row__item--pib noInput')
+            .val(data.pib_number)
             .appendTo(row);
         }
 
@@ -201,9 +213,9 @@ const search = () => {
         }
 
         if (data.barcode !== undefined) {
-          let barcode = $('<span></span>')
-            .addClass('search__results__container__row__item search__results__container__row__item--code')
-            .append(data.barcode)
+          let barcode = $('<input>')
+            .addClass('search__results__container__row__item search__results__container__row__item--code noInput')
+            .val(data.barcode)
             .appendTo(row);
         }
 
@@ -213,50 +225,38 @@ const search = () => {
             .append(data.comment.replace(/\n/gi, '<br>'))
             .appendTo(row);
         }
-
-        // Affiche le emnu d'actions au survol
-        if ($('.search__container__select').val() === 'drafts' || $('.search__container__select').val() === 'in_requests') {
-          if (!$('.search__results__container__row--' + i + ' .actionsMenu').length) {
-            $('.actionsMenu')
-              .clone()
-              .appendTo('.search__results__container__row--' + i);
-          }
-
-          let actionsButton = $('<button></button>')
-            .addClass('actionsBtn hidden')
-            .attr('type', 'button')
-            .append(`
-              <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="#FFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="1"></circle>
-                <circle cx="12" cy="5" r="1"></circle>
-                <circle cx="12" cy="19" r="1"></circle>
-              </svg>
-              `)
-            .appendTo(`.search__results__container__row--${i}`)
-            .click(function() {
-              let parentClassNames = $(this).parents('.search__results__container__row').attr('class').split(' ');
-              $(`.${parentClassNames[1]} .actionsMenu`).toggleClass('hidden flex');
-            });
-        }
       }
 
       $('.search__results__container').fadeIn();
 
-      $('.search__results__container__row .actionsMenu__item--modify').click(function() {
-        record2modify = $(this).parents('.search__results__container__row').attr('class').split(' ');
+      $('.search__results__container__row').contextmenu(function(e) {
+        // Store the selected row in a variable
+        parent = $(this).attr('class').split(' ')[1];
 
-        hideParent(record2modify[1]);
+        e.preventDefault();
+        $('.context')
+          .css({
+            left: `${e.pageX}px`,
+            top: `${e.pageY}px`
+          })
+          .toggleClass('hidden flex');
+      });
 
+      $('.context__list__item').click(() => {
+        $('.context').toggleClass('hidden flex');
+      });
+
+      $('.context__list__item--modify').click(function() {
         // Format the date to be year, Month (0-indexed) and the day
-        let date = $(`.${record2modify[1]} .search__results__container__row__item--date`).text().split('/');
+        let date = $(`.${parent} .search__results__container__row__item--date`).text().split('/');
 
         if ($('.search__container__select').val() === 'drafts') {
           $('.draft__child__container__reader__date input').val(`${date[2]}-${date[1]}-${date[0]}`);
-          $('.draft__child__container__reader__name input').val($(`.${record2modify[1]} .search__results__container__row__item--reader`).text());
+          $('.draft__child__container__reader__name input').val($(`.${parent} .search__results__container__row__item--reader`).text());
 
           // Use .html() to retrieve both the node value and its children
-          $('.draft__child__container__comment__textarea').val($(`.${record2modify[1]} .search__results__container__row__item--comment`).html().replace(/(<|&lt;)br(>|&gt;)/gi, '\n'));
-          $('.draft__child__container__reader__bookTitle input').val($(`.${record2modify[1]} .search__results__container__row__item--title`).text());
+          $('.draft__child__container__comment__textarea').val($(`.${parent} .search__results__container__row__item--comment`).html().replace(/(<|&lt;)br(>|&gt;)/gi, '\n'));
+          $('.draft__child__container__reader__bookTitle input').val($(`.${parent} .search__results__container__row__item--title`).text());
 
           $('.draft').toggleClass('hidden flex');
 
@@ -264,7 +264,7 @@ const search = () => {
             recordUpdateTimeOut = setTimeout(function() {
               updatedRecord = {
                 table: $('.search__container__select').val(),
-                id: $(`.${record2modify[1]} .search__results__container__row__item--id`).text(),
+                id: $(`.${parent} .search__results__container__row__item--id`).text(),
                 date: new Date($('.draft__child__container__reader__date input').val()).toUTCString(),
                 reader: $('.draft__child__container__reader__name input').val().replace(/\'/g, "''"),
                 comment: $('.draft__child__container__comment__textarea').val().replace(/\'/g, "''"),
@@ -280,10 +280,10 @@ const search = () => {
               });
 
               // Update the web interface with the changes
-              $(`.${record2modify[1]} .search__results__container__row__item--date`).text(new Date(updatedRecord.date).toLocaleDateString());
-              $(`.${record2modify[1]} .search__results__container__row__item--reader`).text(updatedRecord.reader.replace(/\'\'/g, "'"));
-              $(`.${record2modify[1]} .search__results__container__row__item--comment`).empty().append(updatedComment.replace(/\'\'/g, "'"));
-              $(`.${record2modify[1]} .search__results__container__row__item--title`).text(updatedRecord.title.replace(/\'\'/g, "'"));
+              $(`.${parent} .search__results__container__row__item--date`).text(new Date(updatedRecord.date).toLocaleDateString());
+              $(`.${parent} .search__results__container__row__item--reader`).text(updatedRecord.reader.replace(/\'\'/g, "'"));
+              $(`.${parent} .search__results__container__row__item--comment`).empty().append(updatedComment.replace(/\'\'/g, "'"));
+              $(`.${parent} .search__results__container__row__item--title`).text(updatedRecord.title.replace(/\'\'/g, "'"));
 
               // Send the update to the DB
               socket.emit('update', updatedRecord);
@@ -303,23 +303,23 @@ const search = () => {
           $('.wrapper').addClass('blur backgroundColor');
 
           // Set the initial PIB number
-          initialPibNb = $(`.${record2modify[1]} .search__results__container__row__item--pib`).text();
+          initialPibNb = $(`.${parent} .search__results__container__row__item--pib`).text();
 
           // Show a button to hide the form
           $('.inRequests.absolute .inRequests__form__btnContainer__hide').removeClass('hidden');
 
           // Fill in all the fields with the selected record data
-          $('.inRequests.absolute .inRequests__form__pibInfo__pibNb').val($(`.${record2modify[1]} .search__results__container__row__item--pib`).text());
-          $('.inRequests.absolute .inRequests__form__pibInfo__borrowingLibrary').val($(`.${record2modify[1]} .search__results__container__row__item--borrowing_library`).text());
+          $('.inRequests.absolute .inRequests__form__pibInfo__pibNb').val($(`.${parent} .search__results__container__row__item--pib`).text());
+          $('.inRequests.absolute .inRequests__form__pibInfo__borrowingLibrary').val($(`.${parent} .search__results__container__row__item--borrowing_library`).text());
           $('.inRequests.absolute .inRequests__form__pibInfo__requestDate').val(`${date[2]}-${date[1]}-${date[0]}`);
-          $('.inRequests.absolute .inRequests__form__readerInfo__container__name').val($(`.${record2modify[1]} .search__results__container__row__item--reader`).text());
-          $('.inRequests.absolute .inRequests__form__docInfo__title').val($(`.${record2modify[1]} .search__results__container__row__item--title`).text());
-          $('.inRequests.absolute .inRequests__form__docInfo__author').val($(`.${record2modify[1]} .search__results__container__row__item--author`).text());
-          $('.inRequests.absolute .inRequests__form__docInfo__cdu').val($(`.${record2modify[1]} .search__results__container__row__item--cdu`).text());
-          $('.inRequests.absolute .inRequests__form__docInfo__inv').val($(`.${record2modify[1]} .search__results__container__row__item--code`).text());
+          $('.inRequests.absolute .inRequests__form__readerInfo__container__name').val($(`.${parent} .search__results__container__row__item--reader`).text());
+          $('.inRequests.absolute .inRequests__form__docInfo__title').val($(`.${parent} .search__results__container__row__item--title`).text());
+          $('.inRequests.absolute .inRequests__form__docInfo__author').val($(`.${parent} .search__results__container__row__item--author`).text());
+          $('.inRequests.absolute .inRequests__form__docInfo__cdu').val($(`.${parent} .search__results__container__row__item--cdu`).text());
+          $('.inRequests.absolute .inRequests__form__docInfo__inv').val($(`.${parent} .search__results__container__row__item--code`).text());
 
           // out_province checkbox
-          if ($(`.${record2modify[1]} .search__results__container__row__item--op`).hasClass('checked')) {
+          if ($(`.${parent} .search__results__container__row__item--op`).hasClass('checked')) {
             $('.inRequests.absolute .inRequests__form__pibInfo__outProvince').prop('checked', true);
           } else {
             $('.inRequests.absolute .inRequests__form__pibInfo__outProvince').prop('checked', false);
@@ -331,21 +331,21 @@ const search = () => {
           // The form submit is handled in the inRequests function
           $('.inRequests.absolute .inRequests__form__btnContainer__submit').click(() => {
             // Update the web interface with the changes
-            $(`.${record2modify[1]} .search__results__container__row__item--pib`).text($('.inRequests__form__pibInfo__pibNb').val());
-            $(`.${record2modify[1]} .search__results__container__row__item--borrowing_library`).text($('.inRequests__form__pibInfo__borrowingLibrary').val());
-            $(`.${record2modify[1]} .search__results__container__row__item--date`).text(new Date($('.inRequests__form__pibInfo__requestDate').val()).toLocaleDateString());
-            $(`.${record2modify[1]} .search__results__container__row__item--reader`).text($('.inRequests__form__readerInfo__container__name').val());
-            $(`.${record2modify[1]} .search__results__container__row__item--title`).text($('.inRequests__form__docInfo__title').val());
-            $(`.${record2modify[1]} .search__results__container__row__item--author`).text($('.inRequests__form__docInfo__author').val());
-            $(`.${record2modify[1]} .search__results__container__row__item--cdu`).text($('.inRequests__form__docInfo__cdu').val());
-            $(`.${record2modify[1]} .search__results__container__row__item--code`).text($('.inRequests__form__docInfo__inv').val());
+            $(`.${parent} .search__results__container__row__item--pib`).text($('.inRequests__form__pibInfo__pibNb').val());
+            $(`.${parent} .search__results__container__row__item--borrowing_library`).text($('.inRequests__form__pibInfo__borrowingLibrary').val());
+            $(`.${parent} .search__results__container__row__item--date`).text(new Date($('.inRequests__form__pibInfo__requestDate').val()).toLocaleDateString());
+            $(`.${parent} .search__results__container__row__item--reader`).text($('.inRequests__form__readerInfo__container__name').val());
+            $(`.${parent} .search__results__container__row__item--title`).text($('.inRequests__form__docInfo__title').val());
+            $(`.${parent} .search__results__container__row__item--author`).text($('.inRequests__form__docInfo__author').val());
+            $(`.${parent} .search__results__container__row__item--cdu`).text($('.inRequests__form__docInfo__cdu').val());
+            $(`.${parent} .search__results__container__row__item--code`).text($('.inRequests__form__docInfo__inv').val());
 
             if ($('.inRequests__form__pibInfo__outProvince').is(':checked')) {
-              $(`.${record2modify[1]} .search__results__container__row__item--op`)
+              $(`.${parent} .search__results__container__row__item--op`)
                 .removeClass('unchecked')
                 .addClass('checked');
             } else {
-              $(`.${record2modify[1]} .search__results__container__row__item--op`)
+              $(`.${parent} .search__results__container__row__item--op`)
                 .removeClass('checked')
                 .addClass('unchecked');
             }
@@ -368,43 +368,58 @@ const search = () => {
         }
       });
 
-      $('.search__results__container__row .actionsMenu__item--del').click(function() {
-        let record = $(this).parents('.search__results__container__row').attr('class').split(' ');
+      $('.context__list__item--del').click(function() {
         let deletionKey = {};
-        hideParent(record[1]);
         confirmation();
 
         if ($('.search__container__select').val() === 'drafts') {
           deletionKey = {
             table: 'drafts',
-            key: $(`.${record[1]} .search__results__container__row__item--id`).text()
+            key: $(`.${parent} .search__results__container__row__item--id`).text()
           };
         } else if ($('.search__container__select').val() === 'in_requests') {
           deletionKey = {
             table: 'in_requests',
-            key: $(`.${record[1]} .search__results__container__row__item--pib`).text()
+            key: $(`.${parent} .search__results__container__row__item--pib`).val()
           };
         }
 
         // Hide the record from the interface
-        $(`.${record[1]}`).toggleClass('hidden flex');
+        $(`.${parent}`).toggleClass('hidden flex');
 
         recordDelTimeOut = setTimeout(() => {
-          // Delete the record from the interface
-          $(`.${record[1]}`).remove();
-          confirmation();
-
           // Send the record ID to delete to the server
-          socket.emit('delete data', deletionKey);
+          if (deletionKey.table !== '' && deletionKey.key !== '') {
+            // Delete the record from the interface
+            $(`.${parent}`).remove();
+            confirmation();
+
+            socket.emit('delete data', deletionKey);
+
+            // Reset the deletionKey
+            deletionKey = {};
+          }
+
         }, 5000);
 
         $('.confirmation__body__cancel').click(() => {
           clearTimeout(recordDelTimeOut);
-          $(`.${record[1]}`)
+          $(`.${parent}`)
             .removeClass('hidden')
             .addClass('flex');
           recordDelTimeOut = undefined;
+
+          // Reset the deletionKey
+          deletionKey = {};
         });
+      });
+
+      $('.context__list__item--inv').click(function() {
+        copyText($(this), parent, '.search__results__container__row__item--code', `Copier le n° d'inventaire`);
+      });
+
+      $('.context__list__item--pib').click(function() {
+        copyText($(this), parent, '.search__results__container__row__item--pib',`Copier le n° PIB`);
       });
     }
   });
