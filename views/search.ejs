@@ -10,6 +10,9 @@
 
 <body>
   <div class="backgroundColor"></div>
+  <header class="header">
+    <%- include('sidebar'); %>
+  </header>
   <main class="wrapper flex">
     <section class="search">
       <h1 class="search__title title">Module de recherche</h1>
@@ -39,6 +42,7 @@
   <%- include('notification'); %>
   <%- include('contextMenu'); %>
   <%- include('drafts'); %>
+  <%- include('about'); %>
   <%- include('in_requests02'); %>
   <%- include('confirmation'); %>
   <%- include('scripts'); %>

@@ -33,6 +33,8 @@ let client;
 // Define a variable to store the settings retrieved from the DB
 let settings = {};
 
+let tag = '0.1.0';
+
 const exportDB = require('./modules/exportDB');
 const emptyDir = require('./modules/emptyDir');
 const notify = require('./modules/notify');
@@ -174,6 +176,7 @@ app.use("/src", express.static(__dirname + "/src"));
 
 app.get('/', (req, res) => {
     res.render('index.ejs', {
+      currentVersion: tag,
       wallpaper: settings.wallpaper
     });
 
@@ -379,7 +382,9 @@ app.get('/', (req, res) => {
   })
 
   .get('/search', (req, res) => {
-    res.render('search.ejs');
+    res.render('search.ejs', {
+      currentVersion: tag
+    });
     let query = '';
 
     io.once('connection', io => {
