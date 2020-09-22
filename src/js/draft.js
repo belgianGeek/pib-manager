@@ -32,7 +32,7 @@ const draftNewRequest = () => {
 
     if (!validationErr) {
       $('.input').removeClass('invalid');
-      $('.draft__child__container__reader .warning').hide();
+      $('.draft__child__container__reader .warning').remove();
 
       confirmation();
 
@@ -58,7 +58,7 @@ const draftNewRequest = () => {
         socket.emit('append data', data2send);
         data2send.values = [];
 
-        $('.draft').toggleClass('hidden flex');
+        smartHide('.draft', 'out');
         confirmation();
 
         $('.draft__child__container .input, .draft__child__container textarea').not('.draft__child__container__reader__date input').val('');
@@ -79,7 +79,7 @@ const draftNewRequest = () => {
   });
 
   $('.draft__child__container__reader__btnContainer__reset').click(() => {
-    smartHide('.draft', 'out');
+    $('.draft').toggleClass('hidden flex');
     $('.wrapper, .header').removeClass('blur');
     $('.input').removeClass('invalid');
     $('form .warning').hide();

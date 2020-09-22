@@ -233,6 +233,24 @@ const search = () => {
         // Store the selected row in a variable
         parent = $(this).attr('class').split(' ')[1];
 
+        if ($('.search__container__select').val() === 'drafts') {
+          // Hide some options if searching for drafts
+          $('.context__list__item--pib, .context__list__item--inv')
+            .addClass('hidden')
+            .removeClass('flex');
+
+          // The delete option is now at the bottom
+          $('.context__list__item--del').addClass('context__list__item--bottom');
+        } else {
+          // Hide some options if searching for drafts
+          $('.context__list__item--pib, .context__list__item--inv')
+            .addClass('flex')
+            .removeClass('hidden');
+
+          // The delete option is no longer at the bottom
+          $('.context__list__item--del').removeClass('context__list__item--bottom');
+        }
+
         e.preventDefault();
         $('.context')
           .css({
@@ -240,25 +258,47 @@ const search = () => {
             top: `${e.pageY}px`
           })
           .toggleClass('hidden flex');
+
+        // Hide the context menu on left-click to prevent displaying it indefinitely
+        $('.search__results, .search__results *').click(function(e) {
+          if (e.target === this) {
+            $('.context')
+              .removeClass('flex')
+              .addClass('hidden');
+          }
+        });
       });
 
       $('.context__list__item').click(() => {
-        $('.context').toggleClass('hidden flex');
+        $('.context')
+          .removeClass('flex')
+          .addClass('hidden');
       });
 
       $('.context__list__item--modify').click(function() {
         // Format the date to be year, Month (0-indexed) and the day
-        let date = $(`.${parent} .search__results__container__row__item--date`).text().split('/');
+        let date = new Date($(`.${parent} .search__results__container__row__item--date`).text());
+        let month;
+
+        if (date.getMonth() < 10) {
+          month = `0${date.getMonth() + 1}`;
+        } else month = date.getMonth() + 1;
+
+        date = `${date.getFullYear()}-${month}-${date.getDate()}`;
+
+        $('.wrapper').addClass('blur');
 
         if ($('.search__container__select').val() === 'drafts') {
-          $('.draft__child__container__reader__date input').val(`${date[2]}-${date[1]}-${date[0]}`);
+          $('.draft__child__container__reader__date input').val(date);
           $('.draft__child__container__reader__name input').val($(`.${parent} .search__results__container__row__item--reader`).text());
 
           // Use .html() to retrieve both the node value and its children
           $('.draft__child__container__comment__textarea').val($(`.${parent} .search__results__container__row__item--comment`).html().replace(/(<|&lt;)br(>|&gt;)/gi, '\n'));
           $('.draft__child__container__reader__bookTitle input').val($(`.${parent} .search__results__container__row__item--title`).text());
 
-          $('.draft').toggleClass('hidden flex');
+          $('.draft')
+            .removeClass('hidden')
+            .addClass('flex');
 
           $('.draft__child__container__reader__btnContainer__submit').click(function() {
             recordUpdateTimeOut = setTimeout(function() {
@@ -282,7 +322,7 @@ const search = () => {
               // Update the web interface with the changes
               $(`.${parent} .search__results__container__row__item--date`).text(new Date(updatedRecord.date).toLocaleDateString());
               $(`.${parent} .search__results__container__row__item--reader`).text(updatedRecord.reader.replace(/\'\'/g, "'"));
-              $(`.${parent} .search__results__container__row__item--comment`).empty().append(updatedComment.replace(/\'\'/g, "'"));
+              $(`.${parent} .search__results__container__row__item--comment`).text(updatedComment.join('').replace(/\'\'/g, "'"));
               $(`.${parent} .search__results__container__row__item--title`).text(updatedRecord.title.replace(/\'\'/g, "'"));
 
               // Send the update to the DB
@@ -300,23 +340,21 @@ const search = () => {
             .addClass('absolute flex')
             .removeClass('hidden');
 
-          $('.wrapper').addClass('blur backgroundColor');
-
           // Set the initial PIB number
-          initialPibNb = $(`.${parent} .search__results__container__row__item--pib`).text();
+          initialPibNb = $(`.${parent} .search__results__container__row__item--pib`).val();
 
           // Show a button to hide the form
           $('.inRequests.absolute .inRequests__form__btnContainer__hide').removeClass('hidden');
 
           // Fill in all the fields with the selected record data
-          $('.inRequests.absolute .inRequests__form__pibInfo__pibNb').val($(`.${parent} .search__results__container__row__item--pib`).text());
+          $('.inRequests.absolute .inRequests__form__pibInfo__pibNb').val($(`.${parent} .search__results__container__row__item--pib`).val());
           $('.inRequests.absolute .inRequests__form__pibInfo__borrowingLibrary').val($(`.${parent} .search__results__container__row__item--borrowing_library`).text());
-          $('.inRequests.absolute .inRequests__form__pibInfo__requestDate').val(`${date[2]}-${date[1]}-${date[0]}`);
+          $('.inRequests.absolute .inRequests__form__pibInfo__requestDate').val(date);
           $('.inRequests.absolute .inRequests__form__readerInfo__container__name').val($(`.${parent} .search__results__container__row__item--reader`).text());
           $('.inRequests.absolute .inRequests__form__docInfo__title').val($(`.${parent} .search__results__container__row__item--title`).text());
           $('.inRequests.absolute .inRequests__form__docInfo__author').val($(`.${parent} .search__results__container__row__item--author`).text());
           $('.inRequests.absolute .inRequests__form__docInfo__cdu').val($(`.${parent} .search__results__container__row__item--cdu`).text());
-          $('.inRequests.absolute .inRequests__form__docInfo__inv').val($(`.${parent} .search__results__container__row__item--code`).text());
+          $('.inRequests.absolute .inRequests__form__docInfo__inv').val($(`.${parent} .search__results__container__row__item--code`).val());
 
           // out_province checkbox
           if ($(`.${parent} .search__results__container__row__item--op`).hasClass('checked')) {
@@ -419,7 +457,7 @@ const search = () => {
       });
 
       $('.context__list__item--pib').click(function() {
-        copyText($(this), parent, '.search__results__container__row__item--pib',`Copier le n° PIB`);
+        copyText($(this), parent, '.search__results__container__row__item--pib', `Copier le n° PIB`);
       });
     }
   });

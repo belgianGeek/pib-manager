@@ -4,7 +4,7 @@ const smartHide = (className, method, timeout) => {
 
     $('.wrapper, .header').addClass('blur');
   } else {
-    $(className).toggleClass('hidden flex')
+    $(className).toggleClass('hidden flex');
 
     if ($('.inRequests').hasClass('absolute')) {
       $('.header').toggleClass('blur');
