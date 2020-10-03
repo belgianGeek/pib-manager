@@ -418,7 +418,8 @@ const search = () => {
         } else if ($('.search__container__select').val() === 'in_requests') {
           deletionKey = {
             table: 'in_requests',
-            key: $(`.${parent} .search__results__container__row__item--pib`).val()
+            key: $(`.${parent} .search__results__container__row__item--pib`).val(),
+            code: $(`.${parent} .search__results__container__row__item--code`).val()
           };
         }
 

@@ -183,7 +183,7 @@ app.get('/', (req, res) => {
     io.once('connection', io => {
       const updateBarcode = () => {
         DBquery(io, 'SELECT', 'barcodes', {
-            text: `SELECT barcode FROM barcodes LIMIT 1`
+            text: `SELECT barcode, available FROM barcodes WHERE available = true LIMIT 1`
           })
           .then(res => {
             let code = res.rows[0].barcode;
@@ -228,9 +228,9 @@ app.get('/', (req, res) => {
             });
           }
 
-          // On supprime le code-barres utilisé
-          DBquery(io, 'DELETE FROM', 'barcodes', {
-              text: `DELETE FROM barcodes WHERE barcode ILIKE '${data.values[data.values.length - 1]}'`
+          // Mark the used barcode unavailable
+          DBquery(io, 'UPDATE', 'barcodes', {
+              text: `UPDATE barcodes SET available = false WHERE barcode ILIKE '${data.values[data.values.length - 1]}'`
             })
             .then(() => {
               updateBarcode();
@@ -252,7 +252,6 @@ app.get('/', (req, res) => {
             });
           }
         } else if (data.table === 'drafts') {
-          console.log(data);
           DBquery(io, 'INSERT INTO', data.table, {
             text: `INSERT INTO ${data.table}(reader_name, request_date, book_title, comment) VALUES($1, $2, $3, $4)`,
             values: data.values
@@ -261,14 +260,14 @@ app.get('/', (req, res) => {
       });
 
       io.on('delete data', data => {
+        console.log(data);
         if (data.table === 'in_requests') {
           DBquery(io, 'DELETE FROM', data.table, {
               text: `DELETE FROM ${data.table} WHERE barcode ILIKE '${data.data}'`
             })
             .then(() => {
-              DBquery(io, 'INSERT INTO', 'barcodes', {
-                  text: `INSERT INTO barcodes(barcode) VALUES($1)`,
-                  values: [data.data]
+              DBquery(io, 'UPDATE', 'barcodes', {
+                  text: `UPDATE barcodes SET available = true WHERE barcode ILIKE '${data.data}'`
                 })
                 .catch(err => {
                   console.error(`Erreur lors de la mise à jour de la table barcodes : ${err}`);
@@ -428,8 +427,6 @@ app.get('/', (req, res) => {
       });
 
       io.on('update', record => {
-
-
         if (record.table === 'drafts') {
           query = `UPDATE ${record.table} SET request_date = '${record.date}', reader_name = '${record.reader}', book_title = '${record.title}', comment = '${record.comment}' WHERE id = ${record.id}`;
         } else if (record.table === 'in_requests') {
@@ -449,14 +446,21 @@ app.get('/', (req, res) => {
       io.on('delete data', data => {
         console.log(data);
         if (data.table === 'drafts') {
-          query = `DELETE FROM ${data.table} WHERE id = ${data.key}`;
+          query = `DELETE FROM ${data.table} WHERE id = '${data.key}'`;
         } else if (data.table === 'in_requests') {
-          query = `DELETE FROM ${data.table} WHERE pib_number = ${data.key}`;
+          query = `DELETE FROM ${data.table} WHERE pib_number = '${data.key}'`;
         }
-        console.log(query);
 
         DBquery(io, 'DELETE FROM', data.table, {
             text: query
+          })
+          .then(() => {
+            DBquery(io, 'UPDATE', 'barcodes', {
+                text: `UPDATE barcodes SET available = true WHERE barcode ILIKE '${data.code}'`
+              })
+              .catch(err => {
+                console.error(`Une erreur est survenue lors de la mise à jour du statut du code-barres ${data.code} :\n${err}`);
+              });
           })
           .catch(err => {
             console.error(err);

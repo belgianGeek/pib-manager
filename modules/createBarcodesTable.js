@@ -3,7 +3,8 @@ const fs = require('fs');
 module.exports = function createBarcodesTable(client) {
   client.query('CREATE TABLE IF NOT EXISTS barcodes (' +
     'id SERIAL,' +
-    'barcode TEXT)', (err, res) => {
+    'barcode TEXT,' +
+    'available BOOLEAN)', (err, res) => {
       if (err) {
         console.error(`Error creating barcodes table : ${JSON.stringify(err, null, 2)}`);
       } else {
@@ -21,8 +22,8 @@ module.exports = function createBarcodesTable(client) {
                   let barcodes = JSON.parse(data);
                   for (const code of barcodes) {
                     client.query({
-                        text: `INSERT INTO barcodes(barcode) VALUES($1)`,
-                        values: [code]
+                        text: `INSERT INTO barcodes(barcode, available) VALUES($1, $2)`,
+                        values: [code, true]
                       })
                       .catch(err => {
                         console.error(`Erreur lors de l'ajout de code-barres dans la table barcodes : ${err}`);
