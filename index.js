@@ -94,7 +94,7 @@ const createDB = (config, DBname = 'pib') => {
       createTables();
     })
     .catch(err => {
-      if (!err.message.match('already exists')) {
+      if (!err.message.match('exist')) {
         console.error(`Erreur lors de la création de la base de données ${DBname} : ${err}`);
       } else {
         console.log(`La base de données ${DBname} existe déjà !`);
@@ -177,6 +177,7 @@ app.use("/src", express.static(__dirname + "/src"));
 app.get('/', (req, res) => {
     res.render('index.ejs', {
       currentVersion: tag,
+      isSearchPage: false,
       wallpaper: settings.wallpaper
     });
 
@@ -382,7 +383,8 @@ app.get('/', (req, res) => {
 
   .get('/search', (req, res) => {
     res.render('search.ejs', {
-      currentVersion: tag
+      currentVersion: tag,
+      isSearchPage: true
     });
     let query = '';
 
