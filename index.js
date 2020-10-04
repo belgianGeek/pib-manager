@@ -192,7 +192,8 @@ app.get('/', (req, res) => {
             io.emit('barcode', code);
           })
           .catch(err => {
-            console.error(err);
+            notify(io, 'barcode');
+            console.error(`Une erreur est survenue lors de l'attribution d'un numéro d'exemplaire : ${err}`);
           });
       }
       updateBarcode();
@@ -261,29 +262,35 @@ app.get('/', (req, res) => {
       });
 
       io.on('delete data', data => {
-        console.log(data);
         if (data.table === 'in_requests') {
-          DBquery(io, 'DELETE FROM', data.table, {
-              text: `DELETE FROM ${data.table} WHERE barcode ILIKE '${data.data}'`
+          let barcode = '';
+
+          DBquery(io, 'SELECT', data.table, {
+              text: `SELECT barcode from ${data.table} WHERE pib_number = ${data.data}`
+            })
+            .then(res => {
+              barcode = res.rows[0].barcode;
+
+              DBquery(io, 'UPDATE', 'barcodes', {
+                  text: `UPDATE barcodes SET available = true WHERE barcode ILIKE '${barcode}'`
+                })
+                .catch(err => console.error(`Erreur lors de la mise à jour de la table barcodes : ${err}`));
             })
             .then(() => {
-              DBquery(io, 'UPDATE', 'barcodes', {
-                  text: `UPDATE barcodes SET available = true WHERE barcode ILIKE '${data.data}'`
+              DBquery(io, 'DELETE FROM', data.table, {
+                  text: `DELETE FROM ${data.table} WHERE pib_number = '${data.data}'`
                 })
-                .catch(err => {
-                  console.error(`Erreur lors de la mise à jour de la table barcodes : ${err}`);
-                });
+                .catch(err => console.error(`L'emprunt ${data.data} n'a pas pu être supprimé : ${err}`));
             })
-            .catch(err => {
-              console.error(err);
-            });
+            .then(() => {
+              updateBarcode();
+            })
+            .catch(err => console.error(`Une erreur est survenue lors de-u processus de suppression de la demande ${data.data} : ${err}`))
         } else if (data.table === 'out_requests') {
           DBquery(io, 'DELETE FROM', data.table, {
               text: `DELETE FROM ${data.table} WHERE pib_number = '${data.data}'`
             })
-            .catch(err => {
-              console.error(err);
-            });
+            .catch(err => console.error(`Une erreur est survenue lors de la suppression du prêt ${data.data} : ${err}`));
         }
       });
 
@@ -446,7 +453,6 @@ app.get('/', (req, res) => {
       });
 
       io.on('delete data', data => {
-        console.log(data);
         if (data.table === 'drafts') {
           query = `DELETE FROM ${data.table} WHERE id = '${data.key}'`;
         } else if (data.table === 'in_requests') {
