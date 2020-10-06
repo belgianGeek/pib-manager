@@ -17,8 +17,6 @@ const search = () => {
 
     let contextItemClass = elt.attr('class').split(' ');
 
-    $(`.${contextItemClass[1]} p`).text('Copié !');
-
     setTimeout(() => {
       $(`.${contextItemClass[1]} p`).text(temporaryReplacementText);
     }, 1500);
@@ -230,6 +228,7 @@ const search = () => {
       $('.search__results__container').fadeIn();
 
       $('.search__results__container__row').contextmenu(function(e) {
+        console.log('contextmenu');
         // Store the selected row in a variable
         parent = $(this).attr('class').split(' ')[1];
 
@@ -340,8 +339,9 @@ const search = () => {
             .addClass('absolute flex')
             .removeClass('hidden');
 
-          // Set the initial PIB number
+          // Set the initial PIB number and barcode to use them as keys to update data in the backend
           initialPibNb = $(`.${parent} .search__results__container__row__item--pib`).val();
+          initialBarcode = $('.inRequests.absolute .inRequests__form__docInfo__inv').val();
 
           // Show a button to hide the form
           $('.inRequests.absolute .inRequests__form__btnContainer__hide').removeClass('hidden');

@@ -446,10 +446,30 @@ app.get('/', (req, res) => {
             query = `UPDATE ${record.table} SET pib_number = '${record.values[0]}', borrowing_library = '${record.values[1]}', request_date = '${record.values[2]}', reader_name = '${record.values[4]}', book_title = '${record.values[5]}', book_author_name = '${record.values[6]}', cdu = '${record.values[7]}', out_province = ${record.values[8]}, barcode = '${record.values[9]}' WHERE pib_number = '${record.key}'`;
           }
         }
+
         console.log(query);
         DBquery(io, 'UPDATE', record.table, {
           text: query
-        })
+        }).then(() => {
+          DBquery(io, 'SELECT', record.table, {
+              text: `SELECT barcode FROM ${record.table} WHERE pib_number = '${record.key}'`
+            })
+            .then(res => {
+              // Update the barcodes table only if it was modified
+              if (record.barcode !== undefined) {
+                let barcode = res.rows[0].barcode;
+
+                DBquery(io, 'UPDATE', 'barcodes', {
+                    text: `UPDATE barcodes SET available = false WHERE barcode ILIKE '${barcode}'`
+                  })
+                  .then(res => {
+                    DBquery(io, 'UPDATE', 'barcodes', {
+                      text: `UPDATE barcodes SET available = true WHERE barcode ILIKE '${record.barcode}'`
+                    });
+                  })
+              }
+            });
+        });
       });
 
       io.on('delete data', data => {
