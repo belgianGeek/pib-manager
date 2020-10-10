@@ -357,10 +357,8 @@ app.get('/', (req, res) => {
       });
 
       io.on('send mail', receiver => {
-        setTimeout(function() {
-          mail(receiver, client);
-          notify(io, 'mail');
-        }, 10000);
+        mail(receiver, client);
+        notify(io, 'mail');
       });
 
       io.on('retrieve readers', name => {
@@ -421,8 +419,6 @@ app.get('/', (req, res) => {
           } else {
             query = `SELECT * FROM ${data.table}`;
           }
-
-          console.log(query);
         }
 
         DBquery(io, 'SELECT', data.table, {
@@ -439,7 +435,6 @@ app.get('/', (req, res) => {
         if (record.table === 'drafts') {
           query = `UPDATE ${record.table} SET request_date = '${record.date}', reader_name = '${record.reader}', book_title = '${record.title}', comment = '${record.comment}' WHERE id = ${record.id}`;
         } else if (record.table === 'in_requests') {
-          console.log(JSON.stringify(record, null, 2));
           if (record.authorFirstName) {
             query = `UPDATE ${record.table} SET pib_number = '${record.values[0]}', borrowing_library = '${record.values[1]}', request_date = '${record.values[2]}', reader_name = '${record.values[4]}', book_title = '${record.values[5]}', book_author_name = '${record.values[6]}', book_author_firstname = '${record.values[7]}', cdu = '${record.values[8]}', out_province = ${record.values[9]}, barcode = '${record.values[10]}' WHERE pib_number = '${record.key}'`;
           } else {
@@ -447,29 +442,24 @@ app.get('/', (req, res) => {
           }
         }
 
-        console.log(query);
+        console.log(`\n${query}`);
         DBquery(io, 'UPDATE', record.table, {
-          text: query
-        }).then(() => {
-          DBquery(io, 'SELECT', record.table, {
-              text: `SELECT barcode FROM ${record.table} WHERE pib_number = '${record.key}'`
-            })
-            .then(res => {
-              // Update the barcodes table only if it was modified
-              if (record.barcode !== undefined) {
-                let barcode = res.rows[0].barcode;
+            text: query
+          }).then(() => {
+            // Update the barcodes table only if it was modified
+            if (record.barcode !== undefined) {
+              DBquery(io, 'UPDATE', 'barcodes', {
+                  text: `UPDATE barcodes SET available = false WHERE barcode ILIKE (SELECT barcode FROM ${record.table} WHERE pib_number = '${record.key}')`
+                })
+                .catch(err => console.error(err));
 
-                DBquery(io, 'UPDATE', 'barcodes', {
-                    text: `UPDATE barcodes SET available = false WHERE barcode ILIKE '${barcode}'`
-                  })
-                  .then(res => {
-                    DBquery(io, 'UPDATE', 'barcodes', {
-                      text: `UPDATE barcodes SET available = true WHERE barcode ILIKE '${record.barcode}'`
-                    });
-                  })
-              }
-            });
-        });
+              DBquery(io, 'UPDATE', 'barcodes', {
+                  text: `UPDATE barcodes SET available = true WHERE barcode ILIKE '${record.barcode}'`
+                })
+                .catch(err => console.error(err));
+            }
+          })
+          .catch(err => console.error(`Une erreur est survenue lors de la mise à jour des code-barres : ${err}`));
       });
 
       io.on('delete data', data => {

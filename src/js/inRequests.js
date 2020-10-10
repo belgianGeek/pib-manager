@@ -149,10 +149,8 @@ const inRequests = () => {
           // Append the initial pib number to the array to send to the server as it'll be the key to update the specified record
           data2send.key = initialPibNb;
 
-          if (barcode.val() !== initialBarcode) {
-            data2send.barcode = initialBarcode;
-          }
-          
+          data2send.barcode = initialBarcode;
+
           $('.inRequests.absolute').toggleClass('hidden flex');
           $('.wrapper').toggleClass('backgroundColor blur');
 
@@ -162,8 +160,6 @@ const inRequests = () => {
         confirmation();
 
         data2send.values = [];
-
-        initialBarcode = undefined;
       }, 5000);
     } else {
       if (!$('form .warning').length) {
