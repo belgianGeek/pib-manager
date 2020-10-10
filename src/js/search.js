@@ -276,13 +276,8 @@ const search = () => {
       $('.context__list__item--modify').click(function() {
         // Format the date to be year, Month (0-indexed) and the day
         let date = new Date($(`.${parent} .search__results__container__row__item--date`).text());
-        let month;
 
-        if (date.getMonth() < 10) {
-          month = `0${date.getMonth() + 1}`;
-        } else month = date.getMonth() + 1;
-
-        date = `${date.getFullYear()}-${month}-${date.getDate()}`;
+        date = `${date.getFullYear()}-${setMonth(date)}-${setDay(date)}`;
 
         $('.wrapper').addClass('blur');
 
