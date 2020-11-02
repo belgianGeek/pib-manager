@@ -5,45 +5,35 @@ module.exports = function update(io, tag) {
     if (err) {
       console.error(`Une erreur est survenue lors de la vérification des mises à jour : ${err}`);
     } else {
-      if (!stderr) {
-        console.log(stdout);
+      console.log(stdout);
 
-        io.emit('update progress', {
-          code: 200,
-          text: 'Récupération des fichiers...'
-        });
+      io.emit('update progress', 'Récupération des fichiers...');
 
-        cp('npm install', (err, stdout, stderr) => {
-          if (err) {
-            console.error(`Une erreur est survenue lors de la mise à jour des dépendances : ${err}`);
-          } else {
-            if (!stderr) {
+      cp('npm install', (err, stdout, stderr) => {
+        if (err) {
+          console.error(`Une erreur est survenue lors de la mise à jour des dépendances : ${err}`);
+        } else {
+          console.log('npm install', stdout);
+
+          io.emit('update progress', 'Mise à jour des dépendances...');
+
+          cp('npm prune', (err, stdout, stderr) => {
+            if (err) {
+              console.error(`Une erreur est survenue lors du nettoyage des dépendances : ${err}`);
+            } else {
               console.log(stdout);
 
-              io.emit('update progress', {
-                code: 200,
-                text: 'Mise à jour des dépendances...'
-              });
+              io.emit('update progress', 'Nettoyage...');
 
-              cp('npm prune', (err, stdout, stderr) => {
-                if (err) {
-                  console.error(`Une erreur est survenue lors du nettoyage des dépendances : ${err}`);
-                } else {
-                  if (!stderr) {
-                    console.log(stdout);
+              io.emit('update progress', 'Terminé ! 😎');
 
-                    io.emit('update progress', {
-                      code: 200,
-                      text: 'Nettoyage...'
-                    });
-
-                  } else console.error(`Une erreur est survenue lors du processus 'npm prune' : ${stderr}`);
-                }
-              });
-            } else console.error(`Une erreur est survenue lors du processus 'npm install' : ${stderr}`);
-          }
-        });
-      } else console.error(`Une erreur est survenue lors du processus 'git fetch && git pull' : ${stderr}`);
+              setTimeout(() => {
+                io.emit('update progress', 'Redémarrez PIB Manager');
+              }, 2000);
+            }
+          });
+        }
+      });
     }
   });
 }

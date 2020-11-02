@@ -1,6 +1,7 @@
 .confirmation,
+.draft,
 .export,
-.draft {
+.leave {
   width: 100vw;
   height: 100vh;
   font-size: 1em;
@@ -9,5 +10,10 @@
   flex-direction: column;
   position: absolute;
   top: 0;
+}
+
+.confirmation,
+.draft,
+.export {
   background-color: $translucent-black;
 }

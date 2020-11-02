@@ -169,6 +169,24 @@ const check4updates = (io, tag) => {
   });
 }
 
+const shutdown = io => {
+  io.on('shutdown', () => {
+    console.log('Extinction des feux !');
+    process.exit(0);
+  });
+}
+
+const restart = io => {
+  io.on('restart', () => {
+    console.log('Redémarrage en cours...');
+    cp('sudo systemctl restart pib', (err, stdout, stderr) => {
+      if (!err) {
+        console.log(stdout);
+      } else console.error(err);
+    });
+  });
+}
+
 existPath('./backups/');
 existPath('./exports/');
 
@@ -292,6 +310,10 @@ app.get('/', (req, res) => {
       barcodeVerification(io);
 
       check4updates(io, tag);
+
+      restart(io);
+
+      shutdown(io);
 
       io.on('delete data', data => {
         if (data.table === 'in_requests') {
@@ -466,6 +488,10 @@ app.get('/', (req, res) => {
       barcodeVerification(io);
 
       check4updates(io, tag);
+
+      restart(io);
+
+      shutdown(io);
 
       io.on('update', record => {
         if (record.table === 'drafts') {
