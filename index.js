@@ -13,6 +13,7 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
 const mail = require('./modules/mail');
+const pibUpdate = require('./modules/update');
 
 server.listen(8000);
 
@@ -162,6 +163,12 @@ const barcodeVerification = io => {
   });
 }
 
+const check4updates = (io, tag) => {
+  io.on('update check', () => {
+    pibUpdate(io, tag);
+  });
+}
+
 existPath('./backups/');
 existPath('./exports/');
 
@@ -283,6 +290,8 @@ app.get('/', (req, res) => {
       });
 
       barcodeVerification(io);
+
+      check4updates(io, tag);
 
       io.on('delete data', data => {
         if (data.table === 'in_requests') {
@@ -455,6 +464,8 @@ app.get('/', (req, res) => {
       });
 
       barcodeVerification(io);
+
+      check4updates(io, tag);
 
       io.on('update', record => {
         if (record.table === 'drafts') {
