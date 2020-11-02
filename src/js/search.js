@@ -290,8 +290,10 @@ const search = () => {
           // Use .html() to retrieve both the node value and its children
           if ($(`.${parent} .search__results__container__row__item--comment`) !== undefined) {
             $('.draft__child__container__comment__textarea').val($(`.${parent} .search__results__container__row__item--comment`).html().replace(/(<|&lt;)br(>|&gt;)/gi, '\n'));
+          } else {
+            location.reload();
           }
-          
+
           $('.draft__child__container__reader__bookTitle input').val($(`.${parent} .search__results__container__row__item--title`).text());
 
           $('.draft')
@@ -386,9 +388,6 @@ const search = () => {
                 .removeClass('checked')
                 .addClass('unchecked');
             }
-
-            // Hide the button to hide the form
-            $('.inRequests.absolute .inRequests__form__btnContainer__hide').toggleClass('hidden');
           });
 
           // Hide the form on btn click

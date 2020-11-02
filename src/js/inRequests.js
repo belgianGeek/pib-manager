@@ -8,6 +8,7 @@ const inRequests = () => {
 
 
   socket.on('barcode', code => {
+    initialBarcode = code;
     barcode.val(code);
 
     JsBarcode('.inRequests__barcode__svg', code, barcodeOptions);
@@ -26,7 +27,41 @@ const inRequests = () => {
   // Séparer le nom de l'auteur de son prénom
   let author = '';
 
+  $('.inRequests__form__docInfo__inv').on('input', function() {
+    if ($(this).val().length < 14) {
+      $(this).addClass('invalid');
+      validationErr = true;
+    } else if ($(this).val().length === 14 && $(this).val() !== initialBarcode) {
+      socket.emit('barcode verification', $(this).val());
+    } else if ($(this).val() === initialBarcode) {
+      $(this).removeClass('invalid');
+      validationErr = false;
+      $('form .warning').remove();
+      JsBarcode('.inRequests__barcode__svg', initialBarcode, barcodeOptions);
+    }
+  });
+
+  socket.on('barcode verified', code => {
+    if (code !== 'used' || code === initialBarcode) {
+      $(this).removeClass('invalid');
+      validationErr = false;
+
+      $('form .warning').remove();
+      JsBarcode('.inRequests__barcode__svg', code, barcodeOptions);
+    } else {
+      validationErr = true;
+
+      if (!$('form .warning').length) {
+        let warning = $('<span></span>')
+          .addClass('warning')
+          .text('Ce code-barres est déjà pris ou n\'existe pas...')
+          .appendTo('.inRequests__form');
+      }
+    }
+  });
+
   $('.inRequests__form__btnContainer__submit').click(event => {
+    console.log(validationErr);
     event.preventDefault();
     data2send.table = 'in_requests';
 
@@ -77,8 +112,10 @@ const inRequests = () => {
       invalid(cdu);
     }
 
-    if (barcode.val() === '') {
-      invalid(barcode.val());
+    if (barcode.val() === '' || barcode.val().length !== 14) {
+      invalid(barcode);
+    } else {
+      socket.emit('barcode verification', barcode.val());
     }
 
     if (!validationErr) {
@@ -155,6 +192,9 @@ const inRequests = () => {
           $('.wrapper').toggleClass('backgroundColor blur');
 
           socket.emit('update', data2send);
+
+          // Hide the button to hide the form
+          $('.inRequests.absolute .inRequests__form__btnContainer__hide').toggleClass('hidden');
         }
 
         confirmation();

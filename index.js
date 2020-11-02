@@ -141,6 +141,27 @@ const DBquery = (io, action, table, query) => {
   });
 }
 
+const barcodeVerification = io => {
+  io.on('barcode verification', code => {
+    let code2send;
+    DBquery(io, 'SELECT', 'barcodes', {
+        text: `SELECT barcode FROM barcodes WHERE available = true AND barcode ILIKE '${code}'`
+      })
+      .then(res => {
+        if (res.rows.length !== 0) {
+          code2send = res.rows[0].barcode;
+        } else {
+          code2send = 'used';
+        }
+
+        io.emit('barcode verified', code2send);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  });
+}
+
 existPath('./backups/');
 existPath('./exports/');
 
@@ -260,6 +281,8 @@ app.get('/', (req, res) => {
           });
         }
       });
+
+      barcodeVerification(io);
 
       io.on('delete data', data => {
         if (data.table === 'in_requests') {
@@ -430,6 +453,8 @@ app.get('/', (req, res) => {
             }
           });
       });
+
+      barcodeVerification(io);
 
       io.on('update', record => {
         if (record.table === 'drafts') {
