@@ -149,13 +149,17 @@ const search = () => {
         }
 
         let date = $('<span></span>').addClass('search__results__container__row__item search__results__container__row__item--date');
+        let timestamp = $('<span></span>').addClass('search__results__container__row__item search__results__container__row__item--timestamp hidden');
 
         if (data.request_date !== null) {
           date.append(new Date(data.request_date).toLocaleDateString());
+          console.log(data.request_date.split('T')[0]);
+          timestamp.append(data.request_date.split('T')[0]);
         } else {
           date.append(`Problème d'affichage...`);
         }
 
+        timestamp.appendTo(row);
         date.appendTo(row);
 
         if (data.reader_name !== undefined) {
@@ -275,9 +279,7 @@ const search = () => {
 
       $('.context__list__item--modify').click(function() {
         // Format the date to be year, Month (0-indexed) and the day
-        let date = new Date($(`.${parent} .search__results__container__row__item--date`).text());
-
-        date = `${date.getFullYear()}-${setMonth(date)}-${setDay(date)}`;
+        let date = $(`.${parent} .search__results__container__row__item--timestamp`).text();
 
         $('.wrapper').addClass('blur');
 
@@ -286,7 +288,10 @@ const search = () => {
           $('.draft__child__container__reader__name input').val($(`.${parent} .search__results__container__row__item--reader`).text());
 
           // Use .html() to retrieve both the node value and its children
-          $('.draft__child__container__comment__textarea').val($(`.${parent} .search__results__container__row__item--comment`).html().replace(/(<|&lt;)br(>|&gt;)/gi, '\n'));
+          if ($(`.${parent} .search__results__container__row__item--comment`) !== undefined) {
+            $('.draft__child__container__comment__textarea').val($(`.${parent} .search__results__container__row__item--comment`).html().replace(/(<|&lt;)br(>|&gt;)/gi, '\n'));
+          }
+          
           $('.draft__child__container__reader__bookTitle input').val($(`.${parent} .search__results__container__row__item--title`).text());
 
           $('.draft')
