@@ -18,6 +18,6 @@ $('.leaveLink').click(() => {
 
     setTimeout(() => {
       location.reload();
-    }, 3000);
+    }, 10000);
   });
 });
