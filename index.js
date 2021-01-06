@@ -511,7 +511,7 @@ app.get('/', (req, res) => {
             // Update the barcodes table only if it was modified
             if (record.barcode !== undefined) {
               DBquery(io, 'UPDATE', 'barcodes', {
-                  text: `UPDATE barcodes SET available = false WHERE barcode ILIKE (SELECT barcode FROM ${record.table} WHERE pib_number = '${record.key}')`
+                  text: `UPDATE barcodes SET available = false WHERE barcode ILIKE (SELECT barcode FROM ${record.table} WHERE pib_number = '${record.values[0]}')`
                 })
                 .catch(err => console.error(err));
 

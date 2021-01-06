@@ -42,6 +42,7 @@ const inRequests = () => {
   });
 
   socket.on('barcode verified', code => {
+    console.log(code, initialBarcode);
     if (code !== 'used' || code === initialBarcode) {
       $(this).removeClass('invalid');
       validationErr = false;
@@ -167,7 +168,7 @@ const inRequests = () => {
         data2send.values.push(barcode.val());
 
         // Send data to the server
-        // If the form has the class 'absolute', append data to the DB and proceed to the next step
+        // If the form do not have the class 'absolute', append data to the DB and proceed to the next step
         if (!$('.inRequests').hasClass('absolute')) {
           socket.emit('append data', data2send);
 
