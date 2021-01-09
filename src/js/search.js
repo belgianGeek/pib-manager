@@ -153,7 +153,6 @@ const search = () => {
 
         if (data.request_date !== null) {
           date.append(new Date(data.request_date).toLocaleDateString());
-          console.log(data.request_date.split('T')[0]);
           timestamp.append(data.request_date.split('T')[0]);
         } else {
           date.append(`Problème d'affichage...`);
@@ -232,6 +231,9 @@ const search = () => {
       $('.search__results__container').fadeIn();
 
       $('.search__results__container__row').contextmenu(function(e) {
+        // get the current mouse position
+        getMousePosition();
+
         // Store the selected row in a variable
         parent = $(this).attr('class').split(' ')[1];
 
@@ -243,8 +245,13 @@ const search = () => {
 
           // The delete option is now at the bottom
           $('.context__list__item--del').addClass('context__list__item--bottom');
-        } else {
+        } else if ($('.search__container__select').val() === 'out_requests') {
           // Hide some options if searching for drafts
+          $('.context__list__item--modify, .context__list__item--inv')
+            .addClass('hidden')
+            .removeClass('flex');
+        } else {
+          // Show all the options if searching for in_requests
           $('.context__list__item--pib, .context__list__item--inv')
             .addClass('flex')
             .removeClass('hidden');
@@ -257,7 +264,7 @@ const search = () => {
         $('.context')
           .css({
             left: `${e.pageX}px`,
-            top: `${e.pageY}px`
+            top: `${mousePosition.y}px`
           })
           .toggleClass('hidden flex');
 
@@ -370,14 +377,14 @@ const search = () => {
           // The form submit is handled in the inRequests function
           $('.inRequests.absolute .inRequests__form__btnContainer__submit').click(() => {
             // Update the web interface with the changes
-            $(`.${parent} .search__results__container__row__item--pib`).text($('.inRequests__form__pibInfo__pibNb').val());
+            $(`.${parent} .search__results__container__row__item--pib`).val($('.inRequests__form__pibInfo__pibNb').val());
             $(`.${parent} .search__results__container__row__item--borrowing_library`).text($('.inRequests__form__pibInfo__borrowingLibrary').val());
             $(`.${parent} .search__results__container__row__item--date`).text(new Date($('.inRequests__form__pibInfo__requestDate').val()).toLocaleDateString());
             $(`.${parent} .search__results__container__row__item--reader`).text($('.inRequests__form__readerInfo__container__name').val());
             $(`.${parent} .search__results__container__row__item--title`).text($('.inRequests__form__docInfo__title').val());
             $(`.${parent} .search__results__container__row__item--author`).text($('.inRequests__form__docInfo__author').val());
             $(`.${parent} .search__results__container__row__item--cdu`).text($('.inRequests__form__docInfo__cdu').val());
-            $(`.${parent} .search__results__container__row__item--code`).text($('.inRequests__form__docInfo__inv').val());
+            $(`.${parent} .search__results__container__row__item--code`).val($('.inRequests__form__docInfo__inv').val());
 
             if ($('.inRequests__form__pibInfo__outProvince').is(':checked')) {
               $(`.${parent} .search__results__container__row__item--op`)
@@ -416,8 +423,13 @@ const search = () => {
         } else if ($('.search__container__select').val() === 'in_requests') {
           deletionKey = {
             table: 'in_requests',
-            key: $(`.${parent} .search__results__container__row__item--pib`).val(),
-            code: $(`.${parent} .search__results__container__row__item--code`).val()
+            key: initialPibNb,
+            code: initialBarcode
+          };
+        } else if ($('.search__container__select').val() === 'out_requests') {
+          deletionKey = {
+            table: 'out_requests',
+            key: $(`.${parent} .search__results__container__row__item--pib`).val()
           };
         }
 

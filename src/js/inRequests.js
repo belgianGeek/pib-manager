@@ -32,7 +32,19 @@ const inRequests = () => {
       $(this).addClass('invalid');
       validationErr = true;
     } else if ($(this).val().length === 14 && $(this).val() !== initialBarcode) {
-      socket.emit('barcode verification', $(this).val());
+      if ($('.inRequests').hasClass('absolute')) {
+        socket.emit('barcode verification', {
+          code: $(this).val(),
+          pib_number: initialPibNb
+        });
+      } else {
+        if (pibNb.val() !== '') {
+          socket.emit('barcode verification', {
+            code: $(this).val(),
+            pib_number: pibNb.val()
+          });
+        }
+      }
     } else if ($(this).val() === initialBarcode) {
       $(this).removeClass('invalid');
       validationErr = false;
@@ -42,7 +54,6 @@ const inRequests = () => {
   });
 
   socket.on('barcode verified', code => {
-    console.log(code, initialBarcode);
     if (code !== 'used' || code === initialBarcode) {
       $(this).removeClass('invalid');
       validationErr = false;
@@ -62,7 +73,6 @@ const inRequests = () => {
   });
 
   $('.inRequests__form__btnContainer__submit').click(event => {
-    console.log(validationErr);
     event.preventDefault();
     data2send.table = 'in_requests';
 
@@ -116,7 +126,19 @@ const inRequests = () => {
     if (barcode.val() === '' || barcode.val().length !== 14) {
       invalid(barcode);
     } else {
-      socket.emit('barcode verification', barcode.val());
+      if ($('.inRequests').hasClass('absolute')) {
+        socket.emit('barcode verification', {
+          code: barcode.val(),
+          pib_number: initialPibNb
+        });
+      } else {
+        if (pibNb.val() !== '') {
+          socket.emit('barcode verification', {
+            code: barcode.val(),
+            pib_number: pibNb.val()
+          });
+        }
+      }
     }
 
     if (!validationErr) {
