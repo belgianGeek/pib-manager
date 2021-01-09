@@ -6,6 +6,6 @@ const getMousePosition = () => {
   });
 
   if (mousePosition.y > ($(window).height() / 100 * 80)) {
-    mousePosition.y = mousePosition.y - ($('.context.flex').height() + 10);
+    mousePosition.y = mousePosition.y - ($('.context.flex').height() + 20);
   }
 }

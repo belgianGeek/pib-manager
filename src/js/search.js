@@ -231,6 +231,15 @@ const search = () => {
       $('.search__results__container').fadeIn();
 
       $('.search__results__container__row').contextmenu(function(e) {
+        const setMenuPosition = height => {
+          $('.context')
+            .css({
+              left: `${e.pageX}px`,
+              top: `${height}px`
+            })
+            .toggleClass('hidden flex');
+        }
+
         // get the current mouse position
         getMousePosition();
 
@@ -252,7 +261,7 @@ const search = () => {
             .removeClass('flex');
         } else {
           // Show all the options if searching for in_requests
-          $('.context__list__item--pib, .context__list__item--inv')
+          $('.context__list__item--pib, .context__list__item--inv, .context__list__item--modify')
             .addClass('flex')
             .removeClass('hidden');
 
@@ -261,12 +270,13 @@ const search = () => {
         }
 
         e.preventDefault();
-        $('.context')
-          .css({
-            left: `${e.pageX}px`,
-            top: `${mousePosition.y}px`
-          })
-          .toggleClass('hidden flex');
+
+        if ($('.search__container__select').val() !== 'out_requests') {
+          setMenuPosition(mousePosition.y);
+        } else {
+          setMenuPosition(e.pageY);
+        }
+
 
         // Hide the context menu on left-click to prevent displaying it indefinitely
         $('.search__results, .search__results *').click(function(e) {
