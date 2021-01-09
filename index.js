@@ -136,30 +136,43 @@ const DBquery = (io, action, table, query) => {
           notify(io, 'error');
         }
         console.error(JSON.stringify(err, null, 2));
-        reject(err);
+        reject(`Une erreur est survenue lors de l'action '${action}' dans la table '${table}' avec la requête '${query.text}' :\n${err}`);
         return;
       });
   });
 }
 
 const barcodeVerification = io => {
-  io.on('barcode verification', code => {
+  io.on('barcode verification', barcodeData => {
     let code2send;
-    DBquery(io, 'SELECT', 'barcodes', {
-        text: `SELECT barcode FROM barcodes WHERE available = true AND barcode ILIKE '${code}'`
-      })
-      .then(res => {
-        if (res.rows.length !== 0) {
-          code2send = res.rows[0].barcode;
-        } else {
-          code2send = 'used';
-        }
-
+    DBquery(io, 'SELECT', 'in_requests', {
+      text: `SELECT barcode FROM in_requests WHERE barcode ILIKE '${barcodeData.code}' AND pib_number = '${barcodeData.pib_number}'`
+    }).then(res => {
+      if (res.rowCount !== 0) {
+        // Send the barcode if it is already used for the same record
+        code2send = res.rows[0].barcode;
         io.emit('barcode verified', code2send);
-      })
-      .catch(err => {
-        console.log(err);
-      });
+      } else {
+        // Else, send a new and available one
+        DBquery(io, 'SELECT', 'barcodes', {
+            text: `SELECT barcode FROM barcodes WHERE available = true AND barcode ILIKE '${barcodeData.code}'`
+          })
+          .then(res => {
+            if (res.rowCount !== 0) {
+              code2send = res.rows[0].barcode;
+            } else {
+              code2send = 'used';
+            }
+
+            io.emit('barcode verified', code2send);
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      }
+    }).catch(err => {
+      console.error(err);
+    })
   });
 }
 
@@ -190,11 +203,11 @@ const restart = io => {
 existPath('./backups/');
 existPath('./exports/');
 
-// Exporter une sauvegarde de la DB toutes les demi-heures
+// Exporter une sauvegarde de la DB toutes les douze heures
 setInterval(() => {
   console.log('DB backup on ' + Date.now());
   exportDB(`./backups/pib_${Date.now()}.pgsql`);
-}, 30 * 60 * 1000);
+}, 12 * 60 * 60 * 1000);
 
 
 // Define a variable to store a file to download when exporting DB
@@ -339,7 +352,7 @@ app.get('/', (req, res) => {
             .then(() => {
               updateBarcode();
             })
-            .catch(err => console.error(`Une erreur est survenue lors de-u processus de suppression de la demande ${data.data} : ${err}`))
+            .catch(err => console.error(`Une erreur est survenue lors du processus de suppression de la demande ${data.data} : ${err}`))
         } else if (data.table === 'out_requests') {
           DBquery(io, 'DELETE FROM', data.table, {
               text: `DELETE FROM ${data.table} WHERE pib_number = '${data.data}'`
@@ -527,7 +540,7 @@ app.get('/', (req, res) => {
       io.on('delete data', data => {
         if (data.table === 'drafts') {
           query = `DELETE FROM ${data.table} WHERE id = '${data.key}'`;
-        } else if (data.table === 'in_requests') {
+        } else if (data.table === 'in_requests' || data.table === 'out_requests') {
           query = `DELETE FROM ${data.table} WHERE pib_number = '${data.key}'`;
         }
 
@@ -535,12 +548,14 @@ app.get('/', (req, res) => {
             text: query
           })
           .then(() => {
-            DBquery(io, 'UPDATE', 'barcodes', {
-                text: `UPDATE barcodes SET available = true WHERE barcode ILIKE '${data.code}'`
-              })
-              .catch(err => {
-                console.error(`Une erreur est survenue lors de la mise à jour du statut du code-barres ${data.code} :\n${err}`);
-              });
+            if (data.table === 'in_requests') {
+              DBquery(io, 'UPDATE', 'barcodes', {
+                  text: `UPDATE barcodes SET available = true WHERE barcode ILIKE '${data.code}'`
+                })
+                .catch(err => {
+                  console.error(`Une erreur est survenue lors de la mise à jour du statut du code-barres ${data.code} :\n${err}`);
+                });
+            }
           })
           .catch(err => {
             console.error(err);
