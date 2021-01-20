@@ -105,7 +105,7 @@ const createDB = (config, DBname = 'pib') => {
     });
 }
 
-const DBquery = (io, action, table, query) => {
+const DBquery = (io, action, table, query, displayNotification = true) => {
   if (arguments.length === 3) {
     action = arguments[0];
     table = arguments[1];
@@ -117,12 +117,12 @@ const DBquery = (io, action, table, query) => {
     client.query(query)
       .then(res => {
         if (res.rowCount === 0 || res.rowCount === null) {
-          if (io !== null) {
+          if (io !== null && displayNotification) {
             notify(io, 'info');
           }
         } else {
           if (action !== 'SELECT' && action !== 'COPY' && table !== 'barcodes') {
-            if (io !== null) {
+            if (io !== null && displayNotification) {
               notify(io, 'success');
             }
           }
@@ -136,7 +136,7 @@ const DBquery = (io, action, table, query) => {
           notify(io, 'error');
         }
         console.error(JSON.stringify(err, null, 2));
-        reject(`Une erreur est survenue lors de l'action '${action}' dans la table '${table}' avec la requête '${query.text}' :\n${err}`);
+        reject(`Une erreur est survenue lors de l'action '${action}' dans la table '${table}' avec la requête "${query.text}" :\n${err}`);
         return;
       });
   });
@@ -147,7 +147,7 @@ const barcodeVerification = io => {
     let code2send;
     DBquery(io, 'SELECT', 'in_requests', {
       text: `SELECT barcode FROM in_requests WHERE barcode ILIKE '${barcodeData.code}' AND pib_number = '${barcodeData.pib_number}'`
-    }).then(res => {
+    }, false).then(res => {
       if (res.rowCount !== 0) {
         // Send the barcode if it is already used for the same record
         code2send = res.rows[0].barcode;
@@ -156,7 +156,7 @@ const barcodeVerification = io => {
         // Else, send a new and available one
         DBquery(io, 'SELECT', 'barcodes', {
             text: `SELECT barcode FROM barcodes WHERE available = true AND barcode ILIKE '${barcodeData.code}'`
-          })
+          }, false)
           .then(res => {
             if (res.rowCount !== 0) {
               code2send = res.rows[0].barcode;
@@ -260,6 +260,7 @@ app.get('/', (req, res) => {
       io.emit('settings', settings);
 
       io.on('append data', data => {
+        console.log(JSON.stringify(data, null, 2));
         if (data.table === 'out_requests') {
           // Si le nom de l'auteur ne contient pas de prénom
           if (!data.authorFirstName) {

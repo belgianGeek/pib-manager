@@ -7,24 +7,28 @@ const mail = (receiver, client) => {
   let tempReceiverName = receiver.name.split(',');
 
   let smtpPass = process.env.SMTP_PASSWD;
-  
+
   let htmlMsg = '';
-  
+
   client.query(`SELECT mail_content FROM settings`)
-    .then(res => console.log(res.rows[0].mail_content.replace(/\%TITLE\%/g, receiver.request)))
+    // .then(res => console.log(res.rows[0].mail_content.replace(/\%TITLE\%/g, receiver.request)))
     .catch(err => console.error(`Impossible de récupérer le contenu de l'email automatique à envoyer au lecteur : ${err}`));
 
   // Plain text message
   let msg = [`Le livre "${receiver.request}", que vous aviez demandé est à votre disposition à la bibliothèque pendant 10 jours. Une fois ce délai écoulé, nous nous réservons le droit de le renvoyer dans sa bibliothèque d'origine.`, 'À bientôt,', 'Cordialement,', `Le Grimoire d'Éole`];
-  
-  
 
-  if (receiver.gender.match('f')) {
-    msg.unshift(`Bonjour Madame ${tempReceiverName[0].trim()},`);
-  } else if (receiver.gender.match('m')) {
-    msg.unshift(`Bonjour Monsieur ${tempReceiverName[0].trim()},`);
+  const handleUnknownGender = () => msg.unshift(`Bonjour Madame/Monsieur ${tempReceiverName[0].trim()},`);
+
+  if (receiver.gender !== undefined) {
+    if (receiver.gender.match('f')) {
+      msg.unshift(`Bonjour Madame ${tempReceiverName[0].trim()},`);
+    } else if (receiver.gender.match('m')) {
+      msg.unshift(`Bonjour Monsieur ${tempReceiverName[0].trim()},`);
+    } else {
+      handleUnknownGender();
+    }
   } else {
-    msg.unshift(`Bonjour Madame/Monsieur ${tempReceiverName[0].trim()},`);
+    handleUnknownGender();
   }
 
   // Convert the message to the HTML format
