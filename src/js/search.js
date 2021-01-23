@@ -58,6 +58,12 @@ const search = () => {
   });
 
   socket.on('search results', results => {
+    if (results.length <= 1) {
+      $('.search__title__h2').text(`${results.length} résultat de recherche`);
+    } else {
+      $('.search__title__h2').text(`${results.length} résultats de recherche`);
+    }
+
     let parent;
 
     $('.search__results__container').empty(function() {
@@ -221,9 +227,15 @@ const search = () => {
         }
 
         if (data.comment !== undefined) {
+          let matches = {
+            "\'\'": "\'",
+            '\n': '<br>'
+          };
           let comment = $('<span></span>')
             .addClass('search__results__container__row__item search__results__container__row__item--comment')
-            .append(data.comment.replace(/\n/gi, '<br>'))
+            .append(data.comment.replace(/\'\'|\n/g, matched => {
+              return matches[matched];
+            }))
             .appendTo(row);
         }
       }
