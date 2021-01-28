@@ -442,14 +442,24 @@ app.get('/', (req, res) => {
       });
 
       io.on('settings', settings => {
-        if (settings.mail_content !== undefined) {
-          query = `UPDATE settings SET mail_content = '${settings.mail_content}'`;
-          console.log(query);
-        }
+        if (settings.mail_content !== undefined) query = `UPDATE settings SET mail_content = '${settings.mail_content}'`;
+        else if (settings.mail_content !== undefined && settings.library !== undefined) query = `UPDATE settings SET mail_content = '${settings.mail_content}', library = ${settings.library}`;
+        else if (settings.library !== undefined) query = `UPDATE settings SET library = '${settings.library}'`;
 
         DBquery(io, 'UPDATE', 'settings', {
-          text: query
-        });
+            text: query
+          }).then(() => {
+            client.query({
+                text: 'SELECT * FROM settings'
+              })
+              .then(res => {
+                settings = res.rows[0];
+              });
+          })
+          .catch(err => console.error(err));
+
+        // Send the new settings to the client
+        io.emit('settings', settings);
       });
     });
   })
