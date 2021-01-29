@@ -23,19 +23,39 @@
       width: 90%;
     }
 
+    &__header {
+      flex-direction: row;
+      align-items: center;
+    }
+
+    &__mail__help {
+      margin-left: 1em;
+      @include help;
+    }
+
     &__textarea {
       width: 100%;
       justify-content: center;
 
       &__content {
+        width: 100%;
         min-width: 90%;
-        max-width: 90%;
+        max-width: 100%;
         min-height: 15em;
         max-height: 15em;
         padding: 0.5em;
         border: 2px solid grey;
         border-radius: 0.5em;
         background-color: $translucent-black;
+      }
+    }
+
+    .protip {
+      margin-top: 1em;
+      width: 100%;
+
+      & ol {
+        font-size: 1em;
       }
     }
 
@@ -55,6 +75,10 @@
     &__heading2 {
       font-size: 1.3em;
       margin: 0.7em 0;
+    }
+
+    &__libraryContainer .protip {
+      margin: 0;
     }
 
     .backgroundImageUploadForm {

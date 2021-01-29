@@ -1,8 +1,29 @@
 <div class="settings__container hidden">
   <div class="settings__child flex">
     <h1>Paramètres</h1>
-    <h2 class="settings__child__heading2 settings__child__heading">E-mail de notification</h2>
+    <span class="settings__child__header flex">
+      <h2 class="settings__child__heading2 settings__child__heading">E-mail de notification</h2>
+      <svg class="settings__child__mail__help" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <title>La formule de politesse est définie automatiquement selon le genre du lecteur. Il n'est donc pas nécessaire de l'indiquer dans le texte ci-dessous.</title>
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        <svg class="help__hover" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10">
+          </circle>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </svg>
+    </span>
     <textarea class="settings__child__textarea__content" name="email" rows="8" cols="80"></textarea>
+    <article class="protip protip--noMargin">
+      <p>Les paramètres optionnels suivants peuvent être utilisés :</p>
+      <ol>
+        <li><strong>%LIBRARY%</strong> : Cette expression désigne le nom de la bibliothèque attribué dans le champ <i>Nom de la bibliothèque</i> ci-dessous.</li>
+        <li><strong>%TITLE%</strong> : Cette expression désigne le titre du document demandé par le lecteur.</li>
+      </ol>
+    </article>
     <h2 class="settings__child__heading2 settings__child__heading hidden">Personnalisation</h2>
     <form class="backgroundImageUploadForm hidden" action="/" enctype="multipart/form-data" method="post">
       <label for="backgroundImageUploadForm__label">Cet arrière-plan est moche !</label>
