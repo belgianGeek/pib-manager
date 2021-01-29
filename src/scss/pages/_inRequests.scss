@@ -19,13 +19,24 @@
     @include simple-step();
   }
 
-  &__step4__container {
-    width: 90%;
-    flex-direction: row;
-    justify-content: space-evenly;
+  &__step4 {
+    &__container {
+      width: 90%;
+      flex-direction: column;
 
-    &__autocomplete {
-      @include autocomplete;
+      &__inputs {
+        flex-direction: row;
+        justify-content: space-evenly;
+      }
+
+      &__autocomplete {
+        @include autocomplete;
+      }
+    }
+
+    &__btn {
+      width: max-content;
+      align-self: center;
     }
   }
 

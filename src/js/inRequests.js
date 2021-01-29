@@ -72,7 +72,7 @@ const inRequests = () => {
     }
   });
 
-  $('.inRequests__form__btnContainer__submit').click(event => {
+  $('.inRequests__form').submit(event => {
     event.preventDefault();
     data2send.table = 'in_requests';
 
@@ -246,26 +246,58 @@ const inRequests = () => {
     data2send.values = [];
   });
 
-  $('.inRequests__step4__btn').click(() => {
-    confirmation();
+  $('.inRequests__step4__container').submit(event => {
+    event.preventDefault();
 
-    inRequestsTimeOut = setTimeout(() => {
+    let readerName = $('.inRequests__step4__container__reader');
+    let bookTitle = $('.inRequests__step4__container__title');
+    let mail = $('.inRequests__step4__container__mail');
+
+    // Reader's name
+    if (readerName.val() === '') {
+      invalid(readerName);
+    }
+
+    // Date de la demande
+    if (bookTitle.val() === '') {
+      invalid(bookTitle);
+    }
+
+    // Bibliothèque prêteuse
+    if (mail.val() === '') {
+      invalid(mail);
+    }
+
+    if (!validationErr) {
       confirmation();
 
-      $('.inRequests__step4').toggleClass('hidden flex');
-      $('.home').toggleClass('hidden flex');
-      $('.header__container__icon, .header__container__msg').toggleClass('hidden');
+      inRequestsTimeOut = setTimeout(() => {
+        confirmation();
 
-      setTimeout(() => {
-        // Send the notification email to the reader when the user is back to the homescreen
-        socket.emit('send mail', {
-          name: $('.inRequests__step4__container__reader').val(),
-          mail: $('.inRequests__step4__container__mail').val(),
-          gender: inRequestsReaderGender,
-          request: $('.inRequests__step4__container__title').val()
-        });
-      }, 1000);
-    }, 5000);
+        $('.inRequests__step4').toggleClass('hidden flex');
+        $('.home').toggleClass('hidden flex');
+        $('.header__container__icon, .header__container__msg').toggleClass('hidden');
+
+        setTimeout(() => {
+          // Send the notification email to the reader when the user is back to the homescreen
+          socket.emit('send mail', {
+            name: $('.inRequests__step4__container__reader').val(),
+            mail: $('.inRequests__step4__container__mail').val(),
+            gender: inRequestsReaderGender,
+            request: $('.inRequests__step4__container__title').val()
+          });
+        }, 1000);
+      }, 5000);
+    } else {
+      if (!$('form .warning').length) {
+        let warning = $('<span></span>')
+          .addClass('warning')
+          .text('Certains champs sont incorrects...')
+          .appendTo('.inRequests__step4__container');
+      };
+
+      validationErr = false;
+    }
   });
 
   $('.confirmation__body__cancel').click(() => {

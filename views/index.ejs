@@ -92,13 +92,15 @@
     </section>
     <section class="inRequests__step4 hidden">
       <h2 class="inRequests__step4__title title">Envoyer un mail au lecteur 📧</h2>
-      <span class="inRequests__step4__container flex">
-        <input class="inRequests__step4__container__reader input" type="text" placeholder="Destinataire...">
-        <input class="inRequests__step4__container__title input" type="text" placeholder="Titre...">
-        <input class="inRequests__step4__container__mail input" type="mail" placeholder="Adresse mail...">
-        <span class="inRequests__step4__container__autocomplete hidden"></span>
-      </span>
-      <button class="inRequests__step4__btn btn btn--green" type="button">Ok !</button>
+      <form class="inRequests__step4__container flex">
+        <span class="inRequests__step4__container__inputs flex">
+          <input class="inRequests__step4__container__reader input" type="text" placeholder="Destinataire...">
+          <input class="inRequests__step4__container__title input" type="text" placeholder="Titre...">
+          <input class="inRequests__step4__container__mail input" type="mail" placeholder="Adresse mail...">
+          <span class="inRequests__step4__container__autocomplete hidden"></span>
+        </span>
+        <button class="inRequests__step4__btn btn btn--green" type="submit">Ok !</button>
+      </form>
     </section>
     <section class="inReturns__step1 hidden">
       <h2 class="inReturns__step1__title title">Effectuer le retour dans Adlib</h2>
