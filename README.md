@@ -1,10 +1,10 @@
-:point_right: As this software is intented to be used in French-speaking libraries, the following README will be written in French.
+:point_right: As this software is intented to be used in French-speaking libraries, the following README is written in French.
 
 # Introduction
 
-Ce programme est une application web qui a pour but de faciliter la gestion des prêts interbibliothèques (PIB) ans les institutions où les SIGB ne permettent pas de les gérer efficacement.
+Ce programme est une application web qui a pour but de faciliter la gestion des prêts interbibliothèques (PIB) ans les institutions où les SIGB ne permettent pas de les gérer efficacement. Il a vu le jour au mois de mars 2020 afin d'automatiser certaines tâches chronophages et répétitives et ainsi faciliter le travail des bibliothécaires et leur permettre de dégager plus de temps à consacrer à l'acceuil et au renseignement des lecteurs.
 
-Ce programme a été créé sur mesure pour la bibliothèque de Perwez, dans le Brabant wallon (Belgique) en associa tion avec le logiciel Adlib.
+_PIB Manager_ a été créé sur mesure pour la bibliothèque de Perwez, dans le Brabant wallon (Belgique) en association avec le logiciel Adlib.
 
 # Prérequis
 
