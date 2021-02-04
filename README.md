@@ -2,7 +2,7 @@
 
 # Introduction
 
-Ce programme est une application web qui a pour but de faciliter la gestion des prêts interbibliothèques (PIB) ans les institutions où les SIGB ne permettent pas de les gérer efficacement. Il a vu le jour au mois de mars 2020 afin d'automatiser certaines tâches chronophages et répétitives et ainsi faciliter le travail des bibliothécaires et leur permettre de dégager plus de temps à consacrer à l'acceuil et au renseignement des lecteurs.
+Ce programme est une application web qui a pour but de faciliter la gestion des prêts interbibliothèques (PIB) dans les institutions où les SIGB ne permettent pas de les gérer efficacement. Il a vu le jour au mois de mars 2020 afin d'automatiser certaines tâches chronophages et répétitives et ainsi faciliter le travail des bibliothécaires et leur permettre de dégager plus de temps à consacrer à l'acceuil et au renseignement des lecteurs.
 
 _PIB Manager_ a été créé sur mesure pour la bibliothèque de Perwez, dans le Brabant wallon (Belgique) en association avec le logiciel Adlib.
 
@@ -20,7 +20,9 @@ Le serveur de base de données et la plateforme Node.js peuvent être installés
 
 Le logiciel _PIB Manager_ peut être téléchargé et installé en quelques clics, une fois les prérequis satisfaits.
 
-Pour télécharger le programme, vous pouvez soit cloner ce dépôt dans un dossier sur votre ordinateur (attention, cela nécessite d'avoir installé [Git](https://git-scm.com/) au préalable !) via la commande `git clone https://github.com/belgianGeek/pib-manager.git /home/$user/Documents/pib-manager` ou simplement télécharger l'ensemble des fichiers au format `.zip` et les déplacer ensuite dans le dosseri de votre choix sur votre ordinateur.
+Pour télécharger le programme, vous pouvez soit cloner ce dépôt dans un dossier sur votre ordinateur (attention, cela nécessite d'avoir installé [Git](https://git-scm.com/) au préalable !) via la commande `git clone https://github.com/belgianGeek/pib-manager.git /home/$user/Documents/pib-manager` ou simplement télécharger l'ensemble des fichiers au format `.zip` et les déplacer ensuite dans le dossier de votre choix sur votre ordinateur.
+
+Le serveur de base de données PostgreSQL doit être actif pour assurer le bon fonctionnement du logiciel. Pour démarrer le service, vous pouvez donc entrer dans la commande `sudo systemctl start postgresql` dans un terminal. Afin que le service soit démarré à chaque allumage de votre ordinateur, vous devez exécutez la commande `sudo systemctl enable postgresql`.
 
 Pour finaliser l'installation, vous devez créer le fichier `pib.service` dans le dossier `/etc/systemd/system`, avec le contenu suivant :
 
@@ -46,7 +48,7 @@ PORT=4700
 [Install]
 WantedBy=multi-user.target
 ```
-Ce fichier permet de cérer un service dédié au logiciel. Si la création de ce fichier est indispensable au bon fonctionnement du logiciel, le modèle montré ci-dessus doit être adapté à votre configuration : remplacez donc `votre-nom-ici` par votre nom d'utilisateur et `dossier-de-pib-manager` par le dossier où sont stockés les fichiers du programme.
+Ce fichier permet de créer un service dédié au logiciel. Si la création de ce fichier est indispensable au bon fonctionnement du logiciel, le modèle montré ci-dessus doit être adapté à votre configuration : remplacez donc `votre-nom-ici` par votre nom d'utilisateur et `dossier-de-pib-manager` par le dossier où sont stockés les fichiers du programme.
 
 Pour lancer le logiciel, il suffit d'entrer la commande `sudo systemctl start pib`. Pour qu'il se lance au démarrage de l'ordinateur, exécutez la commande `sudo systemctl enable pib`.
 
