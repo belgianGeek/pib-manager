@@ -243,17 +243,12 @@ const search = () => {
       $('.search__results__container').fadeIn();
 
       $('.search__results__container__row').contextmenu(function(e) {
-        const setMenuPosition = height => {
-          $('.context')
-            .css({
-              left: `${e.pageX}px`,
-              top: `${height}px`
-            })
-            .toggleClass('hidden flex');
-        }
-
-        // get the current mouse position
-        getMousePosition();
+        $('.context')
+          .css({
+            left: `${e.pageX}px`,
+            top: `${e.pageY}px`
+          })
+          .toggleClass('hidden flex');
 
         // Store the selected row in a variable
         parent = $(this).attr('class').split(' ')[1];
@@ -282,13 +277,6 @@ const search = () => {
         }
 
         e.preventDefault();
-
-        if ($('.search__container__select').val() !== 'out_requests') {
-          setMenuPosition(mousePosition.y);
-        } else {
-          setMenuPosition(e.pageY);
-        }
-
 
         // Hide the context menu on left-click to prevent displaying it indefinitely
         $('.search__results, .search__results *').click(function(e) {
