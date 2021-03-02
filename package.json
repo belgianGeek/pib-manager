@@ -1,6 +1,6 @@
 {
   "name": "pib-manager",
-  "version": "0.1.0-1",
+  "version": "1.0.0",
   "description": "A simple interlibrary loan manager",
   "main": "index.js",
   "author": "Maxime Vanderwegen",
