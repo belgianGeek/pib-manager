@@ -6,6 +6,8 @@ Ce programme est une application web qui a pour but de faciliter la gestion des 
 
 _PIB Manager_ a été créé sur mesure pour la bibliothèque de Perwez, dans le Brabant wallon (Belgique) en association avec le logiciel Adlib.
 
+![Page d'accueil de _PIB Manager_](https://raw.githubusercontent.com/belgianGeek/pib-manager/master/screenshots/home.jpg)
+
 # Prérequis
 
 Afin de fonctionner de manière optimale, cette application nécessite les éléments suivants :
@@ -105,6 +107,8 @@ Le menu "hamburger" accessible sur la gauche de l'interface d'autres options, pl
 - Enfin, le bouton _Quitter_ vous mènera à deux options vous permettant d'éteindre ou de redémarrer le programme
 
 ## Interface de recherche
+
+![Interface de recherche de _PIB Manager_](https://raw.githubusercontent.com/belgianGeek/pib-manager/master/screenshots/search.jpg)
 
 Ce module vous permet de rechercher, supprimer et modifier les demandes traitées.
 
