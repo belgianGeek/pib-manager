@@ -12,7 +12,7 @@ const createReadersTable = client => {
         client.query('SELECT * FROM readers')
           .then(res => {
             if (res.rowCount === 0 || res.rowCount === undefined || res.rowCount === null) {
-              client.query(`COPY readers(name, email, gender) FROM '${path.join(__dirname, '../')}adlib.csv' DELIMITER ',' CSV HEADER;`)
+              client.query(`COPY readers(name, email, gender) FROM '${path.join(__dirname, '../')}lecteurs.csv' DELIMITER ',' CSV HEADER;`)
                 .then(res => {
                   console.log(`${res.rowCount} enregistrements ont été ajoutés à la table readers ;-)`);
                 })

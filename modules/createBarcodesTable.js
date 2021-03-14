@@ -15,7 +15,7 @@ module.exports = function createBarcodesTable(client) {
             console.error(`Erreur lors de la requête de code-barres dans la table barcodes : ${err}`);
           } else {
             if (res.rowCount === 0 || res.rowCount === null) {
-              fs.readFile('./barcodes/unused.json', (err, data) => {
+              fs.readFile('./barcodes/codes-barres.json', (err, data) => {
                 if (err) {
                   console.error(`Erreur lors de la lecture du fichier code-barres : ${err}`);
                 } else {
