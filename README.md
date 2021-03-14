@@ -22,7 +22,7 @@ Le serveur de base de données et la plateforme Node.js peuvent être installés
 
 ## Téléchargement et installation
 
-:point_right: ces instructions peuvent paraître compliquées à suivre pour tout qui n'est pas familier avec le domaine de l'informatique. N'hésitez donc pas à [ouvrir une issue](https://github.com/belgianGeek/pib-manager/issues/new) afin d'obtenir de l'aide.
+:point_right: Ces instructions peuvent paraître compliquées à suivre pour tout qui n'est pas familier avec le domaine de l'informatique. N'hésitez donc pas à [ouvrir une issue](https://github.com/belgianGeek/pib-manager/issues/new) afin d'obtenir de l'aide.
 
 Le logiciel _PIB Manager_ peut être téléchargé et installé en quelques clics, une fois les prérequis satisfaits.
 
@@ -118,7 +118,7 @@ L'ensemble des actions possibles pour chaque demande (modification ou suppressio
 
 # Un problème, une question ?
 
-N'hésitez pas à poser une question sur [Github](https://github.com/belgianGeek/pib-manager/issues/new) ou à me contacter par mail.
+N'hésitez pas à poser une question sur [Github](https://github.com/belgianGeek/pib-manager/issues/new) ou à [me contacter par mail](mailto:max@maxvdw.ovh\.
 
 # Licence
 
