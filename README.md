@@ -1,8 +1,8 @@
-:point_right: As this software is intented to be used in French-speaking libraries, the following README is written in French.
+:point_right: As this software is intended to be used in French-speaking libraries, the following README is written in French.
 
 # Introduction
 
-Ce programme est une application web qui a pour but de faciliter la gestion des prêts interbibliothèques (PIB) dans les institutions où les SIGB ne permettent pas de les gérer efficacement. Il a vu le jour au mois de mars 2020 afin d'automatiser certaines tâches chronophages et répétitives et ainsi faciliter le travail des bibliothécaires et leur permettre de dégager plus de temps à consacrer à l'acceuil et au renseignement des lecteurs.
+Ce programme est une application web qui a pour but de faciliter la gestion des prêts interbibliothèques (PIB) dans les institutions où les SIGB ne permettent pas de les gérer efficacement. Il a vu le jour au mois de mars 2020 afin d'automatiser certaines tâches chronophages et répétitives et ainsi faciliter le travail des bibliothécaires et leur permettre de dégager plus de temps à consacrer à l'accueil et au renseignement des lecteurs.
 
 _PIB Manager_ a été créé sur mesure pour la bibliothèque de Perwez, dans le Brabant wallon (Belgique) en association avec le logiciel Adlib.
 
@@ -76,7 +76,7 @@ Tout livre ne pouvant circuler sans code-barres, vous devez ajouter vos code-bar
 
 Si vous le désirez, vous pouvez également ajouter l'ensemble de vos lectrices et lecteurs dans le programme en créeant un fichier intitulé `lecteurs.csv`. ce fichier doit être placé dans le dossier d'installation de _PIB Manager_ pour que l'import fonctionne.
 
-:warning: Notez bien que le logiciel a été devéloppé pour une bibliothèque du Brabant Wallon. Ce fichier plus que tout autre élément respecte donc une forme particulière, qu'il est difficile de reproduire. Si votre bibliothèque n'utilise pas le SIGB Adlib, afin d'éviter toute erreur, il est conseillé d'ajouter chaque lecteur via le menu dédié ([cf. Fonctionnalités](#fonctionnalités)).
+:warning: Notez bien que le logiciel a été développé pour une bibliothèque du Brabant Wallon. Ce fichier plus que tout autre élément respecte donc une forme particulière, qu'il est difficile de reproduire. Si votre bibliothèque n'utilise pas le SIGB Adlib, afin d'éviter toute erreur, il est conseillé d'ajouter chaque lecteur via le menu dédié ([cf. Fonctionnalités](#fonctionnalités)).
 
 Pour lancer le logiciel, il suffit d'entrer la commande `sudo systemctl start pib`. Pour qu'il se lance au démarrage de l'ordinateur, exécutez la commande `sudo systemctl enable pib`.
 
@@ -118,7 +118,7 @@ L'ensemble des actions possibles pour chaque demande (modification ou suppressio
 
 # Un problème, une question ?
 
-N'hésitez pas à poser une question sur [Github](https://github.com/belgianGeek/pib-manager/issues/new) ou à [me contacter par mail](mailto:max@maxvdw.ovh\.
+N'hésitez pas à poser une question sur [Github](https://github.com/belgianGeek/pib-manager/issues/new) ou à [me contacter par mail](mailto:max@maxvdw.ovh).
 
 # Licence
 
