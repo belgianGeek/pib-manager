@@ -145,27 +145,27 @@ const search = () => {
 
         if (data.id !== undefined) {
           let id = $('<span></span>')
-            .addClass('search__results__container__row__item search__results__container__row__item--id')
+            .addClass('search__results__container__row__item rowItem search__results__container__row__item--id')
             .append(data.id)
             .appendTo(row);
         }
 
         if (data.pib_number !== undefined) {
           let pibNb = $('<input>')
-            .addClass('search__results__container__row__item search__results__container__row__item--pib noInput')
+            .addClass('search__results__container__row__item rowItem search__results__container__row__item--pib noInput')
             .val(data.pib_number)
             .appendTo(row);
         }
 
         if (data.borrowing_library !== undefined) {
           let library = $('<span></span>')
-            .addClass('search__results__container__row__item search__results__container__row__item--borrowing_library')
+            .addClass('search__results__container__row__item rowItem search__results__container__row__item--borrowing_library')
             .append(data.borrowing_library.replace(/\'\'/g, "'"))
             .appendTo(row);
         }
 
-        let date = $('<span></span>').addClass('search__results__container__row__item search__results__container__row__item--date');
-        let timestamp = $('<span></span>').addClass('search__results__container__row__item search__results__container__row__item--timestamp hidden');
+        let date = $('<span></span>').addClass('search__results__container__row__item rowItem search__results__container__row__item--date');
+        let timestamp = $('<span></span>').addClass('search__results__container__row__item rowItem search__results__container__row__item--timestamp hidden');
 
         if (data.request_date !== null) {
           date.append(new Date(data.request_date).toLocaleDateString());
@@ -179,17 +179,17 @@ const search = () => {
 
         if (data.reader_name !== undefined) {
           let reader = $('<span></span>')
-            .addClass('search__results__container__row__item search__results__container__row__item--reader')
+            .addClass('search__results__container__row__item rowItem search__results__container__row__item--reader')
             .append(data.reader_name.replace(/\'\'/g, "'"))
             .appendTo(row);
         }
 
         let title = $('<span></span>')
-          .addClass('search__results__container__row__item search__results__container__row__item--title')
+          .addClass('search__results__container__row__item rowItem search__results__container__row__item--title')
           .append(data.book_title.replace(/\'\'/g, "'"))
           .appendTo(row);
 
-        let author = $('<span></span>').addClass('search__results__container__row__item search__results__container__row__item--author');
+        let author = $('<span></span>').addClass('search__results__container__row__item rowItem search__results__container__row__item--author');
 
         if (data.book_author_name !== undefined || data.book_author_firstname !== undefined) {
           if (data.book_author_firstname !== undefined && data.book_author_firstname !== null) {
@@ -203,7 +203,7 @@ const search = () => {
 
         if (data.cdu !== undefined) {
           let cdu = $('<span></span>')
-            .addClass('search__results__container__row__item search__results__container__row__item--cdu')
+            .addClass('search__results__container__row__item rowItem search__results__container__row__item--cdu')
             .append(data.cdu)
             .appendTo(row);
         }
@@ -212,7 +212,7 @@ const search = () => {
       <svg xmlns="http://www.w3.org/2000/svg">\
         <circle cx="50%" cy="50%" r="5"/>\
       </svg>\
-      ').addClass('search__results__container__row__item search__results__container__row__item--op flex');
+      ').addClass('search__results__container__row__item rowItem search__results__container__row__item--op flex');
         if (data.out_province !== undefined) {
           out_province
             .attr('viewBox', '0 0 75 10')
@@ -231,28 +231,28 @@ const search = () => {
 
         if (data.barcode !== undefined) {
           let barcode = $('<input>')
-            .addClass('search__results__container__row__item search__results__container__row__item--code noInput')
+            .addClass('search__results__container__row__item rowItem search__results__container__row__item--code noInput')
             .val(data.barcode)
             .appendTo(row);
         }
 
         if (data.notes !== undefined && data.notes !== null) {
           let notes = $('<span></span>')
-            .addClass('search__results__container__row__item search__results__container__row__item--notes')
+            .addClass('search__results__container__row__item rowItem search__results__container__row__item--notes')
             .append(data.notes.replace(/\'\'|\n/g, matched => {
               return matches[matched];
             }))
             .appendTo(row);
         } else {
           let notes = $('<span></span>')
-            .addClass('search__results__container__row__item search__results__container__row__item--notes')
+            .addClass('search__results__container__row__item rowItem search__results__container__row__item--notes')
             .append('/')
             .appendTo(row);
         }
 
         if (data.comment !== undefined) {
           let comment = $('<span></span>')
-            .addClass('search__results__container__row__item search__results__container__row__item--comment')
+            .addClass('search__results__container__row__item rowItem search__results__container__row__item--comment')
             .append(data.comment.replace(/\'\'|\n/g, matched => {
               return matches[matched];
             }))
