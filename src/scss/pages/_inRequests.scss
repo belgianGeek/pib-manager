@@ -1,16 +1,28 @@
 .inRequests {
   margin-left: 3em;
   width: 100%;
+  height: 70%;
+  align-items: center;
 
   &__barcode {
     width: 50%;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
+
+    h2 {
+      font-size: 1.2em;
+      margin: 2em 0;
+    }
 
     svg {
       height: 75%;
       width: 75%;
     }
+  }
+
+  &__notes {
+    @include textarea($min-width: 85%, $max-width: 85%, $min-height: 15em, $max-height: 15em);
   }
 
   &__step1,
@@ -76,9 +88,6 @@
       justify-content: space-evenly;
 
       &__hide {
-        position: relative;
-        top: 0;
-        left: 100%;
         margin: 0;
         z-index: 2;
       }
