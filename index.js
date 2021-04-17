@@ -34,7 +34,7 @@ let client;
 // Define a variable to store the settings retrieved from the DB
 let settings = {};
 
-let tag = '1.0.0';
+let tag = '1.1.0';
 
 const exportDB = require('./modules/exportDB');
 const emptyDir = require('./modules/emptyDir');
