@@ -23,6 +23,7 @@ const inRequests = () => {
   let title = $('.inRequests__form__docInfo__title');
   let authorField = $('.inRequests__form__docInfo__author');
   let cdu = $('.inRequests__form__docInfo__cdu');
+  let notes = $('.inRequests__notes');
 
   // Séparer le nom de l'auteur de son prénom
   let author = '';
@@ -75,6 +76,7 @@ const inRequests = () => {
   $('.inRequests__form').submit(event => {
     event.preventDefault();
     data2send.table = 'in_requests';
+    data2send.sendNotes = false;
 
     // N° PIB
     if (!pibNb.val().match(/\d{6}/) || pibNb.val().match(/\d{7,}/)) {
@@ -141,6 +143,11 @@ const inRequests = () => {
       }
     }
 
+    // Notes
+    if ($('.inRequests__notes').val() !== '') {
+      data2send.sendNotes = true;
+    }
+
     if (!validationErr) {
       $('.input').removeClass('invalid');
       $('form .warning').hide();
@@ -161,6 +168,10 @@ const inRequests = () => {
       loanLibrary.val(loanLibrary.val().replace(/'/g, "''"));
       readerName.val(readerName.val().replace(/'/g, "''"));
       title.val(title.val().replace(/'/g, "''"));
+
+      if (data2send.sendNotes) {
+        notes.val(notes.val().replace(/'/g, "''"));
+      }
 
       inRequestsTimeOut = setTimeout(() => {
         data2send.values.push(pibNb.val());
@@ -189,6 +200,10 @@ const inRequests = () => {
         data2send.values.push(outProvince);
         data2send.values.push(barcode.val());
 
+        if (data2send.sendNotes) {
+          data2send.values.push(notes.val());
+        }
+
         // Send data to the server
         // If the form do not have the class 'absolute', append data to the DB and proceed to the next step
         if (!$('.inRequests').hasClass('absolute')) {
@@ -199,7 +214,7 @@ const inRequests = () => {
           // Suppression du code-barres inventaire précédent
           $('.inRequests__step2__barcode .inRequests__barcode__svg').remove();
 
-          $('.inRequests__form .input').not('.inRequests__form__pibInfo__requestDate, .inRequests__form__pibInfo__loanLibrary, .inRequests__form__docInfo__inv').val('');
+          $('.inRequests__form .input, .inRequests__notes').not('.inRequests__form__pibInfo__requestDate, .inRequests__form__pibInfo__loanLibrary, .inRequests__form__docInfo__inv').val('');
 
           $('.home').toggleClass('hidden flex');
           $('.header__container__icon, .header__container__msg').toggleClass('hidden');

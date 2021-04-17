@@ -9,6 +9,12 @@ const search = () => {
     getTitle: true
   };
 
+  const matches = {
+    "\'\'": "\'",
+    '\n': '<br>',
+    '<br>': '\n'
+  };
+
   const copyText = (elt, parent, text2copy, temporaryReplacementText) => {
     let text = document.querySelector(`.${parent} ${text2copy}`);
     text.select();
@@ -58,6 +64,7 @@ const search = () => {
   });
 
   socket.on('search results', results => {
+    console.log(results[0]);
     if (results.length <= 1) {
       $('.search__title__h2').text(`${results.length} résultat de recherche`);
     } else {
@@ -115,6 +122,9 @@ const search = () => {
               break;
             case 'reader_name':
               columnTitle = 'Lecteur';
+              break;
+            case 'notes':
+              columnTitle = 'Notes';
               break;
             default:
               columnTitle;
@@ -226,11 +236,21 @@ const search = () => {
             .appendTo(row);
         }
 
+        if (data.notes !== undefined && data.notes !== null) {
+          let notes = $('<span></span>')
+            .addClass('search__results__container__row__item search__results__container__row__item--notes')
+            .append(data.notes.replace(/\'\'|\n/g, matched => {
+              return matches[matched];
+            }))
+            .appendTo(row);
+        } else {
+          let notes = $('<span></span>')
+            .addClass('search__results__container__row__item search__results__container__row__item--notes')
+            .append('/')
+            .appendTo(row);
+        }
+
         if (data.comment !== undefined) {
-          let matches = {
-            "\'\'": "\'",
-            '\n': '<br>'
-          };
           let comment = $('<span></span>')
             .addClass('search__results__container__row__item search__results__container__row__item--comment')
             .append(data.comment.replace(/\'\'|\n/g, matched => {
@@ -373,6 +393,7 @@ const search = () => {
           $('.inRequests.absolute .inRequests__form__docInfo__author').val($(`.${parent} .search__results__container__row__item--author`).text());
           $('.inRequests.absolute .inRequests__form__docInfo__cdu').val($(`.${parent} .search__results__container__row__item--cdu`).text());
           $('.inRequests.absolute .inRequests__form__docInfo__inv').val($(`.${parent} .search__results__container__row__item--code`).val());
+          $('.inRequests.absolute .inRequests__notes').val($(`.${parent} .search__results__container__row__item--notes`).html().replace(/\'\'|<br>/g, matched => matches[matched]));
 
           // out_province checkbox
           if ($(`.${parent} .search__results__container__row__item--op`).hasClass('checked')) {
@@ -395,6 +416,8 @@ const search = () => {
             $(`.${parent} .search__results__container__row__item--author`).text($('.inRequests__form__docInfo__author').val());
             $(`.${parent} .search__results__container__row__item--cdu`).text($('.inRequests__form__docInfo__cdu').val());
             $(`.${parent} .search__results__container__row__item--code`).val($('.inRequests__form__docInfo__inv').val());
+            $(`.${parent} .search__results__container__row__item--notes`).html($('.inRequests__notes').val().replace(/\n/g, '<br>'));
+
 
             if ($('.inRequests__form__pibInfo__outProvince').is(':checked')) {
               $(`.${parent} .search__results__container__row__item--op`)

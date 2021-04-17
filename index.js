@@ -260,7 +260,6 @@ app.get('/', (req, res) => {
       io.emit('settings', settings);
 
       io.on('append data', data => {
-        console.log(JSON.stringify(data, null, 2));
         if (data.table === 'out_requests') {
           // Si le nom de l'auteur ne contient pas de prénom
           if (!data.authorFirstName) {
@@ -277,15 +276,25 @@ app.get('/', (req, res) => {
           }
         } else if (data.table === 'in_requests') {
           // Si le nom de l'auteur ne contient pas de prénom
-          if (!data.authorFirstName) {
+          if (!data.authorFirstName && data.sendNotes) {
             DBquery(io, 'INSERT INTO', data.table, {
-              text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+              text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, cdu, out_province, barcode, notes) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+              values: data.values
+            });
+          } else if (data.authorFirstName && data.sendNotes) {
+            // Si le nom de l'auteur contient un prénom
+            DBquery(io, 'INSERT INTO', data.table, {
+              text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, book_author_firstname, cdu, out_province, barcode, notes) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+              values: data.values
+            });
+          } else if (data.authorFirstName && !data.sendNotes) {
+            DBquery(io, 'INSERT INTO', data.table, {
+              text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, book_author_firstname, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
               values: data.values
             });
           } else {
-            // Si le nom de l'auteur contient un prénom
             DBquery(io, 'INSERT INTO', data.table, {
-              text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, book_author_firstname, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+              text: `INSERT INTO ${data.table}(pib_number, borrowing_library, request_date, loan_library, reader_name, book_title, book_author_name, cdu, out_province, barcode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
               values: data.values
             });
           }
@@ -526,7 +535,11 @@ app.get('/', (req, res) => {
         if (record.table === 'drafts') {
           query = `UPDATE ${record.table} SET request_date = '${record.date}', reader_name = '${record.reader}', book_title = '${record.title}', comment = '${record.comment}' WHERE id = ${record.id}`;
         } else if (record.table === 'in_requests') {
-          if (record.authorFirstName) {
+          if (record.authorFirstName && record.sendNotes) {
+            query = `UPDATE ${record.table} SET pib_number = '${record.values[0]}', borrowing_library = '${record.values[1]}', request_date = '${record.values[2]}', reader_name = '${record.values[4]}', book_title = '${record.values[5]}', book_author_name = '${record.values[6]}', book_author_firstname = '${record.values[7]}', cdu = '${record.values[8]}', out_province = ${record.values[9]}, barcode = '${record.values[10]}', notes = '${record.values[11]}' WHERE pib_number = '${record.key}'`;
+          } else if (!record.authorFirstName && record.sendNotes) {
+            query = `UPDATE ${record.table} SET pib_number = '${record.values[0]}', borrowing_library = '${record.values[1]}', request_date = '${record.values[2]}', reader_name = '${record.values[4]}', book_title = '${record.values[5]}', book_author_name = '${record.values[6]}', cdu = '${record.values[7]}', out_province = ${record.values[8]}, barcode = '${record.values[9]}', notes = '${record.values[10]}' WHERE pib_number = '${record.key}'`;
+          } else if (record.authorFirstName && !record.sendNotes) {
             query = `UPDATE ${record.table} SET pib_number = '${record.values[0]}', borrowing_library = '${record.values[1]}', request_date = '${record.values[2]}', reader_name = '${record.values[4]}', book_title = '${record.values[5]}', book_author_name = '${record.values[6]}', book_author_firstname = '${record.values[7]}', cdu = '${record.values[8]}', out_province = ${record.values[9]}, barcode = '${record.values[10]}' WHERE pib_number = '${record.key}'`;
           } else {
             query = `UPDATE ${record.table} SET pib_number = '${record.values[0]}', borrowing_library = '${record.values[1]}', request_date = '${record.values[2]}', reader_name = '${record.values[4]}', book_title = '${record.values[5]}', book_author_name = '${record.values[6]}', cdu = '${record.values[7]}', out_province = ${record.values[8]}, barcode = '${record.values[9]}' WHERE pib_number = '${record.key}'`;

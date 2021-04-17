@@ -10,7 +10,8 @@ module.exports = function createInRequestsTable(client) {
     'book_author_name TEXT,' +
     'cdu TEXT,' +
     'out_province BOOLEAN,' +
-    'barcode TEXT)', (err, res) => {
+    'barcode TEXT,' +
+    'notes TEXT)', (err, res) => {
       if (err) {
         console.error(`Error creating in_requests table : ${JSON.stringify(err, null, 2)}`);
       } else {
