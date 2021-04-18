@@ -202,6 +202,7 @@ const restart = io => {
 
 existPath('./backups/');
 existPath('./exports/');
+existPath('./tmp/');
 
 // Exporter une sauvegarde de la DB toutes les douze heures
 setInterval(() => {
