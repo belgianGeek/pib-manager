@@ -14,28 +14,33 @@
 
       &__comment,
       &__reader {
-        width: 50%;
-        height: 100%;
+        width: 70%;
+        height: 90%;
         flex-direction: column;
         font-size: 1em;
       }
 
+      &__comment {
+        &__textarea {
+          @include textarea;
+        }
+      }
+
       &__reader {
-        position: relative;
-        top: 0;
+        justify-content: flex-start;
+        align-items: center;
 
         &__btnContainer {
-          position: absolute;
-          top: 90%;
           width: 100%;
           justify-content: space-around;
         }
 
         &__label {
           flex-direction: column;
+          min-width: 75%;
 
           input {
-            width: 50%;
+            width: 100%;
           }
 
           &__autocomplete {
