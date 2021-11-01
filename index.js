@@ -34,7 +34,7 @@ let client;
 // Define a variable to store the settings retrieved from the DB
 let settings = {};
 
-let tag = '1.1.1';
+let tag = '1.1.2';
 
 const exportDB = require('./modules/exportDB');
 const emptyDir = require('./modules/emptyDir');
@@ -206,7 +206,20 @@ existPath('./tmp/');
 
 // Exporter une sauvegarde de la DB toutes les douze heures
 setInterval(() => {
-  console.log('DB backup on ' + Date.now());
+  console.log('DB backup on ' + new Date().toLocaleString('FR-be'));
+
+  // Vider le répertoire des sauvegardes avant d'en créer une nouvelle
+  const dir = './backups/';
+  const backups = fs.readdirSync(dir).sort();
+
+  for (const [i, backup] of backups.entries()) {
+    if (i <= backups.length -3) {
+      fs.unlinkSync(`${dir}${backup}`);
+    } else if (i === backups.length -1) {
+      console.log('Vidage des sauvegardes terminé !');
+    }
+  }
+
   exportDB(`./backups/pib_${Date.now()}.pgsql`);
 }, 12 * 60 * 60 * 1000);
 
